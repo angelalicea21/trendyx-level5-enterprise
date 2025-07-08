@@ -14,7 +14,7 @@
     "startCommand": "node server.js",
     "healthcheckPath": "/api/health",
     "healthcheckTimeout": 300,
-    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyType": "always",
     "restartPolicyMaxRetries": 3
   },
   "environments": {
