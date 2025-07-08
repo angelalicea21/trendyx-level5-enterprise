@@ -1,0 +1,59 @@
+SAVE THESE FILES IN H:\TrendyX-Level5-Enterprise:
+
+1. First, make sure you're in the right place:
+   H:
+   cd TrendyX-Level5-Enterprise
+
+2. Create all needed folders:
+   mkdir core
+   mkdir setup
+   mkdir frontend
+   mkdir frontend\src
+   mkdir frontend\public
+   mkdir monitoring
+   mkdir logs
+   mkdir data
+
+3. Now you need to create these files:
+
+FILE 1: package.json (in main folder)
+- Copy the package.json content from my message
+- Save as: H:\TrendyX-Level5-Enterprise\package.json
+
+FILE 2: TrendyXSuperServer.js (in main folder)
+- Copy the TrendyXSuperServer.js content
+- Save as: H:\TrendyX-Level5-Enterprise\TrendyXSuperServer.js
+
+FILE 3: TrendyXMasterAIOrchestrator.js (in core folder)
+- Copy the TrendyXMasterAIOrchestrator.js content
+- Save as: H:\TrendyX-Level5-Enterprise\core\TrendyXMasterAIOrchestrator.js
+
+FILE 4: initialize.js (in setup folder)
+- Copy the initialize.js content
+- Save as: H:\TrendyX-Level5-Enterprise\setup\initialize.js
+
+FILE 5: StartTrendyX.bat (in main folder)
+- Copy the StartTrendyX.bat content
+- Save as: H:\TrendyX-Level5-Enterprise\StartTrendyX.bat
+
+FILE 6: test-system.js (in main folder)
+- Copy the test-system.js content
+- Save as: H:\TrendyX-Level5-Enterprise\test-system.js
+
+FILE 7: TrendyXControlPanel.jsx (in frontend\src)
+- Copy the TrendyXControlPanel.jsx content
+- Save as: H:\TrendyX-Level5-Enterprise\frontend\src\TrendyXControlPanel.jsx
+
+FILE 8: TrendyXStyles.css (in frontend\src)
+- Copy the TrendyXStyles.css content
+- Save as: H:\TrendyX-Level5-Enterprise\frontend\src\TrendyXStyles.css
+
+4. After saving all files, run these commands:
+   node setup\initialize.js
+   npm install --no-optional --legacy-peer-deps
+   cd frontend
+   npm install
+   cd ..
+
+5. Then start your system:
+   StartTrendyX.bat
