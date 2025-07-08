@@ -5,7 +5,6 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "start:minimal": "node server-minimal.js",
     "start:railway": "node server.js",
     "dev": "nodemon server.js",
     "build": "echo 'Build completed successfully - TrendyX AI Level 5 Enterprise ready for deployment'",
