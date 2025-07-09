@@ -1,7 +1,7 @@
 {
   "name": "trendyx-ai-level5-enterprise-enhanced",
-  "version": "5.2.0",
-  "description": "TrendyX AI Level 5 Enterprise - Enhanced Interactive AI Platform with Advanced Authentication System",
+  "version": "5.1.0",
+  "description": "TrendyX AI Level 5 Enterprise - Enhanced Interactive AI Platform with Fully Functional AI Brain",
   "main": "server.js",
   "type": "commonjs",
   "engines": {
@@ -15,8 +15,7 @@
     "test": "echo 'TrendyX AI Level 5 Enterprise Enhanced - All systems operational' && exit 0",
     "health": "curl -f http://localhost:3000/api/health || exit 1",
     "quantum": "curl -f http://localhost:3000/api/quantum/grovers || exit 1",
-    "neural": "curl -X POST -H 'Content-Type: application/json' -d '{\"text\":\"test\"}' http://localhost:3000/api/neural/transformer || exit 1",
-    "auth-test": "curl -X POST -H 'Content-Type: application/json' -d '{\"email\":\"test@example.com\",\"password\":\"Test123!\"}' http://localhost:3000/api/auth/login || exit 1"
+    "neural": "curl -X POST -H 'Content-Type: application/json' -d '{\"text\":\"test\"}' http://localhost:3000/api/neural/transformer || exit 1"
   },
   "dependencies": {
     "express": "^4.21.2",
@@ -32,9 +31,7 @@
     "lodash": "^4.17.21",
     "crypto": "^1.0.1",
     "path": "^0.12.7",
-    "fs": "^0.0.1-security",
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2"
+    "fs": "^0.0.1-security"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
@@ -59,11 +56,7 @@
     "machine-learning",
     "deep-learning",
     "predictive-analytics",
-    "self-healing",
-    "authentication",
-    "user-management",
-    "jwt",
-    "security"
+    "self-healing"
   ],
   "author": "TrendyX AI Enterprise Team - World-Class AI Engineers",
   "license": "MIT",
@@ -81,14 +74,7 @@
       "neural_enabled": true,
       "predictive_enabled": true,
       "healing_enabled": true,
-      "realtime_enabled": true,
-      "auth_enabled": true
-    },
-    "authentication": {
-      "jwt_expiry": "24h",
-      "refresh_expiry": "7d",
-      "max_login_attempts": 5,
-      "lockout_duration": 900000
+      "realtime_enabled": true
     },
     "performance": {
       "max_connections": 1000,
