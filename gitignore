@@ -3,21 +3,8 @@ node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-
-# Environment variables
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Logs
-logs
-*.log
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-lerna-debug.log*
+package-lock.json
+yarn.lock
 
 # Runtime data
 pids
@@ -45,14 +32,10 @@ bower_components
 build/Release
 
 # Dependency directories
-node_modules/
 jspm_packages/
 
 # TypeScript v1 declaration files
 typings/
-
-# TypeScript cache
-*.tsbuildinfo
 
 # Optional npm cache directory
 .npm
@@ -75,6 +58,13 @@ typings/
 # Yarn Integrity file
 .yarn-integrity
 
+# dotenv environment variables file
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
 # parcel-bundler cache
 .cache
 .parcel-cache
@@ -90,15 +80,40 @@ dist
 .cache/
 public
 
-# Storybook build outputs
-.out
-.storybook-out
+# Vuepress build output
+.vuepress/dist
 
-# Temporary folders
-tmp/
+# Serverless directories
+.serverless/
+
+# FuseBox cache
+.fusebox/
+
+# DynamoDB Local files
+.dynamodb/
+
+# TernJS port file
+.tern-port
+
+# Stores VSCode versions used for testing VSCode extensions
+.vscode-test
+
+# yarn v2
+.yarn/cache
+.yarn/unplugged
+.yarn/build-state.yml
+.yarn/install-state.gz
+.pnp.*
+
+# TrendyX AI specific
+data/
+cache/
+logs/
+uploads/
 temp/
+.tmp/
 
-# Editor directories and files
+# IDE files
 .vscode/
 .idea/
 *.swp
@@ -114,21 +129,18 @@ temp/
 ehthumbs.db
 Thumbs.db
 
-# Local development
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+# Build artifacts
+build/
+dist/
+out/
 
-# Database
-*.sqlite
-*.db
-
-# Backup files
-*.backup
-*.bak
-
-# Screenshots and test files
-screenshots/
+# Test artifacts
 test-results/
+coverage/
+
+# Deployment artifacts
+.railway/
+.netlify/
+.vercel/
+.heroku/
 

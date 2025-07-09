@@ -1,0 +1,66 @@
+# TrendyX AI Level 5 Enterprise - Environment Variables Template
+# Copy this file to .env and fill in your actual values
+
+# Server Configuration
+NODE_ENV=production
+PORT=3000
+
+# AI API Keys (Optional - system works in demo mode without them)
+OPENAI_API_KEY=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
+ANTHROPIC_API_KEY=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
+
+# Security Configuration
+JWT_SECRET=your_jwt_secret_here_make_it_long_and_secure
+SESSION_SECRET=your_session_secret_here_make_it_long_and_secure
+
+# Enterprise Features
+CLUSTER_MODE=false
+MAX_WORKERS=4
+COMPRESSION_ENABLED=true
+CACHING_ENABLED=true
+METRICS_ENABLED=true
+REAL_TIME_MONITORING=true
+
+# AI Systems Configuration
+QUANTUM_COMPUTING_ENABLED=true
+NEURAL_NETWORKS_ENABLED=true
+PREDICTIVE_ANALYTICS_ENABLED=true
+SELF_HEALING_ENABLED=true
+
+# Rate Limiting
+RATE_LIMIT_WINDOW=15
+RATE_LIMIT_MAX_REQUESTS=1000
+
+# CORS Configuration
+ALLOWED_ORIGINS=*
+
+# Logging
+LOG_LEVEL=info
+
+# Database (if needed in future)
+# DATABASE_URL=your_database_url_here
+
+# External Services (if needed)
+# REDIS_URL=your_redis_url_here
+# MONGODB_URI=your_mongodb_uri_here
+
+# Monitoring & Analytics (if needed)
+# SENTRY_DSN=your_sentry_dsn_here
+# ANALYTICS_KEY=your_analytics_key_here
+
+# Cloud Storage (if needed)
+# AWS_ACCESS_KEY_ID=your_aws_access_key_here
+# AWS_SECRET_ACCESS_KEY=your_aws_secret_key_here
+# AWS_REGION=us-east-1
+# S3_BUCKET=your_s3_bucket_here
+
+# Email Configuration (if needed)
+# SMTP_HOST=your_smtp_host_here
+# SMTP_PORT=587
+# SMTP_USER=your_smtp_user_here
+# SMTP_PASS=your_smtp_password_here
+
+# Webhook URLs (if needed)
+# WEBHOOK_URL=your_webhook_url_here
+# SLACK_WEBHOOK_URL=your_slack_webhook_url_here
+
