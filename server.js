@@ -10,6 +10,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const fs = require('fs');
 
+// Import content management module
+const contentManager = require('./content-manager');
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
@@ -24,6 +27,9 @@ const USERS_FILE = path.join(__dirname, 'users.json');
 if (!fs.existsSync(USERS_FILE)) {
     fs.writeFileSync(USERS_FILE, JSON.stringify([]));
 }
+
+// Initialize content database
+contentManager.initializeContentDatabase();
 
 // Load users from file
 function loadUsers() {
@@ -64,7 +70,9 @@ async function registerUser(username, password, email) {
         profile: {
             quantumOperations: 0,
             neuralInferences: 0,
-            predictions: 0
+            predictions: 0,
+            contentGenerated: 0,
+            totalWords: 0
         }
     };
     
@@ -132,8 +140,8 @@ const apiLimiter = rateLimit({
 });
 app.use('/api/', apiLimiter);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // --- Logging Configuration ---
 const logger = winston.createLogger({
@@ -148,11 +156,10 @@ const logger = winston.createLogger({
     ]
 });
 
-// --- MAIN WEBSITE SERVING (NEW) ---
-// Serve static files from public directory
+// --- Serve Static Files ---
 app.use(express.static(path.join(__dirname, 'public')));
 
-// --- AI SYSTEMS SIMULATION ---
+// --- AI Systems Simulation ---
 const aiSystems = {
     quantum: {
         status: 'Ready',
@@ -191,28 +198,8 @@ const performanceMetrics = {
     requestsPerSecond: 0
 };
 
-// --- WEBSITE INTEGRATION ROUTES (NEW) ---
-// Import integration routes
-const integrationRoutes = require('./routes/integration');
-app.use('/api/integration', integrationRoutes);
-
-// --- API ROUTES ---
-// Health check endpoint
-app.get('/api/health', (req, res) => {
-    res.json({
-        status: 'ok',
-        timestamp: new Date().toISOString(),
-        version: '5.2.1',
-        uptime: process.uptime(),
-        message: 'TrendyX AI Level 5 Enterprise Enhanced Server is operational.',
-        authentication: 'enabled',
-        aiSystems: aiSystems,
-        performanceMetrics: performanceMetrics
-    });
-});
-
-// Authentication routes
-app.post('/api/auth/register', async (req, res) => {
+// --- Authentication Routes ---
+app.post('/api/register', async (req, res) => {
     try {
         const { username, password, email } = req.body;
         
@@ -221,24 +208,28 @@ app.post('/api/auth/register', async (req, res) => {
         }
         
         const user = await registerUser(username, password, email);
-        logger.info('User registered successfully: ' + username);
+        
+        const token = jwt.sign(
+            { id: user.id, username: user.username },
+            JWT_SECRET,
+            { expiresIn: '24h' }
+        );
         
         res.status(201).json({
             message: 'User registered successfully',
+            token,
             user: {
                 id: user.id,
                 username: user.username,
-                email: user.email,
-                createdAt: user.createdAt
+                email: user.email
             }
         });
     } catch (error) {
-        logger.error('Registration error: ' + error.message);
         res.status(400).json({ message: error.message });
     }
 });
 
-app.post('/api/auth/login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
         
@@ -247,315 +238,369 @@ app.post('/api/auth/login', async (req, res) => {
         }
         
         const token = await loginUser(username, password);
-        logger.info('User logged in successfully: ' + username);
         
         res.json({
             message: 'Login successful',
-            token: token
+            token
         });
     } catch (error) {
-        logger.error('Login error: ' + error.message);
         res.status(401).json({ message: error.message });
     }
 });
 
-// Protected route example
-app.get('/api/user/profile', verifyToken, (req, res) => {
-    const users = loadUsers();
-    const user = users.find(u => u.id === req.user.id);
-    
-    if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+// --- Content Management Routes ---
+
+// Store new content
+app.post('/api/content', verifyToken, (req, res) => {
+    try {
+        const { type, title, content, prompt, aiProvider, model, tags } = req.body;
+        
+        if (!content) {
+            return res.status(400).json({ message: 'Content is required' });
+        }
+        
+        const contentData = {
+            type: type || 'general',
+            title: title || 'Untitled',
+            content,
+            prompt: prompt || '',
+            aiProvider: aiProvider || 'trendyx',
+            model: model || 'quantum-neural',
+            tags: tags || []
+        };
+        
+        const storedContent = contentManager.storeContent(req.user.id, contentData);
+        
+        if (storedContent) {
+            // Update user profile
+            const users = loadUsers();
+            const userIndex = users.findIndex(u => u.id === req.user.id);
+            if (userIndex !== -1) {
+                users[userIndex].profile.contentGenerated = (users[userIndex].profile.contentGenerated || 0) + 1;
+                users[userIndex].profile.totalWords = (users[userIndex].profile.totalWords || 0) + storedContent.wordCount;
+                saveUsers(users);
+            }
+            
+            res.status(201).json({
+                message: 'Content stored successfully',
+                content: storedContent
+            });
+        } else {
+            res.status(500).json({ message: 'Failed to store content' });
+        }
+    } catch (error) {
+        logger.error('Error storing content:', error);
+        res.status(500).json({ message: 'Internal server error' });
     }
-    
-    res.json({
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        profile: user.profile,
-        lastLogin: user.lastLogin
-    });
 });
 
-// AI Operations endpoints
-app.post('/api/quantum/operation', verifyToken, (req, res) => {
-    aiSystems.quantum.operations++;
-    logger.info('Quantum operation executed by user: ' + req.user.username);
-    
-    res.json({
-        message: 'Quantum operation completed',
-        operation: req.body,
-        result: 'Quantum computation successful',
-        accuracy: aiSystems.quantum.accuracy + '%'
-    });
-});
-
-app.post('/api/neural/inference', verifyToken, (req, res) => {
-    aiSystems.neural.inferences++;
-    logger.info('Neural inference executed by user: ' + req.user.username);
-    
-    res.json({
-        message: 'Neural inference completed',
-        input: req.body,
-        result: 'Neural network prediction successful',
-        accuracy: aiSystems.neural.accuracy + '%'
-    });
-});
-
-app.post('/api/predictive/analyze', verifyToken, (req, res) => {
-    aiSystems.predictive.predictions++;
-    logger.info('Predictive analysis executed by user: ' + req.user.username);
-    
-    res.json({
-        message: 'Predictive analysis completed',
-        data: req.body,
-        result: 'Predictive model analysis successful',
-        accuracy: aiSystems.predictive.accuracy + '%'
-    });
-});
-
-// --- DASHBOARD AND AUTH ROUTES ---
-// Main AI Dashboard (preserved)
-app.get('/dashboard', (req, res) => {
-    const dashboardHTML = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrendyX AI Level 5 Enterprise</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; min-height: 100vh; padding: 20px;
-        }
-        .container { max-width: 1200px; margin: 0 auto; }
-        .header { text-align: center; margin-bottom: 40px; }
-        .header h1 { font-size: 3rem; margin-bottom: 10px; }
-        .header p { font-size: 1.2rem; opacity: 0.9; }
-        .systems-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .system-card { 
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-            border-radius: 15px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .system-card h3 { font-size: 1.5rem; margin-bottom: 15px; display: flex; align-items: center; }
-        .system-card h3::before { margin-right: 10px; font-size: 1.8rem; }
-        .quantum h3::before { content: "⚛️"; }
-        .neural h3::before { content: "🧠"; }
-        .predictive h3::before { content: "📊"; }
-        .healing h3::before { content: "🔧"; }
-        .status { display: flex; justify-content: space-between; margin: 10px 0; }
-        .status-ready { color: #4CAF50; font-weight: bold; }
-        .status-active { color: #2196F3; font-weight: bold; }
-        .auth-section { 
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-            border-radius: 15px; padding: 25px; text-align: center; margin-top: 20px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .btn { 
-            background: #4CAF50; color: white; padding: 12px 24px; border: none;
-            border-radius: 8px; cursor: pointer; margin: 5px; text-decoration: none;
-            display: inline-block; transition: background 0.3s ease;
-        }
-        .btn:hover { background: #45a049; }
-        .btn-secondary { background: #2196F3; }
-        .btn-secondary:hover { background: #1976D2; }
-    </style>
-</head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>🚀 TrendyX AI Level 5 Enterprise</h1>
-            <p>Advanced Quantum Computing • Neural Networks • Predictive Analytics</p>
-        </div>
+// Get user's content with filtering and pagination
+app.get('/api/content', verifyToken, (req, res) => {
+    try {
+        const options = {
+            type: req.query.type,
+            search: req.query.search,
+            favorite: req.query.favorite === 'true',
+            sortBy: req.query.sortBy || 'createdAt',
+            sortOrder: req.query.sortOrder || 'desc',
+            limit: req.query.limit ? parseInt(req.query.limit) : undefined,
+            offset: req.query.offset ? parseInt(req.query.offset) : undefined
+        };
         
-        <div class="systems-grid">
-            <div class="system-card quantum">
-                <h3>Quantum Computing Engine</h3>
-                <div class="status"><span>Status:</span><span class="status-ready">Ready</span></div>
-                <div class="status"><span>Algorithms:</span><span>8</span></div>
-                <div class="status"><span>Operations:</span><span>0</span></div>
-                <div class="status"><span>Qubits:</span><span>64</span></div>
-                <div class="status"><span>Accuracy:</span><span>98.5%</span></div>
-            </div>
-            
-            <div class="system-card neural">
-                <h3>Neural Network Orchestrator</h3>
-                <div class="status"><span>Status:</span><span class="status-ready">Ready</span></div>
-                <div class="status"><span>Models:</span><span>8</span></div>
-                <div class="status"><span>Inferences:</span><span>0</span></div>
-                <div class="status"><span>Accuracy:</span><span>96.2%</span></div>
-            </div>
-            
-            <div class="system-card predictive">
-                <h3>Predictive Analytics Engine</h3>
-                <div class="status"><span>Status:</span><span class="status-ready">Ready</span></div>
-                <div class="status"><span>Algorithms:</span><span>6</span></div>
-                <div class="status"><span>Predictions:</span><span>0</span></div>
-                <div class="status"><span>Accuracy:</span><span>94.7%</span></div>
-            </div>
-            
-            <div class="system-card healing">
-                <h3>Self-Healing Systems</h3>
-                <div class="status"><span>Status:</span><span class="status-active">Active</span></div>
-                <div class="status"><span>Actions:</span><span>0</span></div>
-                <div class="status"><span>Uptime:</span><span>99.99%</span></div>
-            </div>
-        </div>
+        const userContent = contentManager.getUserContent(req.user.id, options);
         
-        <div class="auth-section">
-            <h3>🔑 User Authentication Portal</h3>
-            <p>Access advanced AI features with secure authentication</p>
-            <a href="/auth" class="btn">🔑 Login / Register</a>
-            <a href="/api/health" class="btn btn-secondary">📊 System Health</a>
-        </div>
-    </div>
-    
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-        socket.on('systemUpdate', (data) => {
-            console.log('System update received:', data);
+        res.json({
+            message: 'Content retrieved successfully',
+            content: userContent,
+            total: userContent.length
         });
-    </script>
-</body>
-</html>`;
-    
-    res.send(dashboardHTML);
+    } catch (error) {
+        logger.error('Error retrieving content:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
 });
 
-// Authentication portal (preserved)
-app.get('/auth', (req, res) => {
-    const authHTML = `
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrendyX AI Authentication</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white; min-height: 100vh; display: flex; align-items: center; justify-content: center;
-        }
-        .auth-container { 
-            background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px);
-            border-radius: 15px; padding: 40px; width: 100%; max-width: 400px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        .auth-header { text-align: center; margin-bottom: 30px; }
-        .auth-header h1 { font-size: 2rem; margin-bottom: 10px; }
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 5px; opacity: 0.9; }
-        .form-group input { 
-            width: 100%; padding: 12px; border: none; border-radius: 8px;
-            background: rgba(255, 255, 255, 0.2); color: white; font-size: 16px;
-        }
-        .form-group input::placeholder { color: rgba(255, 255, 255, 0.7); }
-        .form-group input:focus { outline: none; background: rgba(255, 255, 255, 0.3); }
-        .btn { 
-            width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer;
-            font-size: 16px; margin-bottom: 10px; transition: background 0.3s ease;
-        }
-        .btn-primary { background: #4CAF50; color: white; }
-        .btn-primary:hover { background: #45a049; }
-        .btn-secondary { background: #2196F3; color: white; }
-        .btn-secondary:hover { background: #1976D2; }
-        .auth-links { text-align: center; margin-top: 20px; }
-        .auth-links a { color: rgba(255, 255, 255, 0.8); text-decoration: none; }
-        .auth-links a:hover { text-decoration: underline; }
-        .back-link { text-align: center; margin-top: 20px; }
-        .back-link a { color: #ff6b6b; text-decoration: none; }
-        .back-link a:hover { text-decoration: underline; }
-    </style>
-</head>
-<body>
-    <div class="auth-container">
-        <div class="auth-header">
-            <h1>🔑 TrendyX AI Authentication</h1>
-            <p>Secure access to advanced AI features</p>
-        </div>
+// Get single content by ID
+app.get('/api/content/:id', verifyToken, (req, res) => {
+    try {
+        const content = contentManager.getContentById(req.params.id, req.user.id);
         
-        <form id="auth-form">
-            <div class="form-group">
-                <label for="username">Username:</label>
-                <input type="text" id="username" name="username" placeholder="Enter username" required>
-            </div>
-            
-            <div class="form-group">
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password" placeholder="Enter password" required>
-            </div>
-            
-            <button type="submit" class="btn btn-primary">🔑 Login</button>
-        </form>
+        if (!content) {
+            return res.status(404).json({ message: 'Content not found' });
+        }
         
-        <div class="auth-links">
-            <p>Don't have an account? <a href="#" onclick="showRegister()">Register here</a></p>
-        </div>
+        res.json({
+            message: 'Content retrieved successfully',
+            content
+        });
+    } catch (error) {
+        logger.error('Error retrieving content:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Update content
+app.put('/api/content/:id', verifyToken, (req, res) => {
+    try {
+        const { title, content, tags, favorite, type } = req.body;
         
-        <div class="back-link">
-            <a href="/dashboard">← Back to Dashboard</a>
-        </div>
-    </div>
-    
-    <script>
-        document.getElementById('auth-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData(e.target);
-            const username = formData.get('username');
-            const password = formData.get('password');
-            
-            try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                
-                const data = await response.json();
-                
-                if (response.ok) {
-                    localStorage.setItem('token', data.token);
-                    alert('Login successful!');
-                    window.location.href = '/dashboard';
-                } else {
-                    alert('Error: ' + data.message);
-                }
-            } catch (error) {
-                alert('Login failed: ' + error.message);
+        const updateData = {};
+        if (title !== undefined) updateData.title = title;
+        if (content !== undefined) updateData.content = content;
+        if (tags !== undefined) updateData.tags = tags;
+        if (favorite !== undefined) updateData.favorite = favorite;
+        if (type !== undefined) updateData.type = type;
+        
+        const updatedContent = contentManager.updateContent(req.params.id, req.user.id, updateData);
+        
+        if (!updatedContent) {
+            return res.status(404).json({ message: 'Content not found' });
+        }
+        
+        res.json({
+            message: 'Content updated successfully',
+            content: updatedContent
+        });
+    } catch (error) {
+        logger.error('Error updating content:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Delete content
+app.delete('/api/content/:id', verifyToken, (req, res) => {
+    try {
+        const deleted = contentManager.deleteContent(req.params.id, req.user.id);
+        
+        if (!deleted) {
+            return res.status(404).json({ message: 'Content not found' });
+        }
+        
+        res.json({ message: 'Content deleted successfully' });
+    } catch (error) {
+        logger.error('Error deleting content:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Get user content statistics
+app.get('/api/content/stats/user', verifyToken, (req, res) => {
+    try {
+        const stats = contentManager.getUserContentStats(req.user.id);
+        
+        res.json({
+            message: 'Content statistics retrieved successfully',
+            stats
+        });
+    } catch (error) {
+        logger.error('Error retrieving content stats:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Mark content as exported
+app.post('/api/content/:id/export', verifyToken, (req, res) => {
+    try {
+        const { exportType } = req.body;
+        
+        if (!exportType) {
+            return res.status(400).json({ message: 'Export type is required' });
+        }
+        
+        const marked = contentManager.markAsExported(req.params.id, req.user.id, exportType);
+        
+        if (!marked) {
+            return res.status(404).json({ message: 'Content not found' });
+        }
+        
+        res.json({ message: 'Content marked as exported successfully' });
+    } catch (error) {
+        logger.error('Error marking content as exported:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// --- AI Generation Routes (Enhanced with Content Storage) ---
+
+// Quantum Computing Generation
+app.post('/api/quantum/generate', verifyToken, (req, res) => {
+    try {
+        const { prompt, type } = req.body;
+        
+        if (!prompt) {
+            return res.status(400).json({ message: 'Prompt is required' });
+        }
+        
+        // Simulate quantum computing generation
+        const generatedContent = `🔬 Quantum Computing Analysis: ${prompt}\n\nQuantum processing complete. Advanced algorithms have analyzed your request using 64 qubits with 98.5% accuracy. The quantum superposition states have been collapsed to provide optimal results.\n\nGenerated using TrendyX AI Level 5 Enterprise Quantum Computing Engine.`;
+        
+        // Store the generated content
+        const contentData = {
+            type: type || 'quantum',
+            title: `Quantum Analysis: ${prompt.substring(0, 50)}...`,
+            content: generatedContent,
+            prompt,
+            aiProvider: 'trendyx-quantum',
+            model: 'quantum-64-qubit'
+        };
+        
+        const storedContent = contentManager.storeContent(req.user.id, contentData);
+        
+        // Update AI systems metrics
+        aiSystems.quantum.operations++;
+        
+        res.json({
+            message: 'Quantum content generated successfully',
+            content: generatedContent,
+            contentId: storedContent ? storedContent.id : null,
+            metrics: {
+                qubits: aiSystems.quantum.qubits,
+                accuracy: aiSystems.quantum.accuracy,
+                operations: aiSystems.quantum.operations
             }
         });
+    } catch (error) {
+        logger.error('Error in quantum generation:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Neural Network Generation
+app.post('/api/neural/generate', verifyToken, (req, res) => {
+    try {
+        const { prompt, type } = req.body;
         
-        function showRegister() {
-            alert('Registration feature coming soon! For now, please contact admin.');
+        if (!prompt) {
+            return res.status(400).json({ message: 'Prompt is required' });
         }
-    </script>
-</body>
-</html>`;
+        
+        // Simulate neural network generation
+        const generatedContent = `🧠 Neural Network Processing: ${prompt}\n\nNeural inference complete. 8 advanced AI models have processed your request with 96.2% accuracy. Deep learning algorithms have analyzed patterns and generated optimized content.\n\nGenerated using TrendyX AI Level 5 Enterprise Neural Network Orchestrator.`;
+        
+        // Store the generated content
+        const contentData = {
+            type: type || 'neural',
+            title: `Neural Analysis: ${prompt.substring(0, 50)}...`,
+            content: generatedContent,
+            prompt,
+            aiProvider: 'trendyx-neural',
+            model: 'neural-8-model'
+        };
+        
+        const storedContent = contentManager.storeContent(req.user.id, contentData);
+        
+        // Update AI systems metrics
+        aiSystems.neural.inferences++;
+        
+        res.json({
+            message: 'Neural content generated successfully',
+            content: generatedContent,
+            contentId: storedContent ? storedContent.id : null,
+            metrics: {
+                models: aiSystems.neural.models,
+                accuracy: aiSystems.neural.accuracy,
+                inferences: aiSystems.neural.inferences
+            }
+        });
+    } catch (error) {
+        logger.error('Error in neural generation:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Predictive Analytics Generation
+app.post('/api/predictive/generate', verifyToken, (req, res) => {
+    try {
+        const { prompt, type } = req.body;
+        
+        if (!prompt) {
+            return res.status(400).json({ message: 'Prompt is required' });
+        }
+        
+        // Simulate predictive analytics generation
+        const generatedContent = `📊 Predictive Analytics: ${prompt}\n\nPredictive analysis complete. 6 advanced algorithms have forecasted trends and patterns with 94.7% accuracy. Statistical models and machine learning have generated predictive insights.\n\nGenerated using TrendyX AI Level 5 Enterprise Predictive Analytics Engine.`;
+        
+        // Store the generated content
+        const contentData = {
+            type: type || 'predictive',
+            title: `Predictive Analysis: ${prompt.substring(0, 50)}...`,
+            content: generatedContent,
+            prompt,
+            aiProvider: 'trendyx-predictive',
+            model: 'predictive-6-algorithm'
+        };
+        
+        const storedContent = contentManager.storeContent(req.user.id, contentData);
+        
+        // Update AI systems metrics
+        aiSystems.predictive.predictions++;
+        
+        res.json({
+            message: 'Predictive content generated successfully',
+            content: generatedContent,
+            contentId: storedContent ? storedContent.id : null,
+            metrics: {
+                algorithms: aiSystems.predictive.algorithms,
+                accuracy: aiSystems.predictive.accuracy,
+                predictions: aiSystems.predictive.predictions
+            }
+        });
+    } catch (error) {
+        logger.error('Error in predictive generation:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// --- Integration Routes ---
+const integrationRouter = require('./routes/integration');
+app.use('/api/integration', integrationRouter);
+
+// --- Health Check Routes ---
+app.get('/api/health', (req, res) => {
+    res.json({
+        status: 'ok',
+        timestamp: new Date().toISOString(),
+        version: '5.2.1',
+        uptime: process.uptime(),
+        message: 'TrendyX AI Level 5 Enterprise Enhanced server is operational.',
+        authentication: 'enabled',
+        contentManagement: 'enabled',
+        aiSystems,
+        performanceMetrics
+    });
+});
+
+// --- Dashboard Routes ---
+app.get('/dashboard', (req, res) => {
+    res.sendFile(path.join(__dirname, 'public', 'dashboard-enhanced.html'));
+});
+
+app.get('/auth', (req, res) => {
+    res.sendFile(path.join(__dirname, 'auth-frontend.html'));
+});
+
+// --- Self-Healing System Simulation ---
+setInterval(() => {
+    performanceMetrics.cpuUsage = Math.random() * 100;
+    performanceMetrics.memoryUsage = Math.random() * 100;
+    performanceMetrics.networkLatency = Math.random() * 50;
+    performanceMetrics.requestsPerSecond = Math.floor(Math.random() * 1000);
     
-    res.send(authHTML);
-});
-
-// Default route - serve main website
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Fallback for SPA routing
-app.get('*', (req, res) => {
-    // If it's an API route that doesn't exist, return 404
-    if (req.path.startsWith('/api/')) {
-        return res.status(404).json({ message: 'API endpoint not found' });
+    if (performanceMetrics.cpuUsage > 80) {
+        aiSystems.selfHealing.actions++;
+        logger.info('Self-healing triggered for cpu: Process throttling applied');
     }
     
-    // For all other routes, serve the main website
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
+    if (performanceMetrics.memoryUsage > 85) {
+        aiSystems.selfHealing.actions++;
+        logger.info('Self-healing triggered for memory: Garbage collection triggered');
+    }
+    
+    if (performanceMetrics.networkLatency > 40) {
+        aiSystems.selfHealing.actions++;
+        logger.info('Self-healing triggered for network: Connection pool optimization');
+    }
+}, 30000);
 
 // --- Socket.IO for Real-time Updates ---
 io.on('connection', (socket) => {
@@ -578,8 +623,7 @@ app.use((err, req, res, next) => {
 // --- Start Server ---
 server.listen(PORT, () => {
     logger.info('🚀 TrendyX AI Level 5 Enterprise Enhanced Server started on port ' + PORT);
-    logger.info('🌐 Main Website: http://localhost:' + PORT);
-    logger.info('🌐 AI Dashboard: http://localhost:' + PORT + '/dashboard');
+    logger.info('🌐 Dashboard: http://localhost:' + PORT);
     logger.info('🔬 Quantum Computing Engine: Ready');
     logger.info('🧠 Neural Network Orchestrator: Ready');
     logger.info('📊 Predictive Analytics Engine: Ready');
@@ -588,7 +632,7 @@ server.listen(PORT, () => {
     logger.info('🛡️ Security Middleware: Enabled');
     logger.info('⚡ Performance Optimization: Active');
     logger.info('🔐 Authentication System: Enabled');
-    logger.info('🌐 Website Integration: Enabled');
+    logger.info('📚 Content Management: Enabled');
     logger.info('🧠 AI Brain fully operational - Ready for Railway deployment!');
 });
 
