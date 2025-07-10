@@ -54,7 +54,7 @@ async function registerUser(username, password, email) {
         throw new Error('Username already exists');
     }
     
-    if (users.find(user => user.email === email)) {
+    if (email && users.find(user => user.email === email)) {
         throw new Error('Email already exists');
     }
     
@@ -63,7 +63,7 @@ async function registerUser(username, password, email) {
     const newUser = {
         id: Date.now().toString(),
         username,
-        email,
+        email: email || '',
         password: hashedPassword,
         createdAt: new Date().toISOString(),
         lastLogin: null,
@@ -85,7 +85,7 @@ async function registerUser(username, password, email) {
 // Login user
 async function loginUser(username, password) {
     const users = loadUsers();
-    const user = users.find(u => u.username === username);
+    const user = users.find(u => u.username === username || u.email === username);
     
     if (!user) {
         throw new Error('Invalid username or password');
@@ -203,8 +203,8 @@ app.post('/api/register', async (req, res) => {
     try {
         const { username, password, email } = req.body;
         
-        if (!username || !password || !email) {
-            return res.status(400).json({ message: 'Username, password, and email are required' });
+        if (!username || !password) {
+            return res.status(400).json({ message: 'Username and password are required' });
         }
         
         const user = await registerUser(username, password, email);
@@ -552,8 +552,12 @@ app.post('/api/predictive/generate', verifyToken, (req, res) => {
 });
 
 // --- Integration Routes ---
-const integrationRouter = require('./routes/integration');
-app.use('/api/integration', integrationRouter);
+try {
+    const integrationRouter = require('./routes/integration');
+    app.use('/api/integration', integrationRouter);
+} catch (error) {
+    logger.warn('Integration routes not found, skipping...');
+}
 
 // --- Health Check Routes ---
 app.get('/api/health', (req, res) => {
@@ -572,11 +576,389 @@ app.get('/api/health', (req, res) => {
 
 // --- Dashboard Routes ---
 app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'dashboard-enhanced.html'));
+    // Try to serve the enhanced dashboard, fallback to inline HTML if file not found
+    const dashboardPath = path.join(__dirname, 'public', 'dashboard-enhanced.html');
+    
+    if (fs.existsSync(dashboardPath)) {
+        res.sendFile(dashboardPath);
+    } else {
+        // Fallback inline dashboard with DAY 2 features
+        res.send(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrendyX AI Level 5 Enterprise - Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            min-height: 100vh;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { font-size: 3rem; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .systems-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .system-card { 
+            background: rgba(255,255,255,0.1); 
+            backdrop-filter: blur(10px);
+            border-radius: 15px; 
+            padding: 25px; 
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease;
+        }
+        .system-card:hover { transform: translateY(-5px); }
+        .system-card h3 { font-size: 1.3rem; margin-bottom: 15px; color: #fff; }
+        .metric { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .metric span:first-child { opacity: 0.8; }
+        .metric span:last-child { font-weight: bold; }
+        .generate-btn { 
+            width: 100%; margin-top: 15px; padding: 12px; 
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border: none; border-radius: 8px; color: white; cursor: pointer; 
+            font-weight: bold; transition: all 0.3s ease;
+        }
+        .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); }
+        .auth-section { 
+            background: rgba(255,255,255,0.1); 
+            backdrop-filter: blur(10px);
+            border-radius: 15px; 
+            padding: 30px; 
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 20px;
+        }
+        .btn { 
+            padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; 
+            font-size: 1rem; transition: all 0.3s ease; text-decoration: none; display: inline-block; margin: 5px;
+        }
+        .btn-primary { background: #4CAF50; color: white; }
+        .btn-secondary { background: #2196F3; color: white; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .status { 
+            display: inline-block; padding: 4px 12px; border-radius: 20px; 
+            font-size: 0.8rem; background: #4CAF50; color: white;
+        }
+        .modal { 
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; 
+            width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+        }
+        .modal-content { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 5% auto; padding: 2rem; border-radius: 15px; width: 90%; max-width: 600px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        .form-input { 
+            width: 100%; padding: 0.75rem; border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px; background: rgba(255,255,255,0.1); color: white;
+        }
+        .form-textarea { min-height: 150px; resize: vertical; }
+        .close { color: white; font-size: 28px; font-weight: bold; cursor: pointer; float: right; }
+        .close:hover { opacity: 0.7; }
+        .toast { 
+            position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white;
+            padding: 1rem 1.5rem; border-radius: 8px; z-index: 1001; transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.error { background: #f44336; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 TrendyX AI Level 5 Enterprise</h1>
+            <p>Advanced Quantum Computing • Neural Networks • Predictive Analytics</p>
+        </div>
+        
+        <div class="auth-section">
+            <h2>🔐 Authentication Required</h2>
+            <p>Please login to access the enhanced dashboard with content management features</p>
+            <a href="/auth" class="btn btn-primary">🔑 Login / Register</a>
+            <a href="/api/health" class="btn btn-secondary">📊 System Health</a>
+        </div>
+        
+        <div class="systems-grid">
+            <div class="system-card">
+                <h3>🔬 Quantum Computing Engine</h3>
+                <div class="metric"><span>Status:</span><span class="status">Ready</span></div>
+                <div class="metric"><span>Algorithms:</span><span>8</span></div>
+                <div class="metric"><span>Qubits:</span><span>64</span></div>
+                <div class="metric"><span>Accuracy:</span><span>98.5%</span></div>
+                <button class="generate-btn" onclick="showAuthRequired()">Generate Quantum Content</button>
+            </div>
+            
+            <div class="system-card">
+                <h3>🧠 Neural Network Orchestrator</h3>
+                <div class="metric"><span>Status:</span><span class="status">Ready</span></div>
+                <div class="metric"><span>Models:</span><span>8</span></div>
+                <div class="metric"><span>Accuracy:</span><span>96.2%</span></div>
+                <button class="generate-btn" onclick="showAuthRequired()">Generate Neural Content</button>
+            </div>
+            
+            <div class="system-card">
+                <h3>📊 Predictive Analytics Engine</h3>
+                <div class="metric"><span>Status:</span><span class="status">Ready</span></div>
+                <div class="metric"><span>Algorithms:</span><span>6</span></div>
+                <div class="metric"><span>Accuracy:</span><span>94.7%</span></div>
+                <button class="generate-btn" onclick="showAuthRequired()">Generate Predictive Content</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+    
+    <script>
+        function showAuthRequired() {
+            showToast('Please login first to access AI generation features', 'error');
+            setTimeout(() => {
+                window.location.href = '/auth';
+            }, 2000);
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Check if user is authenticated
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            // User is authenticated, redirect to enhanced dashboard
+            window.location.href = '/dashboard-enhanced';
+        }
+    </script>
+</body>
+</html>
+        `);
+    }
 });
 
+// Enhanced dashboard route (for authenticated users)
+app.get('/dashboard-enhanced', (req, res) => {
+    const enhancedDashboardPath = path.join(__dirname, 'dashboard-enhanced.html');
+    
+    if (fs.existsSync(enhancedDashboardPath)) {
+        res.sendFile(enhancedDashboardPath);
+    } else {
+        res.redirect('/dashboard');
+    }
+});
+
+// Authentication portal
 app.get('/auth', (req, res) => {
-    res.sendFile(path.join(__dirname, 'auth-frontend.html'));
+    const authPath = path.join(__dirname, 'auth-frontend.html');
+    
+    if (fs.existsSync(authPath)) {
+        res.sendFile(authPath);
+    } else {
+        // Fallback inline auth portal
+        res.send(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrendyX AI Authentication</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+        .auth-container { 
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            border-radius: 15px; padding: 40px; width: 100%; max-width: 400px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .auth-header { text-align: center; margin-bottom: 30px; }
+        .auth-tabs { display: flex; margin-bottom: 30px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: rgba(255,255,255,0.1);
+            color: white; cursor: pointer; transition: all 0.3s ease;
+        }
+        .tab-btn.active { background: rgba(255,255,255,0.2); }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: bold; }
+        .form-input { 
+            width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px; background: rgba(255,255,255,0.1); color: white;
+        }
+        .form-input::placeholder { color: rgba(255,255,255,0.7); }
+        .submit-btn { 
+            width: 100%; padding: 15px; border: none; border-radius: 8px;
+            background: #4CAF50; color: white; font-size: 16px; font-weight: bold;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .submit-btn:hover { background: #45a049; transform: translateY(-2px); }
+        .submit-btn:disabled { background: #666; cursor: not-allowed; transform: none; }
+        .back-link { text-align: center; margin-top: 20px; }
+        .back-link a { color: rgba(255,255,255,0.8); text-decoration: none; }
+        .back-link a:hover { color: white; }
+        .toast { 
+            position: fixed; top: 20px; right: 20px; background: #f44336; color: white;
+            padding: 1rem 1.5rem; border-radius: 8px; z-index: 1001; transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { background: #4CAF50; }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>🔐 TrendyX AI</h1>
+            <p>Authentication Portal</p>
+        </div>
+        
+        <div class="auth-tabs">
+            <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+            <button class="tab-btn" onclick="switchTab('register')">Register</button>
+        </div>
+        
+        <form id="authForm">
+            <div id="registerFields" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Username:</label>
+                    <input type="text" id="regUsername" class="form-input" placeholder="Choose a username" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email:</label>
+                    <input type="email" id="regEmail" class="form-input" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password:</label>
+                    <input type="password" id="regPassword" class="form-input" placeholder="Choose a password" required>
+                </div>
+                <button type="submit" class="submit-btn" id="registerBtn">Register Account</button>
+            </div>
+            
+            <div id="loginFields">
+                <div class="form-group">
+                    <label class="form-label">Username or Email:</label>
+                    <input type="text" id="loginUsername" class="form-input" placeholder="Enter username or email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password:</label>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="submit-btn" id="loginBtn">Login to TrendyX AI</button>
+            </div>
+        </form>
+        
+        <div class="back-link">
+            <a href="/">← Back to TrendyX AI Dashboard</a>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+    
+    <script>
+        let currentTab = 'login';
+        
+        function switchTab(tab) {
+            currentTab = tab;
+            const loginFields = document.getElementById('loginFields');
+            const registerFields = document.getElementById('registerFields');
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            
+            tabBtns.forEach(btn => btn.classList.remove('active'));
+            
+            if (tab === 'login') {
+                loginFields.style.display = 'block';
+                registerFields.style.display = 'none';
+                tabBtns[0].classList.add('active');
+            } else {
+                loginFields.style.display = 'none';
+                registerFields.style.display = 'block';
+                tabBtns[1].classList.add('active');
+            }
+        }
+        
+        document.getElementById('authForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = currentTab === 'login' ? document.getElementById('loginBtn') : document.getElementById('registerBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = currentTab === 'login' ? 'Logging in...' : 'Registering...';
+            
+            try {
+                let endpoint, data;
+                
+                if (currentTab === 'login') {
+                    endpoint = '/api/login';
+                    data = {
+                        username: document.getElementById('loginUsername').value,
+                        password: document.getElementById('loginPassword').value
+                    };
+                } else {
+                    endpoint = '/api/register';
+                    data = {
+                        username: document.getElementById('regUsername').value,
+                        email: document.getElementById('regEmail').value,
+                        password: document.getElementById('regPassword').value
+                    };
+                }
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('authToken', result.token);
+                    showToast(result.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard-enhanced';
+                    }, 1500);
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (error) {
+                showToast('Network error. Please try again.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = currentTab === 'login' ? 'Login to TrendyX AI' : 'Register Account';
+            }
+        });
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Check if already authenticated
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            window.location.href = '/dashboard-enhanced';
+        }
+    </script>
+</body>
+</html>
+        `);
+    }
 });
 
 // --- Self-Healing System Simulation ---
