@@ -20,6 +20,9 @@ const io = socketIo(server);
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey';
 
+// CRITICAL FIX: Configure Express to trust Railway's proxy headers
+app.set('trust proxy', true);
+
 // --- Built-in Authentication System ---
 const USERS_FILE = path.join(__dirname, 'users.json');
 
@@ -126,7 +129,7 @@ function verifyToken(req, res, next) {
 }
 
 // --- Security & Performance Middleware ---
-// FIXED: Configure Helmet with proper CSP to allow inline scripts
+// Configure Helmet with proper CSP to allow inline scripts
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
@@ -149,10 +152,13 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
+// Rate limiting with proper proxy configuration
 const apiLimiter = rateLimit({
-    windowMs: 15 * 60 * 1000,
-    max: 100,
-    message: 'Too many requests from this IP, please try again after 15 minutes'
+    windowMs: 15 * 60 * 1000, // 15 minutes
+    max: 100, // Max 100 requests per 15 minutes per IP
+    message: 'Too many requests from this IP, please try again after 15 minutes',
+    standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
+    legacyHeaders: false, // Disable the `X-RateLimit-*` headers
 });
 app.use('/api/', apiLimiter);
 
@@ -585,6 +591,7 @@ app.get('/api/health', (req, res) => {
         message: 'TrendyX AI Level 5 Enterprise Enhanced server is operational.',
         authentication: 'enabled',
         contentManagement: 'enabled',
+        proxyFixed: 'true',
         cspFixed: 'true',
         aiSystems,
         performanceMetrics
@@ -659,24 +666,6 @@ app.get('/dashboard', (req, res) => {
             display: inline-block; padding: 4px 12px; border-radius: 20px; 
             font-size: 0.8rem; background: #4CAF50; color: white;
         }
-        .modal { 
-            display: none; position: fixed; z-index: 1000; left: 0; top: 0; 
-            width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
-        }
-        .modal-content { 
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 5% auto; padding: 2rem; border-radius: 15px; width: 90%; max-width: 600px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        .form-group { margin-bottom: 1rem; }
-        .form-label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
-        .form-input { 
-            width: 100%; padding: 0.75rem; border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 8px; background: rgba(255,255,255,0.1); color: white;
-        }
-        .form-textarea { min-height: 150px; resize: vertical; }
-        .close { color: white; font-size: 28px; font-weight: bold; cursor: pointer; float: right; }
-        .close:hover { opacity: 0.7; }
         .toast { 
             position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white;
             padding: 1rem 1.5rem; border-radius: 8px; z-index: 1001; transform: translateX(400px);
@@ -1033,6 +1022,7 @@ server.listen(PORT, '0.0.0.0', () => {
     logger.info('🔐 Authentication System: Enabled');
     logger.info('📚 Content Management: Enabled');
     logger.info('✅ CSP Configuration: Fixed for JavaScript execution');
+    logger.info('🔧 Proxy Configuration: Fixed for Railway deployment');
     logger.info('🧠 AI Brain fully operational - Ready for Railway deployment!');
 });
 
