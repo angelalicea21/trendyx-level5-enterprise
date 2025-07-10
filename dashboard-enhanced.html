@@ -103,81 +103,70 @@
             border-radius: 15px;
             padding: 2rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            transition: transform 0.3s ease;
+            transition: all 0.3s ease;
         }
 
         .system-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
         }
 
-        .system-card h3 {
-            font-size: 1.4rem;
-            margin-bottom: 1rem;
+        .system-header {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .system-icon {
+            font-size: 2rem;
+        }
+
+        .system-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .system-metrics {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-bottom: 1.5rem;
         }
 
         .metric {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 0.8rem;
-            padding: 0.5rem 0;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
         }
 
-        .metric:last-of-type {
-            border-bottom: none;
-        }
-
-        .metric span:first-child {
+        .metric-label {
+            font-size: 0.85rem;
             opacity: 0.8;
+            margin-bottom: 0.25rem;
         }
 
-        .metric span:last-child {
+        .metric-value {
+            font-size: 1.2rem;
             font-weight: bold;
+            color: #4CAF50;
         }
 
         .generate-btn {
             width: 100%;
-            margin-top: 1rem;
             padding: 1rem;
-            background: linear-gradient(45deg, #4CAF50, #45a049);
+            background: #4CAF50;
+            color: white;
             border: none;
             border-radius: 10px;
-            color: white;
-            cursor: pointer;
-            font-weight: bold;
             font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
             transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
         }
 
         .generate-btn:hover {
+            background: #45a049;
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(76, 175, 80, 0.4);
-        }
-
-        .generate-btn:disabled {
-            background: #666;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .generate-btn .loading-spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
         }
 
         .content-section {
@@ -186,15 +175,43 @@
             border-radius: 15px;
             padding: 2rem;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            margin-bottom: 2rem;
         }
 
-        .content-section h2 {
-            font-size: 1.8rem;
-            margin-bottom: 1.5rem;
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .content-title {
+            font-size: 1.5rem;
+            font-weight: bold;
             display: flex;
             align-items: center;
             gap: 0.5rem;
+        }
+
+        .content-controls {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .search-input, .filter-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 0.9rem;
+        }
+
+        .search-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .stats-grid {
@@ -206,10 +223,10 @@
 
         .stat-card {
             background: rgba(255, 255, 255, 0.1);
-            padding: 1.5rem;
             border-radius: 10px;
+            padding: 1.5rem;
             text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .stat-number {
@@ -220,158 +237,142 @@
         }
 
         .stat-label {
-            opacity: 0.8;
             font-size: 0.9rem;
-        }
-
-        .controls-row {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .search-input {
-            flex: 1;
-            min-width: 250px;
-            padding: 0.75rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-        }
-
-        .search-input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .filter-select {
-            padding: 0.75rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            border-radius: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            min-width: 150px;
+            opacity: 0.8;
         }
 
         .content-list {
-            max-height: 600px;
+            max-height: 400px;
             overflow-y: auto;
         }
 
         .content-item {
             background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 10px;
-            padding: 1.5rem;
+            padding: 1rem;
             margin-bottom: 1rem;
-            transition: all 0.3s ease;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .content-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .content-header {
+        .content-item-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            margin-bottom: 1rem;
-        }
-
-        .content-title {
-            font-size: 1.2rem;
-            font-weight: bold;
             margin-bottom: 0.5rem;
         }
 
-        .content-meta {
-            font-size: 0.85rem;
-            opacity: 0.7;
+        .content-item-title {
+            font-weight: bold;
+            font-size: 1rem;
         }
 
-        .content-actions {
+        .content-item-type {
+            background: #4CAF50;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+
+        .content-item-meta {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+        }
+
+        .content-item-preview {
+            font-size: 0.9rem;
+            line-height: 1.4;
+            margin-bottom: 1rem;
+            max-height: 60px;
+            overflow: hidden;
+        }
+
+        .content-item-actions {
             display: flex;
             gap: 0.5rem;
+            flex-wrap: wrap;
         }
 
         .action-btn {
-            padding: 0.4rem 0.8rem;
+            padding: 0.25rem 0.5rem;
             border: none;
-            border-radius: 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
             cursor: pointer;
-            font-size: 0.8rem;
             transition: all 0.3s ease;
         }
 
-        .btn-export {
+        .action-btn.copy {
             background: #2196F3;
             color: white;
         }
 
-        .btn-copy {
+        .action-btn.export {
             background: #FF9800;
             color: white;
         }
 
-        .btn-edit {
-            background: #9C27B0;
-            color: white;
-        }
-
-        .btn-delete {
+        .action-btn.delete {
             background: #f44336;
             color: white;
         }
 
-        .content-preview {
-            margin: 1rem 0;
-            padding: 1rem;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 8px;
-            font-size: 0.9rem;
-            line-height: 1.4;
-            max-height: 100px;
-            overflow: hidden;
-            position: relative;
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1rem;
         }
 
-        .content-preview.expanded {
-            max-height: none;
-        }
-
-        .expand-btn {
-            background: none;
-            border: none;
-            color: #4CAF50;
+        .page-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-radius: 4px;
             cursor: pointer;
-            font-size: 0.8rem;
-            margin-top: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .page-btn.active {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
         }
 
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
             top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
             backdrop-filter: blur(5px);
         }
 
         .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            margin: 5% auto;
-            padding: 2rem;
             border-radius: 15px;
+            padding: 2rem;
             width: 90%;
-            max-width: 600px;
+            max-width: 500px;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            max-height: 80vh;
-            overflow-y: auto;
         }
 
         .modal-header {
@@ -381,17 +382,29 @@
             margin-bottom: 1.5rem;
         }
 
-        .close {
-            color: white;
-            font-size: 28px;
+        .modal-title {
+            font-size: 1.3rem;
             font-weight: bold;
-            cursor: pointer;
-            background: none;
-            border: none;
         }
 
-        .close:hover {
-            opacity: 0.7;
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: background 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
         }
 
         .form-group {
@@ -401,131 +414,87 @@
         .form-label {
             display: block;
             margin-bottom: 0.5rem;
-            font-weight: bold;
+            font-weight: 600;
         }
 
-        .form-input,
-        .form-textarea {
+        .form-input, .form-textarea {
             width: 100%;
             padding: 0.75rem;
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.1);
             color: white;
+            font-size: 1rem;
             font-family: inherit;
         }
 
         .form-textarea {
-            min-height: 150px;
+            min-height: 120px;
             resize: vertical;
         }
 
-        .form-input::placeholder,
-        .form-textarea::placeholder {
+        .form-input::placeholder, .form-textarea::placeholder {
             color: rgba(255, 255, 255, 0.7);
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 0.5rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .toast {
             position: fixed;
             top: 20px;
             right: 20px;
-            background: #4CAF50;
-            color: white;
             padding: 1rem 1.5rem;
             border-radius: 8px;
+            color: white;
+            font-weight: 500;
             z-index: 1001;
             transform: translateX(400px);
             transition: transform 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            max-width: 300px;
         }
 
-        .toast.show {
-            transform: translateX(0);
+        .toast.success {
+            background: #4CAF50;
         }
 
         .toast.error {
             background: #f44336;
         }
 
-        .empty-state {
-            text-align: center;
-            padding: 3rem;
-            opacity: 0.7;
-        }
-
-        .empty-state h3 {
-            margin-bottom: 1rem;
-        }
-
-        .status {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: bold;
-        }
-
-        .status-ready {
-            background: #4CAF50;
-            color: white;
-        }
-
-        .status-active {
-            background: #2196F3;
-            color: white;
-        }
-
-        .pagination {
-            display: flex;
-            justify-content: center;
-            gap: 0.5rem;
-            margin-top: 1.5rem;
-        }
-
-        .page-btn {
-            padding: 0.5rem 1rem;
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .page-btn:hover,
-        .page-btn.active {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .page-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
+        .toast.show {
+            transform: translateX(0);
         }
 
         @media (max-width: 768px) {
             .container {
                 padding: 1rem;
             }
-
+            
             .systems-grid {
                 grid-template-columns: 1fr;
             }
-
-            .controls-row {
+            
+            .content-controls {
                 flex-direction: column;
+                align-items: stretch;
             }
-
-            .search-input {
-                min-width: auto;
-            }
-
-            .content-header {
-                flex-direction: column;
-                gap: 1rem;
-            }
-
-            .content-actions {
-                align-self: flex-start;
+            
+            .search-input, .filter-select {
+                width: 100%;
             }
         }
     </style>
@@ -538,7 +507,7 @@
         <div class="user-info">
             <span id="welcomeUser">Loading...</span>
             <button class="btn btn-secondary" onclick="refreshData()">🔄 Refresh</button>
-            <a href="/" class="btn btn-primary">🏠 Home</a>
+            <a href="/" class="btn btn-secondary">🏠 Home</a>
             <button class="btn btn-danger" onclick="logout()">🚪 Logout</button>
         </div>
     </div>
@@ -549,90 +518,121 @@
             <p>Advanced Quantum Computing • Neural Networks • Predictive Analytics • Content Management</p>
         </div>
 
-        <!-- AI Systems Grid -->
         <div class="systems-grid">
+            <!-- Quantum Computing Engine -->
             <div class="system-card">
-                <h3>🔬 Quantum Computing Engine</h3>
-                <div class="metric">
-                    <span>Status:</span>
-                    <span class="status status-ready" id="quantumStatus">Ready</span>
+                <div class="system-header">
+                    <div class="system-icon">⚛️</div>
+                    <div class="system-title">Quantum Computing Engine</div>
                 </div>
-                <div class="metric">
-                    <span>Algorithms:</span>
-                    <span id="quantumAlgorithms">8</span>
-                </div>
-                <div class="metric">
-                    <span>Operations:</span>
-                    <span id="quantumOperations">0</span>
-                </div>
-                <div class="metric">
-                    <span>Qubits:</span>
-                    <span id="quantumQubits">64</span>
-                </div>
-                <div class="metric">
-                    <span>Accuracy:</span>
-                    <span id="quantumAccuracy">98.5%</span>
+                <div class="system-metrics">
+                    <div class="metric">
+                        <div class="metric-label">Status</div>
+                        <div class="metric-value">Ready</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Algorithms</div>
+                        <div class="metric-value" id="quantumAlgorithms">8</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Operations</div>
+                        <div class="metric-value" id="quantumOperations">0</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Qubits</div>
+                        <div class="metric-value" id="quantumQubits">64</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Accuracy</div>
+                        <div class="metric-value" id="quantumAccuracy">98.5%</div>
+                    </div>
                 </div>
                 <button class="generate-btn" onclick="showGenerateModal('quantum')">
-                    <span class="loading-spinner"></span>
-                    <span>Generate Quantum Content</span>
+                    Generate Quantum Content
                 </button>
             </div>
 
+            <!-- Neural Network Orchestrator -->
             <div class="system-card">
-                <h3>🧠 Neural Network Orchestrator</h3>
-                <div class="metric">
-                    <span>Status:</span>
-                    <span class="status status-ready" id="neuralStatus">Ready</span>
+                <div class="system-header">
+                    <div class="system-icon">🧠</div>
+                    <div class="system-title">Neural Network Orchestrator</div>
                 </div>
-                <div class="metric">
-                    <span>Models:</span>
-                    <span id="neuralModels">8</span>
-                </div>
-                <div class="metric">
-                    <span>Inferences:</span>
-                    <span id="neuralInferences">0</span>
-                </div>
-                <div class="metric">
-                    <span>Accuracy:</span>
-                    <span id="neuralAccuracy">96.2%</span>
+                <div class="system-metrics">
+                    <div class="metric">
+                        <div class="metric-label">Status</div>
+                        <div class="metric-value">Ready</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Models</div>
+                        <div class="metric-value" id="neuralModels">8</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Inferences</div>
+                        <div class="metric-value" id="neuralInferences">0</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Accuracy</div>
+                        <div class="metric-value" id="neuralAccuracy">96.2%</div>
+                    </div>
                 </div>
                 <button class="generate-btn" onclick="showGenerateModal('neural')">
-                    <span class="loading-spinner"></span>
-                    <span>Generate Neural Content</span>
+                    Generate Neural Content
                 </button>
             </div>
 
+            <!-- Predictive Analytics Engine -->
             <div class="system-card">
-                <h3>📊 Predictive Analytics Engine</h3>
-                <div class="metric">
-                    <span>Status:</span>
-                    <span class="status status-ready" id="predictiveStatus">Ready</span>
+                <div class="system-header">
+                    <div class="system-icon">📊</div>
+                    <div class="system-title">Predictive Analytics Engine</div>
                 </div>
-                <div class="metric">
-                    <span>Algorithms:</span>
-                    <span id="predictiveAlgorithms">6</span>
-                </div>
-                <div class="metric">
-                    <span>Predictions:</span>
-                    <span id="predictivePredictions">0</span>
-                </div>
-                <div class="metric">
-                    <span>Accuracy:</span>
-                    <span id="predictiveAccuracy">94.7%</span>
+                <div class="system-metrics">
+                    <div class="metric">
+                        <div class="metric-label">Status</div>
+                        <div class="metric-value">Ready</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Algorithms</div>
+                        <div class="metric-value" id="predictiveAlgorithms">6</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Predictions</div>
+                        <div class="metric-value" id="predictivePredictions">0</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-label">Accuracy</div>
+                        <div class="metric-value" id="predictiveAccuracy">94.7%</div>
+                    </div>
                 </div>
                 <button class="generate-btn" onclick="showGenerateModal('predictive')">
-                    <span class="loading-spinner"></span>
-                    <span>Generate Predictive Content</span>
+                    Generate Predictive Content
                 </button>
             </div>
         </div>
 
-        <!-- Content Management Section -->
         <div class="content-section">
-            <h2>📚 Content History & Management</h2>
-            
-            <!-- Statistics -->
+            <div class="content-header">
+                <div class="content-title">
+                    📚 Content History & Management
+                </div>
+                <div class="content-controls">
+                    <input type="text" id="searchInput" class="search-input" placeholder="Search content...">
+                    <select id="typeFilter" class="filter-select">
+                        <option value="">All Types</option>
+                        <option value="quantum">Quantum</option>
+                        <option value="neural">Neural</option>
+                        <option value="predictive">Predictive</option>
+                    </select>
+                    <select id="sortSelect" class="filter-select">
+                        <option value="newest">Newest First</option>
+                        <option value="oldest">Oldest First</option>
+                        <option value="title">By Title</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="refreshContent()">Refresh</button>
+                </div>
+            </div>
+
             <div class="stats-grid">
                 <div class="stat-card">
                     <div class="stat-number" id="totalContent">0</div>
@@ -647,51 +647,27 @@
                     <div class="stat-label">Total Characters</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-number" id="totalFavorites">0</div>
+                    <div class="stat-number" id="favorites">0</div>
                     <div class="stat-label">Favorites</div>
                 </div>
             </div>
 
-            <!-- Controls -->
-            <div class="controls-row">
-                <input type="text" class="search-input" id="searchInput" placeholder="Search content, titles, or prompts...">
-                <select class="filter-select" id="typeFilter">
-                    <option value="">All Types</option>
-                    <option value="quantum">Quantum</option>
-                    <option value="neural">Neural</option>
-                    <option value="predictive">Predictive</option>
-                    <option value="general">General</option>
-                </select>
-                <select class="filter-select" id="sortSelect">
-                    <option value="createdAt-desc">Newest First</option>
-                    <option value="createdAt-asc">Oldest First</option>
-                    <option value="title-asc">Title A-Z</option>
-                    <option value="title-desc">Title Z-A</option>
-                    <option value="wordCount-desc">Most Words</option>
-                    <option value="wordCount-asc">Least Words</option>
-                </select>
-                <button class="btn btn-primary" onclick="refreshContent()">🔄 Refresh</button>
-            </div>
-
-            <!-- Content List -->
             <div class="content-list" id="contentList">
-                <div class="empty-state">
-                    <h3>No content yet</h3>
-                    <p>Generate some AI content to see it here!</p>
+                <div style="text-align: center; padding: 2rem; opacity: 0.7;">
+                    No content generated yet. Use the AI engines above to create your first content!
                 </div>
             </div>
 
-            <!-- Pagination -->
             <div class="pagination" id="pagination"></div>
         </div>
     </div>
 
-    <!-- Generate Modal -->
+    <!-- Generate Content Modal -->
     <div id="generateModal" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2 id="modalTitle">Generate AI Content</h2>
-                <button class="close" onclick="closeGenerateModal()">&times;</button>
+                <div class="modal-title" id="modalTitle">Generate Content</div>
+                <button class="close-btn" onclick="closeGenerateModal()">&times;</button>
             </div>
             <form id="generateForm">
                 <div class="form-group">
@@ -805,8 +781,8 @@
                 });
 
                 if (response.ok) {
-                    const data = await response.json();
-                    updateUserStats(data.stats);
+                    const stats = await response.json();
+                    updateUserStats(stats);
                 } else if (response.status === 401) {
                     handleAuthError();
                 }
@@ -819,27 +795,25 @@
             document.getElementById('totalContent').textContent = stats.totalContent || 0;
             document.getElementById('totalWords').textContent = stats.totalWords || 0;
             document.getElementById('totalCharacters').textContent = stats.totalCharacters || 0;
-            document.getElementById('totalFavorites').textContent = stats.totalFavorites || 0;
+            document.getElementById('favorites').textContent = stats.favorites || 0;
         }
 
         async function loadUserContent() {
             try {
                 const searchTerm = document.getElementById('searchInput').value;
                 const typeFilter = document.getElementById('typeFilter').value;
-                const sortSelect = document.getElementById('sortSelect').value;
-                const [sortBy, sortOrder] = sortSelect.split('-');
+                const sortBy = document.getElementById('sortSelect').value;
 
                 const params = new URLSearchParams({
+                    page: currentPage,
                     limit: itemsPerPage,
-                    offset: (currentPage - 1) * itemsPerPage,
-                    sortBy: sortBy,
-                    sortOrder: sortOrder
+                    search: searchTerm,
+                    type: typeFilter,
+                    sortBy: sortBy === 'newest' ? 'createdAt' : sortBy === 'oldest' ? 'createdAt' : 'title',
+                    sortOrder: sortBy === 'oldest' ? 'asc' : 'desc'
                 });
 
-                if (searchTerm) params.append('search', searchTerm);
-                if (typeFilter) params.append('type', typeFilter);
-
-                const response = await fetch('/api/content?' + params, {
+                const response = await fetch(`/api/content?${params}`, {
                     headers: {
                         'Authorization': 'Bearer ' + authToken
                     }
@@ -848,7 +822,7 @@
                 if (response.ok) {
                     const data = await response.json();
                     userContent = data.content || [];
-                    displayContent();
+                    displayContent(userContent);
                     updatePagination(data.total || 0);
                 } else if (response.status === 401) {
                     handleAuthError();
@@ -858,42 +832,36 @@
             }
         }
 
-        function displayContent() {
+        function displayContent(content) {
             const contentList = document.getElementById('contentList');
 
-            if (userContent.length === 0) {
+            if (!content || content.length === 0) {
                 contentList.innerHTML = `
-                    <div class="empty-state">
-                        <h3>No content found</h3>
-                        <p>Try adjusting your search or generate some AI content!</p>
+                    <div style="text-align: center; padding: 2rem; opacity: 0.7;">
+                        No content found. Try adjusting your search or generate new content!
                     </div>
                 `;
                 return;
             }
 
-            contentList.innerHTML = userContent.map(content => `
+            contentList.innerHTML = content.map(item => `
                 <div class="content-item">
-                    <div class="content-header">
-                        <div>
-                            <div class="content-title">${escapeHtml(content.title)}</div>
-                            <div class="content-meta">
-                                ${content.type.toUpperCase()} • ${content.wordCount} words • 
-                                ${new Date(content.createdAt).toLocaleDateString()} • 
-                                ${content.aiProvider}
-                            </div>
-                        </div>
-                        <div class="content-actions">
-                            <button class="action-btn btn-copy" onclick="copyToClipboard('${content.id}')">📋 Copy</button>
-                            <button class="action-btn btn-export" onclick="exportContent('${content.id}', 'txt')">📄 TXT</button>
-                            <button class="action-btn btn-export" onclick="exportContent('${content.id}', 'html')">🌐 PDF</button>
-                            <button class="action-btn btn-edit" onclick="editContent('${content.id}')">✏️ Edit</button>
-                            <button class="action-btn btn-delete" onclick="deleteContent('${content.id}')">🗑️ Delete</button>
-                        </div>
+                    <div class="content-item-header">
+                        <div class="content-item-title">${item.title}</div>
+                        <div class="content-item-type">${item.type}</div>
                     </div>
-                    <div class="content-preview" id="preview-${content.id}">
-                        ${escapeHtml(content.content.substring(0, 200))}${content.content.length > 200 ? '...' : ''}
+                    <div class="content-item-meta">
+                        Created: ${new Date(item.createdAt).toLocaleDateString()} • 
+                        Words: ${item.wordCount} • 
+                        Provider: ${item.aiProvider}
                     </div>
-                    ${content.content.length > 200 ? `<button class="expand-btn" onclick="toggleExpand('${content.id}')">Show more</button>` : ''}
+                    <div class="content-item-preview">${item.content.substring(0, 200)}...</div>
+                    <div class="content-item-actions">
+                        <button class="action-btn copy" onclick="copyToClipboard('${item.id}')">📋 Copy</button>
+                        <button class="action-btn export" onclick="exportContent('${item.id}', 'txt')">📄 TXT</button>
+                        <button class="action-btn export" onclick="exportContent('${item.id}', 'html')">🌐 HTML</button>
+                        <button class="action-btn delete" onclick="deleteContent('${item.id}')">🗑️ Delete</button>
+                    </div>
                 </div>
             `).join('');
         }
@@ -998,7 +966,7 @@
                 } else if (response.status === 401) {
                     handleAuthError();
                 } else {
-                    showToast(result.message || 'Generation failed', 'error');
+                    showToast(result.message || 'Failed to generate content', 'error');
                 }
             } catch (error) {
                 console.error('Generation error:', error);
@@ -1012,92 +980,63 @@
         });
 
         async function copyToClipboard(contentId) {
-            const content = userContent.find(c => c.id === contentId);
-            if (!content) return;
-
-            try {
-                await navigator.clipboard.writeText(content.content);
-                showToast('Content copied to clipboard!', 'success');
-                
-                // Mark as exported
-                await markAsExported(contentId, 'clipboard');
-            } catch (error) {
-                console.error('Copy error:', error);
-                showToast('Failed to copy content', 'error');
-            }
-        }
-
-        async function exportContent(contentId, format) {
-            const content = userContent.find(c => c.id === contentId);
-            if (!content) return;
-
-            try {
-                if (format === 'txt') {
-                    const blob = new Blob([content.content], { type: 'text/plain' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${content.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
-                    a.click();
-                    URL.revokeObjectURL(url);
-                } else if (format === 'html') {
-                    const htmlContent = `
-                        <!DOCTYPE html>
-                        <html>
-                        <head>
-                            <title>${escapeHtml(content.title)}</title>
-                            <style>
-                                body { font-family: Arial, sans-serif; line-height: 1.6; margin: 40px; }
-                                h1 { color: #333; }
-                                .meta { color: #666; font-size: 0.9em; margin-bottom: 20px; }
-                                .content { white-space: pre-wrap; }
-                            </style>
-                        </head>
-                        <body>
-                            <h1>${escapeHtml(content.title)}</h1>
-                            <div class="meta">
-                                Generated: ${new Date(content.createdAt).toLocaleString()}<br>
-                                Type: ${content.type.toUpperCase()}<br>
-                                AI Provider: ${content.aiProvider}<br>
-                                Word Count: ${content.wordCount}
-                            </div>
-                            <div class="content">${escapeHtml(content.content)}</div>
-                        </body>
-                        </html>
-                    `;
-                    
-                    const blob = new Blob([htmlContent], { type: 'text/html' });
-                    const url = URL.createObjectURL(blob);
-                    const a = document.createElement('a');
-                    a.href = url;
-                    a.download = `${content.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
-                    a.click();
-                    URL.revokeObjectURL(url);
+            const content = userContent.find(item => item.id === contentId);
+            if (content) {
+                try {
+                    await navigator.clipboard.writeText(content.content);
+                    showToast('Content copied to clipboard!', 'success');
+                } catch (error) {
+                    showToast('Failed to copy content', 'error');
                 }
-
-                showToast(`Content exported as ${format.toUpperCase()}!`, 'success');
-                
-                // Mark as exported
-                await markAsExported(contentId, format);
-            } catch (error) {
-                console.error('Export error:', error);
-                showToast('Failed to export content', 'error');
             }
         }
 
-        async function markAsExported(contentId, exportType) {
-            try {
-                await fetch(`/api/content/${contentId}/export`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Bearer ' + authToken
-                    },
-                    body: JSON.stringify({ exportType })
-                });
-            } catch (error) {
-                console.error('Error marking as exported:', error);
+        function exportContent(contentId, format) {
+            const content = userContent.find(item => item.id === contentId);
+            if (!content) return;
+
+            let fileContent, mimeType, extension;
+
+            if (format === 'txt') {
+                fileContent = content.content;
+                mimeType = 'text/plain';
+                extension = 'txt';
+            } else if (format === 'html') {
+                fileContent = `
+<!DOCTYPE html>
+<html>
+<head>
+    <title>${content.title}</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        .header { border-bottom: 2px solid #ccc; margin-bottom: 20px; padding-bottom: 10px; }
+        .content { line-height: 1.6; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>${content.title}</h1>
+        <p>Generated: ${new Date(content.createdAt).toLocaleDateString()}</p>
+        <p>Type: ${content.type} | Provider: ${content.aiProvider}</p>
+    </div>
+    <div class="content">${content.content}</div>
+</body>
+</html>`;
+                mimeType = 'text/html';
+                extension = 'html';
             }
+
+            const blob = new Blob([fileContent], { type: mimeType });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${content.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.${extension}`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            showToast(`Content exported as ${format.toUpperCase()}!`, 'success');
         }
 
         async function deleteContent(contentId) {
@@ -1128,50 +1067,30 @@
             }
         }
 
-        function toggleExpand(contentId) {
-            const preview = document.getElementById(`preview-${contentId}`);
-            const content = userContent.find(c => c.id === contentId);
-            
-            if (preview.classList.contains('expanded')) {
-                preview.classList.remove('expanded');
-                preview.innerHTML = escapeHtml(content.content.substring(0, 200)) + '...';
-                preview.nextElementSibling.textContent = 'Show more';
-            } else {
-                preview.classList.add('expanded');
-                preview.innerHTML = escapeHtml(content.content);
-                preview.nextElementSibling.textContent = 'Show less';
-            }
-        }
-
-        async function refreshData() {
-            showToast('Refreshing data...', 'success');
-            await Promise.all([
+        function refreshData() {
+            Promise.all([
                 loadSystemMetrics(),
                 loadUserStats(),
                 loadUserContent()
             ]);
+            showToast('Data refreshed!', 'success');
         }
 
-        async function refreshContent() {
-            await loadUserContent();
+        function refreshContent() {
+            loadUserContent();
             showToast('Content refreshed!', 'success');
         }
 
         function logout() {
             localStorage.removeItem('authToken');
             localStorage.removeItem('username');
-            showToast('Logged out successfully', 'success');
-            setTimeout(() => {
-                window.location.href = '/auth';
-            }, 1500);
+            window.location.href = '/auth';
         }
 
         function handleAuthError() {
-            localStorage.removeItem('authToken');
-            localStorage.removeItem('username');
             showToast('Session expired. Please login again.', 'error');
             setTimeout(() => {
-                window.location.href = '/auth';
+                logout();
             }, 2000);
         }
 
@@ -1183,18 +1102,7 @@
             
             setTimeout(() => {
                 toast.classList.remove('show');
-            }, 3000);
-        }
-
-        function escapeHtml(text) {
-            const map = {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#039;'
-            };
-            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+            }, 4000);
         }
 
         function debounce(func, wait) {
@@ -1210,12 +1118,18 @@
         }
 
         // Close modal when clicking outside
-        window.onclick = function(event) {
-            const modal = document.getElementById('generateModal');
-            if (event.target === modal) {
+        document.getElementById('generateModal').addEventListener('click', function(e) {
+            if (e.target === this) {
                 closeGenerateModal();
             }
-        }
+        });
+
+        // Handle escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeGenerateModal();
+            }
+        });
     </script>
 </body>
 </html>

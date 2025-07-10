@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TrendyX AI Authentication Portal</title>
+    <title>TrendyX AI Level 5 Enterprise Authentication Portal</title>
     <style>
         * {
             margin: 0;
@@ -101,13 +101,17 @@
 
         .form-input {
             width: 100%;
-            padding: 15px;
+            padding: 12px 15px;
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
             background: rgba(255, 255, 255, 0.1);
             color: white;
             font-size: 1rem;
             transition: all 0.3s ease;
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
         }
 
         .form-input:focus {
@@ -117,57 +121,80 @@
             box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
         }
 
-        .form-input::placeholder {
-            color: rgba(255, 255, 255, 0.7);
+        .password-strength {
+            margin-top: 5px;
+            font-size: 0.85rem;
+            font-weight: 500;
         }
 
-        .submit-btn {
+        .strength-weak { color: #ff6b6b; }
+        .strength-medium { color: #ffd93d; }
+        .strength-strong { color: #6bcf7f; }
+
+        .auth-btn {
             width: 100%;
             padding: 15px;
             border: none;
             border-radius: 8px;
-            background: linear-gradient(45deg, #4CAF50, #45a049);
+            background: #4CAF50;
             color: white;
             font-size: 1.1rem;
-            font-weight: bold;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
         }
 
-        .submit-btn:hover:not(:disabled) {
-            background: linear-gradient(45deg, #45a049, #3d8b40);
+        .auth-btn:hover:not(:disabled) {
+            background: #45a049;
             transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
         }
 
-        .submit-btn:disabled {
+        .auth-btn:disabled {
             background: #666;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
+        }
+
+        .loading-spinner {
+            display: none;
+            width: 20px;
+            height: 20px;
+            border: 2px solid transparent;
+            border-top: 2px solid white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .ai-systems {
-            margin: 25px 0;
-            padding: 20px;
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.1);
             border-radius: 10px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin-bottom: 20px;
         }
 
         .ai-systems h3 {
-            text-align: center;
             margin-bottom: 15px;
+            text-align: center;
             font-size: 1.1rem;
-            color: #4CAF50;
         }
 
         .ai-system {
             display: flex;
             align-items: center;
-            margin-bottom: 8px;
-            font-size: 0.9rem;
+            padding: 8px 0;
+            font-size: 0.95rem;
+            opacity: 0.9;
         }
 
         .ai-system::before {
@@ -175,18 +202,17 @@
             color: #4CAF50;
             font-weight: bold;
             margin-right: 10px;
-            font-size: 1rem;
         }
 
         .back-link {
             text-align: center;
-            margin-top: 25px;
+            margin-top: 20px;
         }
 
         .back-link a {
             color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
-            font-size: 0.95rem;
+            font-size: 0.9rem;
             transition: color 0.3s ease;
         }
 
@@ -198,54 +224,37 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            background: #f44336;
-            color: white;
             padding: 15px 20px;
             border-radius: 8px;
-            z-index: 1001;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
             transform: translateX(400px);
             transition: transform 0.3s ease;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-            max-width: 300px;
-        }
-
-        .toast.show {
-            transform: translateX(0);
         }
 
         .toast.success {
             background: #4CAF50;
         }
 
-        .loading-spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 10px;
+        .toast.error {
+            background: #f44336;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .toast.show {
+            transform: translateX(0);
         }
 
-        .form-help {
-            font-size: 0.85rem;
-            color: rgba(255, 255, 255, 0.7);
-            margin-top: 5px;
+        @media (max-width: 480px) {
+            .auth-container {
+                margin: 20px;
+                padding: 30px 20px;
+            }
+            
+            .auth-header h1 {
+                font-size: 1.5rem;
+            }
         }
-
-        .password-strength {
-            margin-top: 5px;
-            font-size: 0.8rem;
-        }
-
-        .strength-weak { color: #ff6b6b; }
-        .strength-medium { color: #ffd93d; }
-        .strength-strong { color: #4CAF50; }
     </style>
 </head>
 <body>
@@ -256,12 +265,12 @@
         </div>
 
         <div class="auth-tabs">
-            <button class="tab-btn active" onclick="switchTab('login')" id="loginTab">Login</button>
-            <button class="tab-btn" onclick="switchTab('register')" id="registerTab">Register</button>
+            <button class="tab-btn active" id="loginTab" onclick="switchTab('login')">Login</button>
+            <button class="tab-btn" id="registerTab" onclick="switchTab('register')">Register</button>
         </div>
 
         <!-- Login Form -->
-        <div id="loginSection" class="form-section active">
+        <div class="form-section active" id="loginSection">
             <form id="loginForm">
                 <div class="form-group">
                     <label class="form-label">Username or Email:</label>
@@ -271,7 +280,7 @@
                     <label class="form-label">Password:</label>
                     <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
                 </div>
-                <button type="submit" class="submit-btn" id="loginBtn">
+                <button type="submit" class="auth-btn" id="loginBtn">
                     <span class="loading-spinner" id="loginSpinner"></span>
                     <span id="loginBtnText">Login to TrendyX AI</span>
                 </button>
@@ -279,25 +288,22 @@
         </div>
 
         <!-- Register Form -->
-        <div id="registerSection" class="form-section">
+        <div class="form-section" id="registerSection">
             <form id="registerForm">
                 <div class="form-group">
                     <label class="form-label">Username:</label>
-                    <input type="text" id="regUsername" class="form-input" placeholder="Choose a username" required minlength="3">
-                    <div class="form-help">Minimum 3 characters</div>
+                    <input type="text" id="regUsername" class="form-input" placeholder="Choose a username" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Email (Optional):</label>
-                    <input type="email" id="regEmail" class="form-input" placeholder="Enter your email address">
-                    <div class="form-help">Optional but recommended for account recovery</div>
+                    <input type="email" id="regEmail" class="form-input" placeholder="Enter your email">
                 </div>
                 <div class="form-group">
                     <label class="form-label">Password:</label>
-                    <input type="password" id="regPassword" class="form-input" placeholder="Choose a strong password" required minlength="6">
+                    <input type="password" id="regPassword" class="form-input" placeholder="Create a strong password" required>
                     <div id="passwordStrength" class="password-strength"></div>
-                    <div class="form-help">Minimum 6 characters</div>
                 </div>
-                <button type="submit" class="submit-btn" id="registerBtn">
+                <button type="submit" class="auth-btn" id="registerBtn">
                     <span class="loading-spinner" id="registerSpinner"></span>
                     <span id="registerBtnText">Create TrendyX AI Account</span>
                 </button>
@@ -332,6 +338,14 @@
             // Update form sections
             document.getElementById('loginSection').classList.toggle('active', tab === 'login');
             document.getElementById('registerSection').classList.toggle('active', tab === 'register');
+            
+            // Clear any previous form data
+            if (tab === 'login') {
+                document.getElementById('loginForm').reset();
+            } else {
+                document.getElementById('registerForm').reset();
+                document.getElementById('passwordStrength').textContent = '';
+            }
         }
 
         // Password strength checker
@@ -505,34 +519,25 @@
             }, 4000);
         }
 
-        // Check if already authenticated
-        const token = localStorage.getItem('authToken');
-        if (token) {
-            // Verify token is still valid
-            fetch('/api/content/stats/user', {
-                headers: {
-                    'Authorization': 'Bearer ' + token
-                }
-            })
-            .then(response => {
-                if (response.ok) {
-                    // Token is valid, redirect to dashboard
-                    window.location.href = '/dashboard-enhanced';
-                } else {
-                    // Token is invalid, clear it
-                    localStorage.removeItem('authToken');
-                    localStorage.removeItem('username');
-                }
-            })
-            .catch(error => {
-                console.log('Token validation failed:', error);
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('username');
-            });
-        }
+        // Check if user is already logged in
+        document.addEventListener('DOMContentLoaded', function() {
+            const authToken = localStorage.getItem('authToken');
+            if (authToken) {
+                // User is already logged in, redirect to dashboard
+                window.location.href = '/dashboard-enhanced';
+            }
+        });
 
-        // Auto-focus first input
-        document.getElementById('loginUsername').focus();
+        // Handle Enter key in forms
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                if (currentTab === 'login') {
+                    document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+                } else {
+                    document.getElementById('registerForm').dispatchEvent(new Event('submit'));
+                }
+            }
+        });
     </script>
 </body>
 </html>
