@@ -11,6 +11,9 @@ const jwt = require('jsonwebtoken');
 const fs = require('fs');
 const os = require('os');
 
+// Import content management module
+const contentManager = require('./content-manager');
+
 const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
@@ -37,29 +40,24 @@ const logger = winston.createLogger({
                 winston.format.colorize(),
                 winston.format.simple()
             )
+        }),
+        new winston.transports.File({ 
+            filename: 'logs/error.log', 
+            level: 'error',
+            maxsize: 5242880, // 5MB
+            maxFiles: 5
+        }),
+        new winston.transports.File({ 
+            filename: 'logs/combined.log',
+            maxsize: 5242880, // 5MB
+            maxFiles: 5
         })
     ]
 });
 
-// Create logs directory if it doesn't exist (only if writable)
-try {
-    if (!fs.existsSync('logs')) {
-        fs.mkdirSync('logs');
-    }
-    // Add file transports only if logs directory is writable
-    logger.add(new winston.transports.File({ 
-        filename: 'logs/error.log', 
-        level: 'error',
-        maxsize: 5242880, // 5MB
-        maxFiles: 5
-    }));
-    logger.add(new winston.transports.File({ 
-        filename: 'logs/combined.log',
-        maxsize: 5242880, // 5MB
-        maxFiles: 5
-    }));
-} catch (error) {
-    console.log('Note: File logging disabled (read-only filesystem)');
+// Create logs directory if it doesn't exist
+if (!fs.existsSync('logs')) {
+    fs.mkdirSync('logs');
 }
 
 // --- Performance Monitoring ---
@@ -112,240 +110,16 @@ setInterval(() => {
 
 // --- Built-in Authentication System ---
 const USERS_FILE = path.join(__dirname, 'users.json');
-const CONTENT_FILE = path.join(__dirname, 'content.json');
 const BACKUP_DIR = path.join(__dirname, 'backups');
 
 // Initialize directories and files
-try {
-    if (!fs.existsSync(BACKUP_DIR)) {
-        fs.mkdirSync(BACKUP_DIR);
-    }
-} catch (error) {
-    console.log('Note: Backup directory creation disabled (read-only filesystem)');
+if (!fs.existsSync(BACKUP_DIR)) {
+    fs.mkdirSync(BACKUP_DIR);
 }
 
 if (!fs.existsSync(USERS_FILE)) {
     fs.writeFileSync(USERS_FILE, JSON.stringify([]));
 }
-
-if (!fs.existsSync(CONTENT_FILE)) {
-    fs.writeFileSync(CONTENT_FILE, JSON.stringify([]));
-}
-
-// --- Content Management System (Built-in) ---
-const contentManager = {
-    // Initialize content database
-    initializeContentDatabase() {
-        try {
-            if (!fs.existsSync(CONTENT_FILE)) {
-                fs.writeFileSync(CONTENT_FILE, JSON.stringify([]));
-                logger.info('Content database initialized');
-            }
-        } catch (error) {
-            logger.error('Failed to initialize content database:', error);
-        }
-    },
-
-    // Store content
-    async storeContent(contentData) {
-        try {
-            const content = this.loadContent();
-            const newContent = {
-                id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
-                ...contentData,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-                wordCount: contentData.content ? contentData.content.split(' ').length : 0,
-                characterCount: contentData.content ? contentData.content.length : 0
-            };
-            
-            content.push(newContent);
-            this.saveContent(content);
-            
-            logger.info('Content stored successfully', { contentId: newContent.id });
-            return newContent;
-        } catch (error) {
-            logger.error('Failed to store content:', error);
-            throw error;
-        }
-    },
-
-    // Load content from file
-    loadContent() {
-        try {
-            const data = fs.readFileSync(CONTENT_FILE, 'utf8');
-            return JSON.parse(data);
-        } catch (error) {
-            logger.warn('Failed to load content, returning empty array:', error);
-            return [];
-        }
-    },
-
-    // Save content to file
-    saveContent(content) {
-        try {
-            // Create backup before saving
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-            const backupFile = path.join(BACKUP_DIR, `content-backup-${timestamp}.json`);
-            
-            try {
-                if (fs.existsSync(CONTENT_FILE)) {
-                    fs.copyFileSync(CONTENT_FILE, backupFile);
-                }
-            } catch (backupError) {
-                console.log('Note: Backup creation disabled (read-only filesystem)');
-            }
-            
-            fs.writeFileSync(CONTENT_FILE, JSON.stringify(content, null, 2));
-            
-            // Clean old backups (keep last 10)
-            try {
-                const backupFiles = fs.readdirSync(BACKUP_DIR)
-                    .filter(file => file.startsWith('content-backup-'))
-                    .sort()
-                    .reverse();
-                
-                if (backupFiles.length > 10) {
-                    backupFiles.slice(10).forEach(file => {
-                        fs.unlinkSync(path.join(BACKUP_DIR, file));
-                    });
-                }
-            } catch (cleanupError) {
-                console.log('Note: Backup cleanup disabled');
-            }
-            
-            logger.info('Content saved successfully');
-        } catch (error) {
-            logger.error('Failed to save content:', error);
-            throw error;
-        }
-    },
-
-    // Get user content
-    async getUserContent(userId, options = {}) {
-        try {
-            const content = this.loadContent();
-            let userContent = content.filter(item => item.userId === userId);
-            
-            // Apply filters
-            if (options.type) {
-                userContent = userContent.filter(item => item.type === options.type);
-            }
-            
-            if (options.search) {
-                const searchTerm = options.search.toLowerCase();
-                userContent = userContent.filter(item => 
-                    item.title.toLowerCase().includes(searchTerm) ||
-                    item.content.toLowerCase().includes(searchTerm)
-                );
-            }
-            
-            // Sort
-            const sortBy = options.sortBy || 'createdAt';
-            const sortOrder = options.sortOrder || 'desc';
-            userContent.sort((a, b) => {
-                if (sortOrder === 'desc') {
-                    return new Date(b[sortBy]) - new Date(a[sortBy]);
-                } else {
-                    return new Date(a[sortBy]) - new Date(b[sortBy]);
-                }
-            });
-            
-            // Pagination
-            const limit = options.limit || 10;
-            const offset = options.offset || 0;
-            const paginatedContent = userContent.slice(offset, offset + limit);
-            
-            return {
-                items: paginatedContent,
-                total: userContent.length
-            };
-        } catch (error) {
-            logger.error('Failed to get user content:', error);
-            throw error;
-        }
-    },
-
-    // Get user stats
-    async getUserStats(userId) {
-        try {
-            const content = this.loadContent();
-            const userContent = content.filter(item => item.userId === userId);
-            
-            const stats = {
-                totalContent: userContent.length,
-                totalWords: userContent.reduce((sum, item) => sum + (item.wordCount || 0), 0),
-                totalCharacters: userContent.reduce((sum, item) => sum + (item.characterCount || 0), 0),
-                contentByType: {
-                    quantum: userContent.filter(item => item.type === 'quantum').length,
-                    neural: userContent.filter(item => item.type === 'neural').length,
-                    predictive: userContent.filter(item => item.type === 'predictive').length
-                },
-                lastCreated: userContent.length > 0 ? 
-                    userContent.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))[0].createdAt : 
-                    null
-            };
-            
-            return stats;
-        } catch (error) {
-            logger.error('Failed to get user stats:', error);
-            throw error;
-        }
-    },
-
-    // Update content
-    async updateContent(contentId, userId, updates) {
-        try {
-            const content = this.loadContent();
-            const contentIndex = content.findIndex(item => item.id === contentId && item.userId === userId);
-            
-            if (contentIndex === -1) {
-                return null;
-            }
-            
-            content[contentIndex] = {
-                ...content[contentIndex],
-                ...updates,
-                updatedAt: new Date().toISOString()
-            };
-            
-            // Recalculate word and character counts if content was updated
-            if (updates.content) {
-                content[contentIndex].wordCount = updates.content.split(' ').length;
-                content[contentIndex].characterCount = updates.content.length;
-            }
-            
-            this.saveContent(content);
-            
-            logger.info('Content updated successfully', { contentId });
-            return content[contentIndex];
-        } catch (error) {
-            logger.error('Failed to update content:', error);
-            throw error;
-        }
-    },
-
-    // Delete content
-    async deleteContent(contentId, userId) {
-        try {
-            const content = this.loadContent();
-            const initialLength = content.length;
-            const filteredContent = content.filter(item => !(item.id === contentId && item.userId === userId));
-            
-            if (filteredContent.length === initialLength) {
-                return false; // Content not found or access denied
-            }
-            
-            this.saveContent(filteredContent);
-            
-            logger.info('Content deleted successfully', { contentId });
-            return true;
-        } catch (error) {
-            logger.error('Failed to delete content:', error);
-            throw error;
-        }
-    }
-};
 
 // Initialize content database
 contentManager.initializeContentDatabase();
@@ -367,30 +141,22 @@ function saveUsers(users) {
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const backupFile = path.join(BACKUP_DIR, `users-backup-${timestamp}.json`);
         
-        try {
-            if (fs.existsSync(USERS_FILE)) {
-                fs.copyFileSync(USERS_FILE, backupFile);
-            }
-        } catch (backupError) {
-            console.log('Note: User backup creation disabled (read-only filesystem)');
+        if (fs.existsSync(USERS_FILE)) {
+            fs.copyFileSync(USERS_FILE, backupFile);
         }
         
         fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
         
         // Clean old backups (keep last 10)
-        try {
-            const backupFiles = fs.readdirSync(BACKUP_DIR)
-                .filter(file => file.startsWith('users-backup-'))
-                .sort()
-                .reverse();
-            
-            if (backupFiles.length > 10) {
-                backupFiles.slice(10).forEach(file => {
-                    fs.unlinkSync(path.join(BACKUP_DIR, file));
-                });
-            }
-        } catch (cleanupError) {
-            console.log('Note: User backup cleanup disabled');
+        const backupFiles = fs.readdirSync(BACKUP_DIR)
+            .filter(file => file.startsWith('users-backup-'))
+            .sort()
+            .reverse();
+        
+        if (backupFiles.length > 10) {
+            backupFiles.slice(10).forEach(file => {
+                fs.unlinkSync(path.join(BACKUP_DIR, file));
+            });
         }
         
         logger.info('Users saved successfully with backup');
@@ -707,26 +473,15 @@ const aiSystems = {
     }
 };
 
-// Enhanced AI content generation with comprehensive error handling and debugging
+// Enhanced AI content generation with error handling and monitoring
 async function generateAIContent(type, prompt, title, userId) {
     const startTime = Date.now();
     
     try {
-        // Input validation
-        if (!type || !prompt || !userId) {
-            throw new Error(`Missing required parameters: type=${type}, prompt=${!!prompt}, userId=${userId}`);
-        }
-        
-        if (!['quantum', 'neural', 'predictive'].includes(type)) {
-            throw new Error(`Invalid AI system type: ${type}`);
-        }
-        
         performanceMetrics.aiGenerations++;
         
         let content;
         let provider;
-        
-        logger.info(`Starting AI content generation`, { type, userId, promptLength: prompt.length });
         
         switch (type) {
             case 'quantum':
@@ -792,7 +547,7 @@ Statistical significance: High`;
                 break;
                 
             default:
-                throw new Error(`Unhandled AI system type: ${type}`);
+                throw new Error('Invalid AI system type');
         }
         
         // Store content with enhanced metadata
@@ -809,8 +564,6 @@ Statistical significance: High`;
                 timestamp: new Date().toISOString()
             }
         };
-        
-        logger.info(`Storing content for user ${userId}`, { contentLength: content.length });
         
         const savedContent = await contentManager.storeContent(contentData);
         performanceMetrics.contentCreated++;
@@ -829,7 +582,6 @@ Statistical significance: High`;
             type,
             userId,
             error: error.message,
-            stack: error.stack,
             processingTime: Date.now() - startTime
         });
         throw error;
@@ -848,7 +600,7 @@ app.get('/api/health', (req, res) => {
         status: 'operational',
         timestamp: new Date().toISOString(),
         uptime: Math.floor(uptime / 1000), // seconds
-        version: '2.1.0',
+        version: '2.0.0',
         environment: NODE_ENV,
         systems: {
             quantum: aiSystems.quantum.status,
@@ -910,8 +662,6 @@ app.post('/api/register', async (req, res) => {
     try {
         const { username, password, email } = req.body;
         
-        logger.info('Registration attempt', { username, email });
-        
         if (!username || !password) {
             return res.status(400).json({
                 success: false,
@@ -934,7 +684,6 @@ app.post('/api/register', async (req, res) => {
         });
         
     } catch (error) {
-        logger.error('Registration failed:', error);
         res.status(400).json({
             success: false,
             message: error.message,
@@ -946,8 +695,6 @@ app.post('/api/register', async (req, res) => {
 app.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
-        
-        logger.info('Login attempt', { username });
         
         if (!username || !password) {
             return res.status(400).json({
@@ -967,7 +714,6 @@ app.post('/api/login', async (req, res) => {
         });
         
     } catch (error) {
-        logger.error('Login failed:', error);
         res.status(401).json({
             success: false,
             message: error.message,
@@ -976,12 +722,10 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// CORRECTED: Enhanced AI generation endpoints with comprehensive error handling
+// Enhanced AI generation endpoints
 app.post('/api/quantum/generate', verifyToken, async (req, res) => {
     try {
         const { prompt, title } = req.body;
-        
-        logger.info('Quantum generation request', { userId: req.user.id, promptLength: prompt?.length });
         
         if (!prompt) {
             return res.status(400).json({
@@ -1000,16 +744,10 @@ app.post('/api/quantum/generate', verifyToken, async (req, res) => {
         });
         
     } catch (error) {
-        logger.error('Quantum generation failed:', {
-            userId: req.user.id,
-            error: error.message,
-            stack: error.stack
-        });
         res.status(500).json({
             success: false,
-            message: 'Failed to generate quantum content: ' + error.message,
-            code: 'QUANTUM_GENERATION_FAILED',
-            details: NODE_ENV !== 'production' ? error.stack : undefined
+            message: 'Failed to generate quantum content',
+            code: 'GENERATION_FAILED'
         });
     }
 });
@@ -1017,8 +755,6 @@ app.post('/api/quantum/generate', verifyToken, async (req, res) => {
 app.post('/api/neural/generate', verifyToken, async (req, res) => {
     try {
         const { prompt, title } = req.body;
-        
-        logger.info('Neural generation request', { userId: req.user.id, promptLength: prompt?.length });
         
         if (!prompt) {
             return res.status(400).json({
@@ -1037,34 +773,19 @@ app.post('/api/neural/generate', verifyToken, async (req, res) => {
         });
         
     } catch (error) {
-        logger.error('Neural generation failed:', {
-            userId: req.user.id,
-            error: error.message,
-            stack: error.stack
-        });
         res.status(500).json({
             success: false,
-            message: 'Failed to generate neural content: ' + error.message,
-            code: 'NEURAL_GENERATION_FAILED',
-            details: NODE_ENV !== 'production' ? error.stack : undefined
+            message: 'Failed to generate neural content',
+            code: 'GENERATION_FAILED'
         });
     }
 });
 
-// CRITICAL FIX: Enhanced predictive generation endpoint with detailed error logging
 app.post('/api/predictive/generate', verifyToken, async (req, res) => {
     try {
         const { prompt, title } = req.body;
         
-        logger.info('Predictive generation request', { 
-            userId: req.user.id, 
-            promptLength: prompt?.length,
-            title: title,
-            requestBody: req.body
-        });
-        
         if (!prompt) {
-            logger.warn('Predictive generation failed: Missing prompt', { userId: req.user.id });
             return res.status(400).json({
                 success: false,
                 message: 'Prompt is required',
@@ -1072,18 +793,7 @@ app.post('/api/predictive/generate', verifyToken, async (req, res) => {
             });
         }
         
-        logger.info('Calling generateAIContent for predictive', { 
-            type: 'predictive',
-            userId: req.user.id,
-            prompt: prompt.substring(0, 100) + '...'
-        });
-        
         const content = await generateAIContent('predictive', prompt, title, req.user.id);
-        
-        logger.info('Predictive content generated successfully', { 
-            userId: req.user.id,
-            contentId: content.id
-        });
         
         res.json({
             success: true,
@@ -1092,23 +802,10 @@ app.post('/api/predictive/generate', verifyToken, async (req, res) => {
         });
         
     } catch (error) {
-        logger.error('Predictive generation failed with detailed error:', {
-            userId: req.user.id,
-            error: error.message,
-            stack: error.stack,
-            requestBody: req.body,
-            timestamp: new Date().toISOString()
-        });
-        
         res.status(500).json({
             success: false,
-            message: 'Failed to generate predictive content: ' + error.message,
-            code: 'PREDICTIVE_GENERATION_FAILED',
-            details: NODE_ENV !== 'production' ? {
-                error: error.message,
-                stack: error.stack,
-                timestamp: new Date().toISOString()
-            } : undefined
+            message: 'Failed to generate predictive content',
+            code: 'GENERATION_FAILED'
         });
     }
 });
@@ -1399,8 +1096,6 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log('📊 Performance Monitoring: Active');
     console.log('💾 Automated Backups: Enabled');
     console.log('🔧 Railway Proxy Configuration: Optimized');
-    console.log('🐛 Enhanced Error Handling: Active');
-    console.log('🔍 Detailed Logging: Enabled');
     console.log('🧠 AI Brain fully operational - Ready for Railway deployment!');
 });
 
