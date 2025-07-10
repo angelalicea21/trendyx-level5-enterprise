@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrendyX AI Level 5 Enterprise - Enhanced Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+
+        .header {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 3rem;
+        }
+
+        .ai-card {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+
+        .ai-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .ai-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-ready {
+            color: #4ade80;
+            font-weight: bold;
+        }
+
+        .metric {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric span:first-child {
+            opacity: 0.8;
+        }
+
+        .metric span:last-child {
+            font-weight: bold;
+        }
+
+        .generate-btn {
+            width: 100%;
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border: none;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .content-section {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            padding: 2rem;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .content-filters {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .filter-input {
+            padding: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .filter-select {
+            padding: 0.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .filter-select option {
+            background: #333;
+            color: white;
+        }
+
+        .content-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4ade80;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        .content-list {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .content-item {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .content-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .content-item-header {
+            display: flex;
+            justify-content: between;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+            gap: 1rem;
+        }
+
+        .content-title {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            flex: 1;
+        }
+
+        .content-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .content-type {
+            background: #4CAF50;
+            color: white;
+            padding: 0.2rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: bold;
+        }
+
+        .content-preview {
+            margin-bottom: 1rem;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        .content-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            padding: 0.3rem 0.8rem;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .copy-btn {
+            background: #2196F3;
+            color: white;
+        }
+
+        .export-btn {
+            background: #FF9800;
+            color: white;
+        }
+
+        .edit-btn {
+            background: #9C27B0;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #f44336;
+            color: white;
+        }
+
+        .favorite-btn {
+            background: #FFC107;
+            color: #333;
+        }
+
+        .favorite-btn.active {
+            background: #FFD700;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 5% auto;
+            padding: 2rem;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .close {
+            color: white;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover {
+            opacity: 0.7;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: bold;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            backdrop-filter: blur(10px);
+        }
+
+        .form-input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .form-textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #4CAF50;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .toast {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1001;
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.error {
+            background: #f44336;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .page-btn {
+            padding: 0.5rem 1rem;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .page-btn:hover,
+        .page-btn.active {
+            background: #4CAF50;
+            border-color: #4CAF50;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            opacity: 0.7;
+        }
+
+        .empty-state h3 {
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .content-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .content-filters {
+                flex-direction: column;
+            }
+            
+            .content-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            🚀 TrendyX AI Level 5 Enterprise
+        </div>
+        <div class="user-info">
+            <span id="username">Loading...</span>
+            <a href="/" class="btn btn-outline">Home</a>
+            <button onclick="logout()" class="btn btn-danger">Logout</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- AI Systems Dashboard -->
+        <div class="dashboard-grid">
+            <div class="ai-card">
+                <h3>🔬 Quantum Computing Engine</h3>
+                <div class="metric">
+                    <span>Status:</span>
+                    <span class="status-ready" id="quantum-status">Ready</span>
+                </div>
+                <div class="metric">
+                    <span>Algorithms:</span>
+                    <span id="quantum-algorithms">8</span>
+                </div>
+                <div class="metric">
+                    <span>Operations:</span>
+                    <span id="quantum-operations">0</span>
+                </div>
+                <div class="metric">
+                    <span>Qubits:</span>
+                    <span id="quantum-qubits">64</span>
+                </div>
+                <div class="metric">
+                    <span>Accuracy:</span>
+                    <span id="quantum-accuracy">98.5%</span>
+                </div>
+                <button class="generate-btn" onclick="openGenerateModal('quantum')">
+                    Generate Quantum Content
+                </button>
+            </div>
+
+            <div class="ai-card">
+                <h3>🧠 Neural Network Orchestrator</h3>
+                <div class="metric">
+                    <span>Status:</span>
+                    <span class="status-ready" id="neural-status">Ready</span>
+                </div>
+                <div class="metric">
+                    <span>Models:</span>
+                    <span id="neural-models">8</span>
+                </div>
+                <div class="metric">
+                    <span>Inferences:</span>
+                    <span id="neural-inferences">0</span>
+                </div>
+                <div class="metric">
+                    <span>Accuracy:</span>
+                    <span id="neural-accuracy">96.2%</span>
+                </div>
+                <button class="generate-btn" onclick="openGenerateModal('neural')">
+                    Generate Neural Content
+                </button>
+            </div>
+
+            <div class="ai-card">
+                <h3>📊 Predictive Analytics Engine</h3>
+                <div class="metric">
+                    <span>Status:</span>
+                    <span class="status-ready" id="predictive-status">Ready</span>
+                </div>
+                <div class="metric">
+                    <span>Algorithms:</span>
+                    <span id="predictive-algorithms">6</span>
+                </div>
+                <div class="metric">
+                    <span>Predictions:</span>
+                    <span id="predictive-predictions">0</span>
+                </div>
+                <div class="metric">
+                    <span>Accuracy:</span>
+                    <span id="predictive-accuracy">94.7%</span>
+                </div>
+                <button class="generate-btn" onclick="openGenerateModal('predictive')">
+                    Generate Predictive Content
+                </button>
+            </div>
+        </div>
+
+        <!-- Content Management Section -->
+        <div class="content-section">
+            <div class="content-header">
+                <h2>📚 Content History & Management</h2>
+                <div class="content-filters">
+                    <input type="text" id="searchInput" class="filter-input" placeholder="Search content..." onkeyup="filterContent()">
+                    <select id="typeFilter" class="filter-select" onchange="filterContent()">
+                        <option value="">All Types</option>
+                        <option value="quantum">Quantum</option>
+                        <option value="neural">Neural</option>
+                        <option value="predictive">Predictive</option>
+                        <option value="general">General</option>
+                    </select>
+                    <select id="sortFilter" class="filter-select" onchange="filterContent()">
+                        <option value="createdAt-desc">Newest First</option>
+                        <option value="createdAt-asc">Oldest First</option>
+                        <option value="title-asc">Title A-Z</option>
+                        <option value="title-desc">Title Z-A</option>
+                        <option value="wordCount-desc">Most Words</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="refreshContent()">Refresh</button>
+                </div>
+            </div>
+
+            <!-- Content Statistics -->
+            <div class="content-stats" id="contentStats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalContent">0</div>
+                    <div class="stat-label">Total Content</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalWords">0</div>
+                    <div class="stat-label">Total Words</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalCharacters">0</div>
+                    <div class="stat-label">Total Characters</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="favoriteCount">0</div>
+                    <div class="stat-label">Favorites</div>
+                </div>
+            </div>
+
+            <!-- Content List -->
+            <div class="loading" id="contentLoading">
+                <div class="spinner"></div>
+                <p>Loading content...</p>
+            </div>
+
+            <div class="content-list" id="contentList">
+                <!-- Content items will be populated here -->
+            </div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <h3>No Content Found</h3>
+                <p>Start generating content with the AI systems above to see your content history here.</p>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination">
+                <!-- Pagination buttons will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Generate Content Modal -->
+    <div id="generateModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Generate AI Content</h2>
+                <span class="close" onclick="closeGenerateModal()">&times;</span>
+            </div>
+            <form id="generateForm">
+                <div class="form-group">
+                    <label class="form-label" for="promptInput">Prompt:</label>
+                    <textarea id="promptInput" class="form-input form-textarea" placeholder="Enter your prompt here..." required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="titleInput">Title (optional):</label>
+                    <input type="text" id="titleInput" class="form-input" placeholder="Content title...">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Generate Content</button>
+                    <button type="button" class="btn btn-outline" onclick="closeGenerateModal()">Cancel</button>
+                </div>
+            </form>
+            <div class="loading" id="generateLoading">
+                <div class="spinner"></div>
+                <p>Generating content...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Content Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Edit Content</h2>
+                <span class="close" onclick="closeEditModal()">&times;</span>
+            </div>
+            <form id="editForm">
+                <div class="form-group">
+                    <label class="form-label" for="editTitleInput">Title:</label>
+                    <input type="text" id="editTitleInput" class="form-input" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editContentInput">Content:</label>
+                    <textarea id="editContentInput" class="form-input form-textarea" required></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="form-label" for="editTagsInput">Tags (comma-separated):</label>
+                    <input type="text" id="editTagsInput" class="form-input" placeholder="tag1, tag2, tag3">
+                </div>
+                <div class="form-group">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <button type="button" class="btn btn-outline" onclick="closeEditModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // Global variables
+        let currentUser = null;
+        let authToken = localStorage.getItem('authToken');
+        let allContent = [];
+        let filteredContent = [];
+        let currentPage = 1;
+        let itemsPerPage = 10;
+        let currentGenerateType = '';
+        let currentEditId = '';
+
+        // Initialize dashboard
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!authToken) {
+                window.location.href = '/auth';
+                return;
+            }
+            
+            initializeDashboard();
+            loadUserContent();
+            loadContentStats();
+            
+            // Setup real-time updates
+            const socket = io();
+            socket.on('systemUpdate', updateSystemMetrics);
+        });
+
+        // Initialize dashboard
+        async function initializeDashboard() {
+            try {
+                // Verify token and get user info
+                const response = await fetch('/api/content/stats/user', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    document.getElementById('username').textContent = 'Dashboard';
+                } else {
+                    throw new Error('Invalid token');
+                }
+            } catch (error) {
+                console.error('Authentication error:', error);
+                localStorage.removeItem('authToken');
+                window.location.href = '/auth';
+            }
+        }
+
+        // Load user content
+        async function loadUserContent() {
+            showLoading(true);
+            
+            try {
+                const response = await fetch('/api/content', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    allContent = data.content;
+                    filteredContent = [...allContent];
+                    renderContent();
+                } else {
+                    throw new Error('Failed to load content');
+                }
+            } catch (error) {
+                console.error('Error loading content:', error);
+                showToast('Error loading content', 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Load content statistics
+        async function loadContentStats() {
+            try {
+                const response = await fetch('/api/content/stats/user', {
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    const stats = data.stats;
+                    
+                    document.getElementById('totalContent').textContent = stats.totalContent;
+                    document.getElementById('totalWords').textContent = stats.totalWords.toLocaleString();
+                    document.getElementById('totalCharacters').textContent = stats.totalCharacters.toLocaleString();
+                    document.getElementById('favoriteCount').textContent = stats.favoriteCount;
+                }
+            } catch (error) {
+                console.error('Error loading stats:', error);
+            }
+        }
+
+        // Filter content
+        function filterContent() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+            const sortFilter = document.getElementById('sortFilter').value;
+            
+            filteredContent = allContent.filter(content => {
+                const matchesSearch = !searchTerm || 
+                    content.title.toLowerCase().includes(searchTerm) ||
+                    content.content.toLowerCase().includes(searchTerm) ||
+                    content.prompt.toLowerCase().includes(searchTerm);
+                
+                const matchesType = !typeFilter || content.type === typeFilter;
+                
+                return matchesSearch && matchesType;
+            });
+            
+            // Sort content
+            const [sortBy, sortOrder] = sortFilter.split('-');
+            filteredContent.sort((a, b) => {
+                let aValue = a[sortBy];
+                let bValue = b[sortBy];
+                
+                if (sortBy === 'createdAt' || sortBy === 'updatedAt') {
+                    aValue = new Date(aValue);
+                    bValue = new Date(bValue);
+                }
+                
+                if (sortOrder === 'desc') {
+                    return bValue > aValue ? 1 : -1;
+                } else {
+                    return aValue > bValue ? 1 : -1;
+                }
+            });
+            
+            currentPage = 1;
+            renderContent();
+        }
+
+        // Render content list
+        function renderContent() {
+            const contentList = document.getElementById('contentList');
+            const emptyState = document.getElementById('emptyState');
+            
+            if (filteredContent.length === 0) {
+                contentList.style.display = 'none';
+                emptyState.style.display = 'block';
+                return;
+            }
+            
+            contentList.style.display = 'grid';
+            emptyState.style.display = 'none';
+            
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = startIndex + itemsPerPage;
+            const pageContent = filteredContent.slice(startIndex, endIndex);
+            
+            contentList.innerHTML = pageContent.map(content => `
+                <div class="content-item">
+                    <div class="content-item-header">
+                        <div class="content-title">${content.title}</div>
+                        <div class="content-type">${content.type.toUpperCase()}</div>
+                    </div>
+                    <div class="content-meta">
+                        <span>📅 ${new Date(content.createdAt).toLocaleDateString()}</span>
+                        <span>📝 ${content.wordCount} words</span>
+                        <span>🔤 ${content.characterCount} chars</span>
+                        <span>🤖 ${content.aiProvider}</span>
+                    </div>
+                    <div class="content-preview">
+                        ${content.content.substring(0, 200)}${content.content.length > 200 ? '...' : ''}
+                    </div>
+                    <div class="content-actions">
+                        <button class="action-btn copy-btn" onclick="copyContent('${content.id}')">📋 Copy</button>
+                        <button class="action-btn export-btn" onclick="exportContent('${content.id}', 'txt')">📄 TXT</button>
+                        <button class="action-btn export-btn" onclick="exportContent('${content.id}', 'pdf')">📑 PDF</button>
+                        <button class="action-btn edit-btn" onclick="editContent('${content.id}')">✏️ Edit</button>
+                        <button class="action-btn favorite-btn ${content.favorite ? 'active' : ''}" onclick="toggleFavorite('${content.id}')">
+                            ${content.favorite ? '⭐' : '☆'} Favorite
+                        </button>
+                        <button class="action-btn delete-btn" onclick="deleteContent('${content.id}')">🗑️ Delete</button>
+                    </div>
+                </div>
+            `).join('');
+            
+            renderPagination();
+        }
+
+        // Render pagination
+        function renderPagination() {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(filteredContent.length / itemsPerPage);
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+            
+            let paginationHTML = '';
+            
+            // Previous button
+            if (currentPage > 1) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage - 1})">Previous</button>`;
+            }
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === currentPage) {
+                    paginationHTML += `<button class="page-btn active">${i}</button>`;
+                } else {
+                    paginationHTML += `<button class="page-btn" onclick="changePage(${i})">${i}</button>`;
+                }
+            }
+            
+            // Next button
+            if (currentPage < totalPages) {
+                paginationHTML += `<button class="page-btn" onclick="changePage(${currentPage + 1})">Next</button>`;
+            }
+            
+            pagination.innerHTML = paginationHTML;
+        }
+
+        // Change page
+        function changePage(page) {
+            currentPage = page;
+            renderContent();
+        }
+
+        // Show/hide loading
+        function showLoading(show) {
+            document.getElementById('contentLoading').style.display = show ? 'block' : 'none';
+        }
+
+        // Show toast notification
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Open generate modal
+        function openGenerateModal(type) {
+            currentGenerateType = type;
+            document.getElementById('modalTitle').textContent = `Generate ${type.charAt(0).toUpperCase() + type.slice(1)} Content`;
+            document.getElementById('generateModal').style.display = 'block';
+            document.getElementById('promptInput').focus();
+        }
+
+        // Close generate modal
+        function closeGenerateModal() {
+            document.getElementById('generateModal').style.display = 'none';
+            document.getElementById('generateForm').reset();
+            document.getElementById('generateLoading').style.display = 'none';
+        }
+
+        // Handle generate form submission
+        document.getElementById('generateForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const prompt = document.getElementById('promptInput').value;
+            const title = document.getElementById('titleInput').value;
+            
+            document.getElementById('generateLoading').style.display = 'block';
+            
+            try {
+                const response = await fetch(`/api/${currentGenerateType}/generate`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({
+                        prompt,
+                        type: currentGenerateType,
+                        title: title || undefined
+                    })
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    showToast('Content generated successfully!');
+                    closeGenerateModal();
+                    loadUserContent();
+                    loadContentStats();
+                    
+                    // Update AI metrics
+                    if (data.metrics) {
+                        updateAIMetrics(currentGenerateType, data.metrics);
+                    }
+                } else {
+                    throw new Error('Failed to generate content');
+                }
+            } catch (error) {
+                console.error('Error generating content:', error);
+                showToast('Error generating content', 'error');
+            } finally {
+                document.getElementById('generateLoading').style.display = 'none';
+            }
+        });
+
+        // Copy content to clipboard
+        async function copyContent(contentId) {
+            const content = allContent.find(c => c.id === contentId);
+            if (!content) return;
+            
+            try {
+                await navigator.clipboard.writeText(content.content);
+                showToast('Content copied to clipboard!');
+            } catch (error) {
+                console.error('Error copying content:', error);
+                showToast('Error copying content', 'error');
+            }
+        }
+
+        // Export content
+        async function exportContent(contentId, format) {
+            const content = allContent.find(c => c.id === contentId);
+            if (!content) return;
+            
+            try {
+                let exportData;
+                let filename;
+                let mimeType;
+                
+                if (format === 'txt') {
+                    exportData = `${content.title}\n\n${content.content}`;
+                    filename = `${content.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.txt`;
+                    mimeType = 'text/plain';
+                } else if (format === 'pdf') {
+                    // For PDF, we'll create a simple HTML version and let the browser handle it
+                    const htmlContent = `
+                        <html>
+                        <head><title>${content.title}</title></head>
+                        <body style="font-family: Arial, sans-serif; padding: 20px;">
+                            <h1>${content.title}</h1>
+                            <p><strong>Created:</strong> ${new Date(content.createdAt).toLocaleString()}</p>
+                            <p><strong>Type:</strong> ${content.type}</p>
+                            <p><strong>AI Provider:</strong> ${content.aiProvider}</p>
+                            <hr>
+                            <div style="white-space: pre-wrap;">${content.content}</div>
+                        </body>
+                        </html>
+                    `;
+                    
+                    const blob = new Blob([htmlContent], { type: 'text/html' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `${content.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.html`;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    
+                    // Mark as exported
+                    await markAsExported(contentId, 'pdf');
+                    showToast('Content exported as HTML (open in browser and print to PDF)');
+                    return;
+                }
+                
+                const blob = new Blob([exportData], { type: mimeType });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                a.click();
+                URL.revokeObjectURL(url);
+                
+                // Mark as exported
+                await markAsExported(contentId, format);
+                showToast(`Content exported as ${format.toUpperCase()}!`);
+            } catch (error) {
+                console.error('Error exporting content:', error);
+                showToast('Error exporting content', 'error');
+            }
+        }
+
+        // Mark content as exported
+        async function markAsExported(contentId, exportType) {
+            try {
+                await fetch(`/api/content/${contentId}/export`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ exportType })
+                });
+            } catch (error) {
+                console.error('Error marking as exported:', error);
+            }
+        }
+
+        // Edit content
+        function editContent(contentId) {
+            const content = allContent.find(c => c.id === contentId);
+            if (!content) return;
+            
+            currentEditId = contentId;
+            document.getElementById('editTitleInput').value = content.title;
+            document.getElementById('editContentInput').value = content.content;
+            document.getElementById('editTagsInput').value = content.tags ? content.tags.join(', ') : '';
+            document.getElementById('editModal').style.display = 'block';
+        }
+
+        // Close edit modal
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            document.getElementById('editForm').reset();
+            currentEditId = '';
+        }
+
+        // Handle edit form submission
+        document.getElementById('editForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('editTitleInput').value;
+            const content = document.getElementById('editContentInput').value;
+            const tagsString = document.getElementById('editTagsInput').value;
+            const tags = tagsString ? tagsString.split(',').map(tag => tag.trim()) : [];
+            
+            try {
+                const response = await fetch(`/api/content/${currentEditId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ title, content, tags })
+                });
+                
+                if (response.ok) {
+                    showToast('Content updated successfully!');
+                    closeEditModal();
+                    loadUserContent();
+                    loadContentStats();
+                } else {
+                    throw new Error('Failed to update content');
+                }
+            } catch (error) {
+                console.error('Error updating content:', error);
+                showToast('Error updating content', 'error');
+            }
+        });
+
+        // Toggle favorite
+        async function toggleFavorite(contentId) {
+            const content = allContent.find(c => c.id === contentId);
+            if (!content) return;
+            
+            try {
+                const response = await fetch(`/api/content/${contentId}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${authToken}`
+                    },
+                    body: JSON.stringify({ favorite: !content.favorite })
+                });
+                
+                if (response.ok) {
+                    content.favorite = !content.favorite;
+                    renderContent();
+                    loadContentStats();
+                    showToast(content.favorite ? 'Added to favorites!' : 'Removed from favorites!');
+                } else {
+                    throw new Error('Failed to update favorite');
+                }
+            } catch (error) {
+                console.error('Error updating favorite:', error);
+                showToast('Error updating favorite', 'error');
+            }
+        }
+
+        // Delete content
+        async function deleteContent(contentId) {
+            if (!confirm('Are you sure you want to delete this content?')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/api/content/${contentId}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${authToken}`
+                    }
+                });
+                
+                if (response.ok) {
+                    showToast('Content deleted successfully!');
+                    loadUserContent();
+                    loadContentStats();
+                } else {
+                    throw new Error('Failed to delete content');
+                }
+            } catch (error) {
+                console.error('Error deleting content:', error);
+                showToast('Error deleting content', 'error');
+            }
+        }
+
+        // Refresh content
+        function refreshContent() {
+            loadUserContent();
+            loadContentStats();
+        }
+
+        // Update system metrics from WebSocket
+        function updateSystemMetrics(data) {
+            const { aiSystems } = data;
+            
+            if (aiSystems.quantum) {
+                document.getElementById('quantum-operations').textContent = aiSystems.quantum.operations;
+                document.getElementById('quantum-accuracy').textContent = aiSystems.quantum.accuracy + '%';
+            }
+            
+            if (aiSystems.neural) {
+                document.getElementById('neural-inferences').textContent = aiSystems.neural.inferences;
+                document.getElementById('neural-accuracy').textContent = aiSystems.neural.accuracy + '%';
+            }
+            
+            if (aiSystems.predictive) {
+                document.getElementById('predictive-predictions').textContent = aiSystems.predictive.predictions;
+                document.getElementById('predictive-accuracy').textContent = aiSystems.predictive.accuracy + '%';
+            }
+        }
+
+        // Update AI metrics after generation
+        function updateAIMetrics(type, metrics) {
+            if (type === 'quantum' && metrics) {
+                document.getElementById('quantum-operations').textContent = metrics.operations;
+                document.getElementById('quantum-accuracy').textContent = metrics.accuracy + '%';
+            } else if (type === 'neural' && metrics) {
+                document.getElementById('neural-inferences').textContent = metrics.inferences;
+                document.getElementById('neural-accuracy').textContent = metrics.accuracy + '%';
+            } else if (type === 'predictive' && metrics) {
+                document.getElementById('predictive-predictions').textContent = metrics.predictions;
+                document.getElementById('predictive-accuracy').textContent = metrics.accuracy + '%';
+            }
+        }
+
+        // Logout function
+        function logout() {
+            localStorage.removeItem('authToken');
+            window.location.href = '/auth';
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            const generateModal = document.getElementById('generateModal');
+            const editModal = document.getElementById('editModal');
+            
+            if (event.target === generateModal) {
+                closeGenerateModal();
+            }
+            if (event.target === editModal) {
+                closeEditModal();
+            }
+        }
+    </script>
+</body>
+</html>
+
