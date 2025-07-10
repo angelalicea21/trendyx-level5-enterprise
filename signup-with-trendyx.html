@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrendyX AI Integration Example</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 1.1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            opacity: 0.9;
+            font-weight: 500;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            font-size: 1rem;
+            transition: background 0.3s ease;
+        }
+        
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.7);
+        }
+        
+        .form-group input:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            margin-bottom: 10px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .btn-secondary {
+            background: #2196F3;
+            color: white;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .features {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .features h3 {
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .feature-list {
+            list-style: none;
+        }
+        
+        .feature-list li {
+            padding: 8px 0;
+            opacity: 0.9;
+        }
+        
+        .feature-list li::before {
+            content: "🚀 ";
+            margin-right: 8px;
+        }
+        
+        .status-message {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            display: none;
+        }
+        
+        .status-success {
+            background: rgba(76, 175, 80, 0.3);
+            border: 1px solid rgba(76, 175, 80, 0.5);
+        }
+        
+        .status-error {
+            background: rgba(244, 67, 54, 0.3);
+            border: 1px solid rgba(244, 67, 54, 0.5);
+        }
+        
+        .status-info {
+            background: rgba(33, 150, 243, 0.3);
+            border: 1px solid rgba(33, 150, 243, 0.5);
+        }
+        
+        .trendyx-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .trendyx-link a {
+            color: #4CAF50;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .trendyx-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Join TrendyX AI</h1>
+            <p>Sign up and get instant access to our Level 5 Enterprise AI platform</p>
+        </div>
+        
+        <form id="signup-form">
+            <div class="form-group">
+                <label for="firstName">First Name:</label>
+                <input type="text" id="firstName" name="firstName" placeholder="Enter your first name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="lastName">Last Name:</label>
+                <input type="text" id="lastName" name="lastName" placeholder="Enter your last name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email Address:</label>
+                <input type="email" id="email" name="email" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" placeholder="Choose a username" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" placeholder="Create a secure password" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary" id="signup-btn">
+                🚀 Create Account & Access TrendyX AI
+            </button>
+            
+            <button type="button" class="btn btn-secondary" id="demo-btn">
+                🔬 View TrendyX AI Demo
+            </button>
+        </form>
+        
+        <div id="status-message" class="status-message"></div>
+        
+        <div class="features">
+            <h3>🧠 What You'll Get Access To:</h3>
+            <ul class="feature-list">
+                <li>Quantum Computing Engine (8 algorithms, 64 qubits)</li>
+                <li>Neural Network Orchestrator (8 AI models)</li>
+                <li>Predictive Analytics Engine (6 algorithms)</li>
+                <li>Self-Healing Systems (99.99% uptime)</li>
+                <li>Real-time AI Monitoring Dashboard</li>
+                <li>Advanced API Integration</li>
+            </ul>
+        </div>
+        
+        <div class="trendyx-link">
+            <a href="https://trendyx-level5-enterprise-production.up.railway.app" target="_blank">
+                🔗 Visit TrendyX AI Platform
+            </a>
+        </div>
+    </div>
+
+    <!-- Include the TrendyX Integration Script -->
+    <script src="website-integration-script.js"></script>
+    
+    <script>
+        /**
+         * Example implementation of TrendyX AI integration
+         * This shows how to integrate TrendyX AI account creation with your website signup
+         */
+        
+        // Configuration - Update these URLs for your setup
+        const CONFIG = {
+            INTEGRATION_HANDLER_URL: '/api/trendyx-integration.php', // Update this path
+            TRENDYX_DEMO_URL: 'https://trendyx-level5-enterprise-production.up.railway.app'
+        };
+        
+        // Update TrendyX integration configuration
+        if (window.TrendyXIntegration) {
+            window.TrendyXIntegration.config.INTEGRATION_HANDLER_URL = CONFIG.INTEGRATION_HANDLER_URL;
+        }
+        
+        // DOM elements
+        const signupForm = document.getElementById('signup-form');
+        const signupBtn = document.getElementById('signup-btn');
+        const demoBtn = document.getElementById('demo-btn');
+        const statusMessage = document.getElementById('status-message');
+        
+        // Form submission handler
+        signupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // Disable form during processing
+            setFormState(false);
+            showStatus('🔄 Creating your account and setting up TrendyX AI access...', 'info');
+            
+            try {
+                // Get form data
+                const formData = new FormData(signupForm);
+                const userData = {
+                    firstName: formData.get('firstName'),
+                    lastName: formData.get('lastName'),
+                    email: formData.get('email'),
+                    username: formData.get('username'),
+                    password: formData.get('password')
+                };
+                
+                // Step 1: Create account on your website (simulate this)
+                await simulateWebsiteSignup(userData);
+                
+                // Step 2: Create TrendyX AI account
+                const trendyxResult = await window.TrendyXIntegration.createTrendyXAccount(userData);
+                
+                // Step 3: Show success and redirect
+                showStatus(
+                    `🎉 Success! Your account has been created and TrendyX AI access is ready. 
+                     Redirecting to your AI dashboard...`, 
+                    'success'
+                );
+                
+                // Optional: Send welcome email, update database, etc.
+                console.log('TrendyX AI integration successful:', trendyxResult);
+                
+            } catch (error) {
+                console.error('Signup error:', error);
+                showStatus(
+                    `❌ Error: ${error.message}. Your account may have been created, but TrendyX AI integration failed. 
+                     Please contact support or try accessing TrendyX AI manually.`, 
+                    'error'
+                );
+            } finally {
+                // Re-enable form
+                setTimeout(() => setFormState(true), 3000);
+            }
+        });
+        
+        // Demo button handler
+        demoBtn.addEventListener('click', () => {
+            window.open(CONFIG.TRENDYX_DEMO_URL, '_blank');
+        });
+        
+        /**
+         * Simulate website signup process
+         * Replace this with your actual signup logic
+         */
+        async function simulateWebsiteSignup(userData) {
+            return new Promise((resolve) => {
+                // Simulate API call delay
+                setTimeout(() => {
+                    console.log('Website signup completed for:', userData.username);
+                    resolve({ success: true, userId: Date.now() });
+                }, 1000);
+            });
+        }
+        
+        /**
+         * Set form enabled/disabled state
+         */
+        function setFormState(enabled) {
+            const inputs = signupForm.querySelectorAll('input, button');
+            inputs.forEach(input => {
+                input.disabled = !enabled;
+            });
+            
+            if (enabled) {
+                signupBtn.textContent = '🚀 Create Account & Access TrendyX AI';
+            } else {
+                signupBtn.textContent = '🔄 Processing...';
+            }
+        }
+        
+        /**
+         * Show status message
+         */
+        function showStatus(message, type) {
+            statusMessage.textContent = message;
+            statusMessage.className = `status-message status-${type}`;
+            statusMessage.style.display = 'block';
+            
+            // Auto-hide success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    statusMessage.style.display = 'none';
+                }, 5000);
+            }
+        }
+        
+        /**
+         * Form validation
+         */
+        function validateForm() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const email = document.getElementById('email').value;
+            
+            // Username validation
+            if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) {
+                showStatus('Username must be 3-20 characters, alphanumeric and underscores only', 'error');
+                return false;
+            }
+            
+            // Password validation
+            if (password.length < 6) {
+                showStatus('Password must be at least 6 characters long', 'error');
+                return false;
+            }
+            
+            // Email validation
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                showStatus('Please enter a valid email address', 'error');
+                return false;
+            }
+            
+            return true;
+        }
+        
+        // Add real-time validation
+        document.getElementById('username').addEventListener('blur', validateForm);
+        document.getElementById('password').addEventListener('blur', validateForm);
+        document.getElementById('email').addEventListener('blur', validateForm);
+        
+        // Initialize page
+        console.log('TrendyX AI Integration Example loaded');
+        console.log('Integration handler URL:', CONFIG.INTEGRATION_HANDLER_URL);
+        console.log('TrendyX AI URL:', CONFIG.TRENDYX_DEMO_URL);
+    </script>
+</body>
+</html>
+
+<!--
+IMPLEMENTATION INSTRUCTIONS:
+
+1. SAVE FILES:
+   - Save this file as: website-integration-example.html
+   - Save website-integration-script.js in the same directory
+   - Save website-integration-handler.php in your /api/ directory
+
+2. UPDATE CONFIGURATION:
+   - In website-integration-script.js: Update INTEGRATION_HANDLER_URL
+   - In website-integration-handler.php: Update ALLOWED_ORIGINS with your domain
+   - In this file: Update CONFIG.INTEGRATION_HANDLER_URL
+
+3. SERVER REQUIREMENTS:
+   - PHP with cURL enabled
+   - HTTPS recommended for production
+   - Proper CORS configuration
+
+4. TESTING:
+   - Test locally first with localhost origins
+   - Verify TrendyX AI API connectivity
+   - Check browser console for any errors
+   - Monitor integration logs
+
+5. CUSTOMIZATION:
+   - Replace simulateWebsiteSignup() with your actual signup logic
+   - Customize the UI to match your website design
+   - Add additional form fields as needed
+   - Implement proper error handling for your use case
+
+6. SECURITY:
+   - Never expose API keys in client-side code
+   - Use HTTPS in production
+   - Implement rate limiting
+   - Validate all user inputs
+   - Monitor integration logs for suspicious activity
+
+7. PRODUCTION DEPLOYMENT:
+   - Update all URLs to production values
+   - Test the complete integration flow
+   - Set up monitoring and alerting
+   - Create backup procedures for user data
+-->
+

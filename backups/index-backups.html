@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Trendyx AI</title>
+    <style>
+        body { font-family: Arial; background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 50px; text-align: center; }
+        .button { background: #ff6b6b; color: white; padding: 15px 30px; border: none; border-radius: 25px; cursor: pointer; margin: 10px; }
+        .result { background: rgba(0,0,0,0.3); padding: 20px; margin: 20px; border-radius: 10px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <h1>🚀 Trendyx AI</h1>
+    <p>AI-Powered Content Generation Platform</p>
+    <button class="button" onclick="testAPI()">Test API Health</button>
+    <div class="result" id="result">Click "Test API Health" to verify your system!</div>
+    
+    <script>
+        async function testAPI() {
+            document.getElementById('result').textContent = 'Testing API...';
+            try {
+                const response = await fetch('/api/health');
+                const data = await response.json();
+                document.getElementById('result').innerHTML = 
+                    `✅ SUCCESS!\nStatus: ${data.status}\nInitialized: ${data.initialized}\nTimestamp: ${data.timestamp}`;
+            } catch (error) {
+                document.getElementById('result').textContent = `❌ Error: ${error.message}`;
+            }
+        }
+        testAPI();
+    </script>
+</body>
+</html>
