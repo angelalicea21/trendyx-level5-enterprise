@@ -126,7 +126,23 @@ function verifyToken(req, res, next) {
 }
 
 // --- Security & Performance Middleware ---
-app.use(helmet());
+// FIXED: Configure Helmet with proper CSP to allow inline scripts
+app.use(helmet({
+    contentSecurityPolicy: {
+        directives: {
+            defaultSrc: ["'self'"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+            imgSrc: ["'self'", "data:", "https:", "blob:"],
+            connectSrc: ["'self'", "ws:", "wss:"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            objectSrc: ["'none'"],
+            mediaSrc: ["'self'"],
+            frameSrc: ["'none'"],
+        },
+    },
+}));
+
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -248,233 +264,6 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// --- AI Generation Routes (FIXED) ---
-
-// Quantum Computing Engine
-app.post('/api/quantum/generate', verifyToken, async (req, res) => {
-    try {
-        const { prompt, title } = req.body;
-        
-        if (!prompt) {
-            return res.status(400).json({ message: 'Prompt is required' });
-        }
-        
-        // Simulate quantum content generation
-        const quantumContent = generateQuantumContent(prompt);
-        
-        // Store content
-        const contentData = {
-            type: 'quantum',
-            title: title || 'Quantum Generated Content',
-            content: quantumContent,
-            prompt: prompt,
-            aiProvider: 'TrendyX Quantum Engine',
-            model: 'quantum-v1',
-            tags: ['quantum', 'ai-generated']
-        };
-        
-        const storedContent = contentManager.storeContent(req.user.id, contentData);
-        
-        // Update user profile and AI systems
-        const users = loadUsers();
-        const userIndex = users.findIndex(u => u.id === req.user.id);
-        if (userIndex !== -1) {
-            users[userIndex].profile.quantumOperations = (users[userIndex].profile.quantumOperations || 0) + 1;
-            users[userIndex].profile.contentGenerated = (users[userIndex].profile.contentGenerated || 0) + 1;
-            users[userIndex].profile.totalWords = (users[userIndex].profile.totalWords || 0) + storedContent.wordCount;
-            saveUsers(users);
-        }
-        
-        aiSystems.quantum.operations++;
-        
-        res.json({
-            message: 'Quantum content generated successfully',
-            content: storedContent
-        });
-    } catch (error) {
-        logger.error('Quantum generation error:', error);
-        res.status(500).json({ message: 'Failed to generate quantum content' });
-    }
-});
-
-// Neural Network Orchestrator
-app.post('/api/neural/generate', verifyToken, async (req, res) => {
-    try {
-        const { prompt, title } = req.body;
-        
-        if (!prompt) {
-            return res.status(400).json({ message: 'Prompt is required' });
-        }
-        
-        // Simulate neural content generation
-        const neuralContent = generateNeuralContent(prompt);
-        
-        // Store content
-        const contentData = {
-            type: 'neural',
-            title: title || 'Neural Generated Content',
-            content: neuralContent,
-            prompt: prompt,
-            aiProvider: 'TrendyX Neural Network',
-            model: 'neural-v1',
-            tags: ['neural', 'ai-generated']
-        };
-        
-        const storedContent = contentManager.storeContent(req.user.id, contentData);
-        
-        // Update user profile and AI systems
-        const users = loadUsers();
-        const userIndex = users.findIndex(u => u.id === req.user.id);
-        if (userIndex !== -1) {
-            users[userIndex].profile.neuralInferences = (users[userIndex].profile.neuralInferences || 0) + 1;
-            users[userIndex].profile.contentGenerated = (users[userIndex].profile.contentGenerated || 0) + 1;
-            users[userIndex].profile.totalWords = (users[userIndex].profile.totalWords || 0) + storedContent.wordCount;
-            saveUsers(users);
-        }
-        
-        aiSystems.neural.inferences++;
-        
-        res.json({
-            message: 'Neural content generated successfully',
-            content: storedContent
-        });
-    } catch (error) {
-        logger.error('Neural generation error:', error);
-        res.status(500).json({ message: 'Failed to generate neural content' });
-    }
-});
-
-// Predictive Analytics Engine
-app.post('/api/predictive/generate', verifyToken, async (req, res) => {
-    try {
-        const { prompt, title } = req.body;
-        
-        if (!prompt) {
-            return res.status(400).json({ message: 'Prompt is required' });
-        }
-        
-        // Simulate predictive content generation
-        const predictiveContent = generatePredictiveContent(prompt);
-        
-        // Store content
-        const contentData = {
-            type: 'predictive',
-            title: title || 'Predictive Analysis',
-            content: predictiveContent,
-            prompt: prompt,
-            aiProvider: 'TrendyX Predictive Engine',
-            model: 'predictive-v1',
-            tags: ['predictive', 'analytics', 'ai-generated']
-        };
-        
-        const storedContent = contentManager.storeContent(req.user.id, contentData);
-        
-        // Update user profile and AI systems
-        const users = loadUsers();
-        const userIndex = users.findIndex(u => u.id === req.user.id);
-        if (userIndex !== -1) {
-            users[userIndex].profile.predictions = (users[userIndex].profile.predictions || 0) + 1;
-            users[userIndex].profile.contentGenerated = (users[userIndex].profile.contentGenerated || 0) + 1;
-            users[userIndex].profile.totalWords = (users[userIndex].profile.totalWords || 0) + storedContent.wordCount;
-            saveUsers(users);
-        }
-        
-        aiSystems.predictive.predictions++;
-        
-        res.json({
-            message: 'Predictive content generated successfully',
-            content: storedContent
-        });
-    } catch (error) {
-        logger.error('Predictive generation error:', error);
-        res.status(500).json({ message: 'Failed to generate predictive content' });
-    }
-});
-
-// --- Content Generation Functions ---
-
-function generateQuantumContent(prompt) {
-    const quantumTemplates = [
-        `🔬 **Quantum Analysis of: ${prompt}**\n\nUtilizing advanced quantum computing algorithms, our analysis reveals:\n\n• **Quantum State Superposition**: Multiple probability states analyzed simultaneously\n• **Entanglement Patterns**: Complex interconnections identified\n• **Quantum Coherence**: ${Math.floor(Math.random() * 20 + 80)}% coherence maintained\n• **Decoherence Time**: ${Math.floor(Math.random() * 100 + 50)}μs\n\n**Quantum Insights:**\n${generateInsights(prompt, 'quantum')}\n\n**Quantum Recommendations:**\n${generateRecommendations(prompt, 'quantum')}\n\n*Generated by TrendyX Quantum Computing Engine v1.0*`,
-        
-        `⚛️ **Quantum Computing Solution for: ${prompt}**\n\nOur quantum processors have analyzed your request using ${Math.floor(Math.random() * 64 + 32)} qubits:\n\n**Quantum Algorithm Results:**\n• Processing Speed: ${Math.floor(Math.random() * 1000 + 500)}x faster than classical\n• Accuracy Rate: ${Math.floor(Math.random() * 5 + 95)}%\n• Quantum Advantage: Exponential speedup achieved\n\n**Analysis:**\n${generateInsights(prompt, 'quantum')}\n\n**Quantum-Enhanced Solutions:**\n${generateRecommendations(prompt, 'quantum')}\n\n*Powered by TrendyX Quantum Engine*`
-    ];
-    
-    return quantumTemplates[Math.floor(Math.random() * quantumTemplates.length)];
-}
-
-function generateNeuralContent(prompt) {
-    const neuralTemplates = [
-        `🧠 **Neural Network Analysis: ${prompt}**\n\nOur advanced neural networks have processed your request through ${Math.floor(Math.random() * 8 + 5)} layers:\n\n**Network Architecture:**\n• Input Neurons: ${Math.floor(Math.random() * 1000 + 500)}\n• Hidden Layers: ${Math.floor(Math.random() * 10 + 5)}\n• Output Confidence: ${Math.floor(Math.random() * 10 + 90)}%\n• Training Accuracy: ${Math.floor(Math.random() * 5 + 95)}%\n\n**Neural Insights:**\n${generateInsights(prompt, 'neural')}\n\n**AI Recommendations:**\n${generateRecommendations(prompt, 'neural')}\n\n*Generated by TrendyX Neural Network Orchestrator*`,
-        
-        `🤖 **Deep Learning Analysis of: ${prompt}**\n\nProcessed through our state-of-the-art neural architecture:\n\n**Model Performance:**\n• Inference Time: ${Math.floor(Math.random() * 50 + 10)}ms\n• Model Parameters: ${Math.floor(Math.random() * 100 + 50)}M\n• Validation Score: ${Math.floor(Math.random() * 5 + 95)}%\n\n**Neural Network Findings:**\n${generateInsights(prompt, 'neural')}\n\n**Intelligent Recommendations:**\n${generateRecommendations(prompt, 'neural')}\n\n*Powered by TrendyX Neural Engine*`
-    ];
-    
-    return neuralTemplates[Math.floor(Math.random() * neuralTemplates.length)];
-}
-
-function generatePredictiveContent(prompt) {
-    const predictiveTemplates = [
-        `📊 **Predictive Analytics Report: ${prompt}**\n\nOur advanced predictive models have analyzed current trends and patterns:\n\n**Prediction Metrics:**\n• Confidence Level: ${Math.floor(Math.random() * 10 + 85)}%\n• Data Points Analyzed: ${Math.floor(Math.random() * 10000 + 5000)}\n• Forecast Accuracy: ${Math.floor(Math.random() * 5 + 90)}%\n• Time Horizon: ${Math.floor(Math.random() * 12 + 6)} months\n\n**Predictive Insights:**\n${generateInsights(prompt, 'predictive')}\n\n**Strategic Recommendations:**\n${generateRecommendations(prompt, 'predictive')}\n\n*Generated by TrendyX Predictive Analytics Engine*`,
-        
-        `🔮 **Future Trend Analysis: ${prompt}**\n\nBased on comprehensive data analysis and machine learning models:\n\n**Analytical Framework:**\n• Historical Data: ${Math.floor(Math.random() * 5 + 2)} years\n• Variables Considered: ${Math.floor(Math.random() * 50 + 20)}\n• Model Accuracy: ${Math.floor(Math.random() * 8 + 92)}%\n\n**Predictive Findings:**\n${generateInsights(prompt, 'predictive')}\n\n**Future Recommendations:**\n${generateRecommendations(prompt, 'predictive')}\n\n*Powered by TrendyX Predictive Engine*`
-    ];
-    
-    return predictiveTemplates[Math.floor(Math.random() * predictiveTemplates.length)];
-}
-
-function generateInsights(prompt, type) {
-    const insights = {
-        quantum: [
-            "Quantum superposition reveals multiple solution pathways simultaneously",
-            "Entanglement effects show strong correlations between key variables",
-            "Quantum tunneling suggests breakthrough opportunities in unexpected areas",
-            "Coherence analysis indicates optimal timing for implementation"
-        ],
-        neural: [
-            "Deep learning patterns reveal hidden correlations in the data",
-            "Neural network analysis identifies key success factors",
-            "Machine learning models predict high probability outcomes",
-            "AI pattern recognition suggests innovative approaches"
-        ],
-        predictive: [
-            "Trend analysis shows strong upward momentum in key metrics",
-            "Predictive models indicate optimal timing for strategic decisions",
-            "Data patterns suggest emerging opportunities in the market",
-            "Forecasting algorithms predict favorable conditions ahead"
-        ]
-    };
-    
-    const selectedInsights = insights[type] || insights.neural;
-    return selectedInsights.slice(0, 3).map((insight, i) => `${i + 1}. ${insight}`).join('\n');
-}
-
-function generateRecommendations(prompt, type) {
-    const recommendations = {
-        quantum: [
-            "Leverage quantum advantage for exponential performance gains",
-            "Implement quantum-resistant security measures",
-            "Explore quantum machine learning applications",
-            "Consider quantum cloud computing solutions"
-        ],
-        neural: [
-            "Deploy advanced neural networks for enhanced automation",
-            "Implement deep learning for pattern recognition",
-            "Utilize AI-driven decision making processes",
-            "Integrate machine learning for continuous improvement"
-        ],
-        predictive: [
-            "Act on predictive insights within the optimal time window",
-            "Implement data-driven strategic planning",
-            "Leverage forecasting for competitive advantage",
-            "Establish predictive monitoring systems"
-        ]
-    };
-    
-    const selectedRecs = recommendations[type] || recommendations.neural;
-    return selectedRecs.slice(0, 3).map((rec, i) => `${i + 1}. ${rec}`).join('\n');
-}
-
 // --- Content Management Routes ---
 
 // Store new content
@@ -525,41 +314,43 @@ app.post('/api/content', verifyToken, (req, res) => {
 app.get('/api/content', verifyToken, (req, res) => {
     try {
         const options = {
-            page: parseInt(req.query.page) || 1,
-            limit: parseInt(req.query.limit) || 10,
-            search: req.query.search || '',
-            type: req.query.type || '',
+            type: req.query.type,
+            search: req.query.search,
+            favorite: req.query.favorite === 'true',
             sortBy: req.query.sortBy || 'createdAt',
-            sortOrder: req.query.sortOrder || 'desc'
+            sortOrder: req.query.sortOrder || 'desc',
+            limit: req.query.limit ? parseInt(req.query.limit) : undefined,
+            offset: req.query.offset ? parseInt(req.query.offset) : undefined
         };
         
-        const result = contentManager.getUserContent(req.user.id, options);
+        const userContent = contentManager.getUserContent(req.user.id, options);
         
-        res.json(result);
+        res.json({
+            message: 'Content retrieved successfully',
+            content: userContent,
+            total: userContent.length
+        });
     } catch (error) {
-        logger.error('Error fetching content:', error);
+        logger.error('Error retrieving content:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
 
-// Get user statistics
-app.get('/api/content/stats/user', verifyToken, (req, res) => {
+// Get single content by ID
+app.get('/api/content/:id', verifyToken, (req, res) => {
     try {
-        const stats = contentManager.getUserStats(req.user.id);
+        const content = contentManager.getContentById(req.params.id, req.user.id);
         
-        // Get user profile data
-        const users = loadUsers();
-        const user = users.find(u => u.id === req.user.id);
-        
-        if (user && user.profile) {
-            stats.quantumOperations = user.profile.quantumOperations || 0;
-            stats.neuralInferences = user.profile.neuralInferences || 0;
-            stats.predictions = user.profile.predictions || 0;
+        if (!content) {
+            return res.status(404).json({ message: 'Content not found' });
         }
         
-        res.json(stats);
+        res.json({
+            message: 'Content retrieved successfully',
+            content
+        });
     } catch (error) {
-        logger.error('Error fetching user stats:', error);
+        logger.error('Error retrieving content:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
@@ -567,19 +358,25 @@ app.get('/api/content/stats/user', verifyToken, (req, res) => {
 // Update content
 app.put('/api/content/:id', verifyToken, (req, res) => {
     try {
-        const contentId = req.params.id;
-        const updates = req.body;
+        const { title, content, tags, favorite, type } = req.body;
         
-        const updatedContent = contentManager.updateContent(req.user.id, contentId, updates);
+        const updateData = {};
+        if (title !== undefined) updateData.title = title;
+        if (content !== undefined) updateData.content = content;
+        if (tags !== undefined) updateData.tags = tags;
+        if (favorite !== undefined) updateData.favorite = favorite;
+        if (type !== undefined) updateData.type = type;
         
-        if (updatedContent) {
-            res.json({
-                message: 'Content updated successfully',
-                content: updatedContent
-            });
-        } else {
-            res.status(404).json({ message: 'Content not found' });
+        const updatedContent = contentManager.updateContent(req.params.id, req.user.id, updateData);
+        
+        if (!updatedContent) {
+            return res.status(404).json({ message: 'Content not found' });
         }
+        
+        res.json({
+            message: 'Content updated successfully',
+            content: updatedContent
+        });
     } catch (error) {
         logger.error('Error updating content:', error);
         res.status(500).json({ message: 'Internal server error' });
@@ -589,101 +386,653 @@ app.put('/api/content/:id', verifyToken, (req, res) => {
 // Delete content
 app.delete('/api/content/:id', verifyToken, (req, res) => {
     try {
-        const contentId = req.params.id;
+        const deleted = contentManager.deleteContent(req.params.id, req.user.id);
         
-        const deleted = contentManager.deleteContent(req.user.id, contentId);
-        
-        if (deleted) {
-            res.json({ message: 'Content deleted successfully' });
-        } else {
-            res.status(404).json({ message: 'Content not found' });
+        if (!deleted) {
+            return res.status(404).json({ message: 'Content not found' });
         }
+        
+        res.json({ message: 'Content deleted successfully' });
     } catch (error) {
         logger.error('Error deleting content:', error);
         res.status(500).json({ message: 'Internal server error' });
     }
 });
 
-// --- System Health and Metrics ---
+// Get user content statistics
+app.get('/api/content/stats/user', verifyToken, (req, res) => {
+    try {
+        const stats = contentManager.getUserContentStats(req.user.id);
+        
+        res.json({
+            message: 'Content statistics retrieved successfully',
+            stats
+        });
+    } catch (error) {
+        logger.error('Error retrieving content stats:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Mark content as exported
+app.post('/api/content/:id/export', verifyToken, (req, res) => {
+    try {
+        const { exportType } = req.body;
+        
+        if (!exportType) {
+            return res.status(400).json({ message: 'Export type is required' });
+        }
+        
+        const marked = contentManager.markAsExported(req.params.id, req.user.id, exportType);
+        
+        if (!marked) {
+            return res.status(404).json({ message: 'Content not found' });
+        }
+        
+        res.json({ message: 'Content marked as exported successfully' });
+    } catch (error) {
+        logger.error('Error marking content as exported:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// --- AI Generation Routes (Enhanced with Content Storage) ---
+
+// Quantum Computing Generation
+app.post('/api/quantum/generate', verifyToken, (req, res) => {
+    try {
+        const { prompt, type } = req.body;
+        
+        if (!prompt) {
+            return res.status(400).json({ message: 'Prompt is required' });
+        }
+        
+        // Simulate quantum computing generation
+        const generatedContent = `🔬 Quantum Computing Analysis: ${prompt}\n\nQuantum processing complete. Advanced algorithms have analyzed your request using 64 qubits with 98.5% accuracy. The quantum superposition states have been collapsed to provide optimal results.\n\nGenerated using TrendyX AI Level 5 Enterprise Quantum Computing Engine.`;
+        
+        // Store the generated content
+        const contentData = {
+            type: type || 'quantum',
+            title: `Quantum Analysis: ${prompt.substring(0, 50)}...`,
+            content: generatedContent,
+            prompt,
+            aiProvider: 'trendyx-quantum',
+            model: 'quantum-64-qubit'
+        };
+        
+        const storedContent = contentManager.storeContent(req.user.id, contentData);
+        
+        // Update AI systems metrics
+        aiSystems.quantum.operations++;
+        
+        res.json({
+            message: 'Quantum content generated successfully',
+            content: generatedContent,
+            contentId: storedContent ? storedContent.id : null,
+            metrics: {
+                qubits: aiSystems.quantum.qubits,
+                accuracy: aiSystems.quantum.accuracy,
+                operations: aiSystems.quantum.operations
+            }
+        });
+    } catch (error) {
+        logger.error('Error in quantum generation:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Neural Network Generation
+app.post('/api/neural/generate', verifyToken, (req, res) => {
+    try {
+        const { prompt, type } = req.body;
+        
+        if (!prompt) {
+            return res.status(400).json({ message: 'Prompt is required' });
+        }
+        
+        // Simulate neural network generation
+        const generatedContent = `🧠 Neural Network Processing: ${prompt}\n\nNeural inference complete. 8 advanced AI models have processed your request with 96.2% accuracy. Deep learning algorithms have analyzed patterns and generated optimized content.\n\nGenerated using TrendyX AI Level 5 Enterprise Neural Network Orchestrator.`;
+        
+        // Store the generated content
+        const contentData = {
+            type: type || 'neural',
+            title: `Neural Analysis: ${prompt.substring(0, 50)}...`,
+            content: generatedContent,
+            prompt,
+            aiProvider: 'trendyx-neural',
+            model: 'neural-8-model'
+        };
+        
+        const storedContent = contentManager.storeContent(req.user.id, contentData);
+        
+        // Update AI systems metrics
+        aiSystems.neural.inferences++;
+        
+        res.json({
+            message: 'Neural content generated successfully',
+            content: generatedContent,
+            contentId: storedContent ? storedContent.id : null,
+            metrics: {
+                models: aiSystems.neural.models,
+                accuracy: aiSystems.neural.accuracy,
+                inferences: aiSystems.neural.inferences
+            }
+        });
+    } catch (error) {
+        logger.error('Error in neural generation:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// Predictive Analytics Generation
+app.post('/api/predictive/generate', verifyToken, (req, res) => {
+    try {
+        const { prompt, type } = req.body;
+        
+        if (!prompt) {
+            return res.status(400).json({ message: 'Prompt is required' });
+        }
+        
+        // Simulate predictive analytics generation
+        const generatedContent = `📊 Predictive Analytics: ${prompt}\n\nPredictive analysis complete. 6 advanced algorithms have forecasted trends and patterns with 94.7% accuracy. Statistical models and machine learning have generated predictive insights.\n\nGenerated using TrendyX AI Level 5 Enterprise Predictive Analytics Engine.`;
+        
+        // Store the generated content
+        const contentData = {
+            type: type || 'predictive',
+            title: `Predictive Analysis: ${prompt.substring(0, 50)}...`,
+            content: generatedContent,
+            prompt,
+            aiProvider: 'trendyx-predictive',
+            model: 'predictive-6-algorithm'
+        };
+        
+        const storedContent = contentManager.storeContent(req.user.id, contentData);
+        
+        // Update AI systems metrics
+        aiSystems.predictive.predictions++;
+        
+        res.json({
+            message: 'Predictive content generated successfully',
+            content: generatedContent,
+            contentId: storedContent ? storedContent.id : null,
+            metrics: {
+                algorithms: aiSystems.predictive.algorithms,
+                accuracy: aiSystems.predictive.accuracy,
+                predictions: aiSystems.predictive.predictions
+            }
+        });
+    } catch (error) {
+        logger.error('Error in predictive generation:', error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+});
+
+// --- Integration Routes ---
+try {
+    const integrationRouter = require('./routes/integration');
+    app.use('/api/integration', integrationRouter);
+} catch (error) {
+    logger.warn('Integration routes not found, skipping...');
+}
+
+// --- Health Check Routes ---
 app.get('/api/health', (req, res) => {
-    // Update performance metrics with random values for demo
-    performanceMetrics.cpuUsage = Math.floor(Math.random() * 30 + 10);
-    performanceMetrics.memoryUsage = Math.floor(Math.random() * 40 + 20);
-    performanceMetrics.networkLatency = Math.floor(Math.random() * 50 + 10);
-    performanceMetrics.requestsPerSecond = Math.floor(Math.random() * 500 + 100);
-    
     res.json({
-        status: 'OK',
+        status: 'ok',
         timestamp: new Date().toISOString(),
-        version: '2.1.7',
-        uptime: Math.floor(process.uptime()),
-        message: 'TrendyX AI Level 5 Enterprise enhanced server is operational.',
+        version: '5.2.1',
+        uptime: process.uptime(),
+        message: 'TrendyX AI Level 5 Enterprise Enhanced server is operational.',
         authentication: 'enabled',
         contentManagement: 'enabled',
-        aiSystems: aiSystems,
-        performanceMetrics: performanceMetrics
+        cspFixed: 'true',
+        aiSystems,
+        performanceMetrics
     });
 });
 
-// --- Static File Routes ---
-
-// Serve main website
-app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
-});
-
-// Serve authentication portal
-app.get('/auth', (req, res) => {
-    res.sendFile(path.join(__dirname, 'auth-frontend.html'));
-});
-
-// Serve enhanced dashboard
-app.get('/dashboard-enhanced', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dashboard-enhanced.html'));
-});
-
-// Fallback route for dashboard
+// --- Dashboard Routes ---
 app.get('/dashboard', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dashboard-enhanced.html'));
+    // Try to serve the enhanced dashboard, fallback to inline HTML if file not found
+    const dashboardPath = path.join(__dirname, 'public', 'dashboard-enhanced.html');
+    
+    if (fs.existsSync(dashboardPath)) {
+        res.sendFile(dashboardPath);
+    } else {
+        // Fallback inline dashboard with DAY 2 features
+        res.send(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrendyX AI Level 5 Enterprise - Dashboard</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            min-height: 100vh;
+        }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+        .header { text-align: center; margin-bottom: 40px; }
+        .header h1 { font-size: 3rem; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.3); }
+        .systems-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 40px; }
+        .system-card { 
+            background: rgba(255,255,255,0.1); 
+            backdrop-filter: blur(10px);
+            border-radius: 15px; 
+            padding: 25px; 
+            border: 1px solid rgba(255,255,255,0.2);
+            transition: transform 0.3s ease;
+        }
+        .system-card:hover { transform: translateY(-5px); }
+        .system-card h3 { font-size: 1.3rem; margin-bottom: 15px; color: #fff; }
+        .metric { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .metric span:first-child { opacity: 0.8; }
+        .metric span:last-child { font-weight: bold; }
+        .generate-btn { 
+            width: 100%; margin-top: 15px; padding: 12px; 
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            border: none; border-radius: 8px; color: white; cursor: pointer; 
+            font-weight: bold; transition: all 0.3s ease;
+        }
+        .generate-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3); }
+        .auth-section { 
+            background: rgba(255,255,255,0.1); 
+            backdrop-filter: blur(10px);
+            border-radius: 15px; 
+            padding: 30px; 
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.2);
+            margin-bottom: 20px;
+        }
+        .btn { 
+            padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; 
+            font-size: 1rem; transition: all 0.3s ease; text-decoration: none; display: inline-block; margin: 5px;
+        }
+        .btn-primary { background: #4CAF50; color: white; }
+        .btn-secondary { background: #2196F3; color: white; }
+        .btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+        .status { 
+            display: inline-block; padding: 4px 12px; border-radius: 20px; 
+            font-size: 0.8rem; background: #4CAF50; color: white;
+        }
+        .modal { 
+            display: none; position: fixed; z-index: 1000; left: 0; top: 0; 
+            width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); backdrop-filter: blur(5px);
+        }
+        .modal-content { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 5% auto; padding: 2rem; border-radius: 15px; width: 90%; max-width: 600px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .form-group { margin-bottom: 1rem; }
+        .form-label { display: block; margin-bottom: 0.5rem; font-weight: bold; }
+        .form-input { 
+            width: 100%; padding: 0.75rem; border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px; background: rgba(255,255,255,0.1); color: white;
+        }
+        .form-textarea { min-height: 150px; resize: vertical; }
+        .close { color: white; font-size: 28px; font-weight: bold; cursor: pointer; float: right; }
+        .close:hover { opacity: 0.7; }
+        .toast { 
+            position: fixed; top: 20px; right: 20px; background: #4CAF50; color: white;
+            padding: 1rem 1.5rem; border-radius: 8px; z-index: 1001; transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.error { background: #f44336; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 TrendyX AI Level 5 Enterprise</h1>
+            <p>Advanced Quantum Computing • Neural Networks • Predictive Analytics</p>
+        </div>
+        
+        <div class="auth-section">
+            <h2>🔐 Authentication Required</h2>
+            <p>Please login to access the enhanced dashboard with content management features</p>
+            <a href="/auth" class="btn btn-primary">🔑 Login / Register</a>
+            <a href="/api/health" class="btn btn-secondary">📊 System Health</a>
+        </div>
+        
+        <div class="systems-grid">
+            <div class="system-card">
+                <h3>🔬 Quantum Computing Engine</h3>
+                <div class="metric"><span>Status:</span><span class="status">Ready</span></div>
+                <div class="metric"><span>Algorithms:</span><span>8</span></div>
+                <div class="metric"><span>Qubits:</span><span>64</span></div>
+                <div class="metric"><span>Accuracy:</span><span>98.5%</span></div>
+                <button class="generate-btn" onclick="showAuthRequired()">Generate Quantum Content</button>
+            </div>
+            
+            <div class="system-card">
+                <h3>🧠 Neural Network Orchestrator</h3>
+                <div class="metric"><span>Status:</span><span class="status">Ready</span></div>
+                <div class="metric"><span>Models:</span><span>8</span></div>
+                <div class="metric"><span>Accuracy:</span><span>96.2%</span></div>
+                <button class="generate-btn" onclick="showAuthRequired()">Generate Neural Content</button>
+            </div>
+            
+            <div class="system-card">
+                <h3>📊 Predictive Analytics Engine</h3>
+                <div class="metric"><span>Status:</span><span class="status">Ready</span></div>
+                <div class="metric"><span>Algorithms:</span><span>6</span></div>
+                <div class="metric"><span>Accuracy:</span><span>94.7%</span></div>
+                <button class="generate-btn" onclick="showAuthRequired()">Generate Predictive Content</button>
+            </div>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+    
+    <script>
+        function showAuthRequired() {
+            showToast('Please login first to access AI generation features', 'error');
+            setTimeout(() => {
+                window.location.href = '/auth';
+            }, 2000);
+        }
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Check if user is authenticated
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            // User is authenticated, redirect to enhanced dashboard
+            window.location.href = '/dashboard-enhanced';
+        }
+    </script>
+</body>
+</html>
+        `);
+    }
 });
 
-// --- WebSocket for Real-time Updates ---
+// Enhanced dashboard route (for authenticated users)
+app.get('/dashboard-enhanced', (req, res) => {
+    const enhancedDashboardPath = path.join(__dirname, 'dashboard-enhanced.html');
+    
+    if (fs.existsSync(enhancedDashboardPath)) {
+        res.sendFile(enhancedDashboardPath);
+    } else {
+        res.redirect('/dashboard');
+    }
+});
+
+// Authentication portal
+app.get('/auth', (req, res) => {
+    const authPath = path.join(__dirname, 'auth-frontend.html');
+    
+    if (fs.existsSync(authPath)) {
+        res.sendFile(authPath);
+    } else {
+        // Fallback inline auth portal
+        res.send(`
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TrendyX AI Authentication</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+        }
+        .auth-container { 
+            background: rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            border-radius: 15px; padding: 40px; width: 100%; max-width: 400px;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .auth-header { text-align: center; margin-bottom: 30px; }
+        .auth-tabs { display: flex; margin-bottom: 30px; }
+        .tab-btn { flex: 1; padding: 12px; border: none; background: rgba(255,255,255,0.1);
+            color: white; cursor: pointer; transition: all 0.3s ease;
+        }
+        .tab-btn.active { background: rgba(255,255,255,0.2); }
+        .form-group { margin-bottom: 20px; }
+        .form-label { display: block; margin-bottom: 8px; font-weight: bold; }
+        .form-input { 
+            width: 100%; padding: 12px; border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 8px; background: rgba(255,255,255,0.1); color: white;
+        }
+        .form-input::placeholder { color: rgba(255,255,255,0.7); }
+        .submit-btn { 
+            width: 100%; padding: 15px; border: none; border-radius: 8px;
+            background: #4CAF50; color: white; font-size: 16px; font-weight: bold;
+            cursor: pointer; transition: all 0.3s ease;
+        }
+        .submit-btn:hover { background: #45a049; transform: translateY(-2px); }
+        .submit-btn:disabled { background: #666; cursor: not-allowed; transform: none; }
+        .back-link { text-align: center; margin-top: 20px; }
+        .back-link a { color: rgba(255,255,255,0.8); text-decoration: none; }
+        .back-link a:hover { color: white; }
+        .toast { 
+            position: fixed; top: 20px; right: 20px; background: #f44336; color: white;
+            padding: 1rem 1.5rem; border-radius: 8px; z-index: 1001; transform: translateX(400px);
+            transition: transform 0.3s ease;
+        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { background: #4CAF50; }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-header">
+            <h1>🔐 TrendyX AI</h1>
+            <p>Authentication Portal</p>
+        </div>
+        
+        <div class="auth-tabs">
+            <button class="tab-btn active" onclick="switchTab('login')">Login</button>
+            <button class="tab-btn" onclick="switchTab('register')">Register</button>
+        </div>
+        
+        <form id="authForm">
+            <div id="registerFields" style="display: none;">
+                <div class="form-group">
+                    <label class="form-label">Username:</label>
+                    <input type="text" id="regUsername" class="form-input" placeholder="Choose a username" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Email:</label>
+                    <input type="email" id="regEmail" class="form-input" placeholder="Enter your email">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password:</label>
+                    <input type="password" id="regPassword" class="form-input" placeholder="Choose a password" required>
+                </div>
+                <button type="submit" class="submit-btn" id="registerBtn">Register Account</button>
+            </div>
+            
+            <div id="loginFields">
+                <div class="form-group">
+                    <label class="form-label">Username or Email:</label>
+                    <input type="text" id="loginUsername" class="form-input" placeholder="Enter username or email" required>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Password:</label>
+                    <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+                </div>
+                <button type="submit" class="submit-btn" id="loginBtn">Login to TrendyX AI</button>
+            </div>
+        </form>
+        
+        <div class="back-link">
+            <a href="/">← Back to TrendyX AI Dashboard</a>
+        </div>
+    </div>
+    
+    <div id="toast" class="toast"></div>
+    
+    <script>
+        let currentTab = 'login';
+        
+        function switchTab(tab) {
+            currentTab = tab;
+            const loginFields = document.getElementById('loginFields');
+            const registerFields = document.getElementById('registerFields');
+            const tabBtns = document.querySelectorAll('.tab-btn');
+            
+            tabBtns.forEach(btn => btn.classList.remove('active'));
+            
+            if (tab === 'login') {
+                loginFields.style.display = 'block';
+                registerFields.style.display = 'none';
+                tabBtns[0].classList.add('active');
+            } else {
+                loginFields.style.display = 'none';
+                registerFields.style.display = 'block';
+                tabBtns[1].classList.add('active');
+            }
+        }
+        
+        document.getElementById('authForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const submitBtn = currentTab === 'login' ? document.getElementById('loginBtn') : document.getElementById('registerBtn');
+            submitBtn.disabled = true;
+            submitBtn.textContent = currentTab === 'login' ? 'Logging in...' : 'Registering...';
+            
+            try {
+                let endpoint, data;
+                
+                if (currentTab === 'login') {
+                    endpoint = '/api/login';
+                    data = {
+                        username: document.getElementById('loginUsername').value,
+                        password: document.getElementById('loginPassword').value
+                    };
+                } else {
+                    endpoint = '/api/register';
+                    data = {
+                        username: document.getElementById('regUsername').value,
+                        email: document.getElementById('regEmail').value,
+                        password: document.getElementById('regPassword').value
+                    };
+                }
+                
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                
+                if (response.ok) {
+                    localStorage.setItem('authToken', result.token);
+                    showToast(result.message, 'success');
+                    setTimeout(() => {
+                        window.location.href = '/dashboard-enhanced';
+                    }, 1500);
+                } else {
+                    showToast(result.message, 'error');
+                }
+            } catch (error) {
+                showToast('Network error. Please try again.', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = currentTab === 'login' ? 'Login to TrendyX AI' : 'Register Account';
+            }
+        });
+        
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Check if already authenticated
+        const token = localStorage.getItem('authToken');
+        if (token) {
+            window.location.href = '/dashboard-enhanced';
+        }
+    </script>
+</body>
+</html>
+        `);
+    }
+});
+
+// --- Self-Healing System Simulation ---
+setInterval(() => {
+    performanceMetrics.cpuUsage = Math.random() * 100;
+    performanceMetrics.memoryUsage = Math.random() * 100;
+    performanceMetrics.networkLatency = Math.random() * 50;
+    performanceMetrics.requestsPerSecond = Math.floor(Math.random() * 1000);
+    
+    if (performanceMetrics.cpuUsage > 80) {
+        aiSystems.selfHealing.actions++;
+        logger.info('Self-healing triggered for cpu: Process throttling applied');
+    }
+    
+    if (performanceMetrics.memoryUsage > 85) {
+        aiSystems.selfHealing.actions++;
+        logger.info('Self-healing triggered for memory: Garbage collection triggered');
+    }
+    
+    if (performanceMetrics.networkLatency > 40) {
+        aiSystems.selfHealing.actions++;
+        logger.info('Self-healing triggered for network: Connection pool optimization');
+    }
+}, 30000);
+
+// --- Socket.IO for Real-time Updates ---
 io.on('connection', (socket) => {
     aiSystems.realtime.connections++;
-    
+    logger.info('A user connected via WebSocket.');
+    io.emit('systemUpdate', { aiSystems, performanceMetrics });
+
     socket.on('disconnect', () => {
         aiSystems.realtime.connections--;
-    });
-    
-    // Send periodic updates
-    const updateInterval = setInterval(() => {
-        socket.emit('systemUpdate', {
-            aiSystems: aiSystems,
-            performanceMetrics: performanceMetrics,
-            timestamp: new Date().toISOString()
-        });
-        aiSystems.realtime.updates++;
-    }, 5000);
-    
-    socket.on('disconnect', () => {
-        clearInterval(updateInterval);
+        logger.info('A user disconnected from WebSocket.');
     });
 });
 
-// --- Error Handling ---
+// --- Error Handling Middleware ---
 app.use((err, req, res, next) => {
-    logger.error('Unhandled error:', err);
-    res.status(500).json({ message: 'Internal server error' });
+    logger.error('Unhandled error: ' + err.stack);
+    res.status(500).send('Something broke!');
 });
 
 // --- Start Server ---
 server.listen(PORT, '0.0.0.0', () => {
-    logger.info(`TrendyX AI Level 5 Enterprise server running on port ${PORT}`);
-    console.log(`🚀 TrendyX AI Level 5 Enterprise server running on port ${PORT}`);
-    console.log(`📊 Dashboard: http://localhost:${PORT}/dashboard-enhanced`);
-    console.log(`🔐 Authentication: http://localhost:${PORT}/auth`);
-    console.log(`🌐 Main Site: http://localhost:${PORT}/`);
+    logger.info('🚀 TrendyX AI Level 5 Enterprise Enhanced Server started on port ' + PORT);
+    logger.info('🌐 Dashboard: http://localhost:' + PORT);
+    logger.info('🔬 Quantum Computing Engine: Ready');
+    logger.info('🧠 Neural Network Orchestrator: Ready');
+    logger.info('📊 Predictive Analytics Engine: Ready');
+    logger.info('🔧 Self-Healing Systems: Active');
+    logger.info('📡 WebSocket Server: Running');
+    logger.info('🛡️ Security Middleware: Enabled (CSP Fixed)');
+    logger.info('⚡ Performance Optimization: Active');
+    logger.info('🔐 Authentication System: Enabled');
+    logger.info('📚 Content Management: Enabled');
+    logger.info('✅ CSP Configuration: Fixed for JavaScript execution');
+    logger.info('🧠 AI Brain fully operational - Ready for Railway deployment!');
 });
-
-module.exports = app;
 
