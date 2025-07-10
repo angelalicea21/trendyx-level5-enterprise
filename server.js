@@ -129,27 +129,37 @@ function verifyToken(req, res, next) {
 }
 
 // --- Security & Performance Middleware ---
-// Configure Helmet with proper CSP to allow inline scripts
+// COMPREHENSIVE CSP FIX: Allow all necessary JavaScript functionality
 app.use(helmet({
     contentSecurityPolicy: {
         directives: {
             defaultSrc: ["'self'"],
-            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"],
-            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-            imgSrc: ["'self'", "data:", "https:", "blob:"],
-            connectSrc: ["'self'", "ws:", "wss:"],
-            fontSrc: ["'self'", "https://fonts.gstatic.com"],
+            scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "blob:", "data:"],
+            scriptSrcAttr: ["'unsafe-inline'"], // CRITICAL: Allow inline event handlers
+            styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdnjs.cloudflare.com"],
+            styleSrcAttr: ["'unsafe-inline'"], // Allow inline styles
+            imgSrc: ["'self'", "data:", "https:", "blob:", "*"],
+            connectSrc: ["'self'", "ws:", "wss:", "https:", "http:"],
+            fontSrc: ["'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "data:"],
             objectSrc: ["'none'"],
-            mediaSrc: ["'self'"],
-            frameSrc: ["'none'"],
+            mediaSrc: ["'self'", "blob:", "data:"],
+            frameSrc: ["'self'"],
+            childSrc: ["'self'", "blob:"],
+            workerSrc: ["'self'", "blob:"],
+            manifestSrc: ["'self'"],
+            baseUri: ["'self'"],
+            formAction: ["'self'"],
         },
     },
+    crossOriginEmbedderPolicy: false, // Disable COEP for compatibility
+    crossOriginResourcePolicy: false, // Disable CORP for compatibility
 }));
 
 app.use(cors({
     origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    allowedHeaders: ['Content-Type', 'Authorization']
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    credentials: false
 }));
 
 // Rate limiting with proper proxy configuration
@@ -159,6 +169,10 @@ const apiLimiter = rateLimit({
     message: 'Too many requests from this IP, please try again after 15 minutes',
     standardHeaders: true, // Return rate limit info in the `RateLimit-*` headers
     legacyHeaders: false, // Disable the `X-RateLimit-*` headers
+    skip: (req) => {
+        // Skip rate limiting for health checks
+        return req.path === '/api/health';
+    }
 });
 app.use('/api/', apiLimiter);
 
@@ -410,10 +424,7 @@ app.get('/api/content/stats/user', verifyToken, (req, res) => {
     try {
         const stats = contentManager.getUserContentStats(req.user.id);
         
-        res.json({
-            message: 'Content statistics retrieved successfully',
-            stats
-        });
+        res.json(stats);
     } catch (error) {
         logger.error('Error retrieving content stats:', error);
         res.status(500).json({ message: 'Internal server error' });
@@ -592,7 +603,7 @@ app.get('/api/health', (req, res) => {
         authentication: 'enabled',
         contentManagement: 'enabled',
         proxyFixed: 'true',
-        cspFixed: 'true',
+        cspFixed: 'comprehensive',
         aiSystems,
         performanceMetrics
     });
@@ -722,18 +733,19 @@ app.get('/dashboard', (req, res) => {
     <script>
         function showAuthRequired() {
             showToast('Please login first to access AI generation features', 'error');
-            setTimeout(() => {
+            setTimeout(function() {
                 window.location.href = '/auth';
             }, 2000);
         }
         
-        function showToast(message, type = 'success') {
+        function showToast(message, type) {
+            type = type || 'success';
             const toast = document.getElementById('toast');
             toast.textContent = message;
             toast.className = 'toast ' + type;
             toast.classList.add('show');
             
-            setTimeout(() => {
+            setTimeout(function() {
                 toast.classList.remove('show');
             }, 3000);
         }
@@ -871,15 +883,17 @@ app.get('/auth', (req, res) => {
     <div id="toast" class="toast"></div>
     
     <script>
-        let currentTab = 'login';
+        var currentTab = 'login';
         
         function switchTab(tab) {
             currentTab = tab;
-            const loginFields = document.getElementById('loginFields');
-            const registerFields = document.getElementById('registerFields');
-            const tabBtns = document.querySelectorAll('.tab-btn');
+            var loginFields = document.getElementById('loginFields');
+            var registerFields = document.getElementById('registerFields');
+            var tabBtns = document.querySelectorAll('.tab-btn');
             
-            tabBtns.forEach(btn => btn.classList.remove('active'));
+            for (var i = 0; i < tabBtns.length; i++) {
+                tabBtns[i].classList.remove('active');
+            }
             
             if (tab === 'login') {
                 loginFields.style.display = 'block';
@@ -892,71 +906,77 @@ app.get('/auth', (req, res) => {
             }
         }
         
-        document.getElementById('authForm').addEventListener('submit', async function(e) {
+        document.getElementById('authForm').addEventListener('submit', function(e) {
             e.preventDefault();
             
-            const submitBtn = currentTab === 'login' ? document.getElementById('loginBtn') : document.getElementById('registerBtn');
+            var submitBtn = currentTab === 'login' ? document.getElementById('loginBtn') : document.getElementById('registerBtn');
             submitBtn.disabled = true;
             submitBtn.textContent = currentTab === 'login' ? 'Logging in...' : 'Registering...';
             
-            try {
-                let endpoint, data;
-                
-                if (currentTab === 'login') {
-                    endpoint = '/api/login';
-                    data = {
-                        username: document.getElementById('loginUsername').value,
-                        password: document.getElementById('loginPassword').value
-                    };
-                } else {
-                    endpoint = '/api/register';
-                    data = {
-                        username: document.getElementById('regUsername').value,
-                        email: document.getElementById('regEmail').value,
-                        password: document.getElementById('regPassword').value
-                    };
-                }
-                
-                const response = await fetch(endpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify(data)
+            var endpoint, data;
+            
+            if (currentTab === 'login') {
+                endpoint = '/api/login';
+                data = {
+                    username: document.getElementById('loginUsername').value,
+                    password: document.getElementById('loginPassword').value
+                };
+            } else {
+                endpoint = '/api/register';
+                data = {
+                    username: document.getElementById('regUsername').value,
+                    email: document.getElementById('regEmail').value,
+                    password: document.getElementById('regPassword').value
+                };
+            }
+            
+            fetch(endpoint, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(function(response) {
+                return response.json().then(function(result) {
+                    return { response: response, result: result };
                 });
-                
-                const result = await response.json();
-                
-                if (response.ok) {
-                    localStorage.setItem('authToken', result.token);
-                    showToast(result.message, 'success');
-                    setTimeout(() => {
+            })
+            .then(function(data) {
+                if (data.response.ok) {
+                    localStorage.setItem('authToken', data.result.token);
+                    localStorage.setItem('username', data.result.user ? data.result.user.username : (currentTab === 'login' ? document.getElementById('loginUsername').value : document.getElementById('regUsername').value));
+                    showToast(data.result.message, 'success');
+                    setTimeout(function() {
                         window.location.href = '/dashboard-enhanced';
                     }, 1500);
                 } else {
-                    showToast(result.message, 'error');
+                    showToast(data.result.message, 'error');
                 }
-            } catch (error) {
+            })
+            .catch(function(error) {
                 showToast('Network error. Please try again.', 'error');
-            } finally {
+            })
+            .finally(function() {
                 submitBtn.disabled = false;
                 submitBtn.textContent = currentTab === 'login' ? 'Login to TrendyX AI' : 'Register Account';
-            }
+            });
         });
         
-        function showToast(message, type = 'success') {
-            const toast = document.getElementById('toast');
+        function showToast(message, type) {
+            type = type || 'success';
+            var toast = document.getElementById('toast');
             toast.textContent = message;
             toast.className = 'toast ' + type;
             toast.classList.add('show');
             
-            setTimeout(() => {
+            setTimeout(function() {
                 toast.classList.remove('show');
             }, 3000);
         }
         
         // Check if already authenticated
-        const token = localStorage.getItem('authToken');
+        var token = localStorage.getItem('authToken');
         if (token) {
             window.location.href = '/dashboard-enhanced';
         }
@@ -1017,11 +1037,11 @@ server.listen(PORT, '0.0.0.0', () => {
     logger.info('📊 Predictive Analytics Engine: Ready');
     logger.info('🔧 Self-Healing Systems: Active');
     logger.info('📡 WebSocket Server: Running');
-    logger.info('🛡️ Security Middleware: Enabled (CSP Fixed)');
+    logger.info('🛡️ Security Middleware: Enabled (CSP Comprehensive)');
     logger.info('⚡ Performance Optimization: Active');
     logger.info('🔐 Authentication System: Enabled');
     logger.info('📚 Content Management: Enabled');
-    logger.info('✅ CSP Configuration: Fixed for JavaScript execution');
+    logger.info('✅ CSP Configuration: Comprehensive fix for all JavaScript execution');
     logger.info('🔧 Proxy Configuration: Fixed for Railway deployment');
     logger.info('🧠 AI Brain fully operational - Ready for Railway deployment!');
 });
