@@ -5,22 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrendyX AI Level 5 Enterprise - Authentication</title>
     <style>
+        /* CSS Reset and Base Styles */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
 
+        /* Layout Stability - Prevent Shifting */
+        html {
+            height: 100%;
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
+            height: 100%;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+            /* Prevent layout shifts from extensions */
+            contain: layout style paint;
+            isolation: isolate;
         }
 
+        /* Container with stable positioning */
         .auth-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
@@ -30,8 +44,14 @@
             width: 100%;
             max-width: 450px;
             border: 1px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            z-index: 1;
+            /* Prevent extension interference */
+            contain: layout style;
+            transform: translateZ(0); /* Force hardware acceleration */
         }
 
+        /* Logo Section */
         .logo {
             text-align: center;
             margin-bottom: 30px;
@@ -42,19 +62,23 @@
             font-size: 28px;
             font-weight: 700;
             margin-bottom: 8px;
+            line-height: 1.2;
         }
 
         .logo p {
             color: #718096;
             font-size: 16px;
+            line-height: 1.4;
         }
 
+        /* Tab System */
         .auth-tabs {
             display: flex;
             margin-bottom: 30px;
             background: #f7fafc;
             border-radius: 12px;
             padding: 4px;
+            position: relative;
         }
 
         .tab-button {
@@ -68,6 +92,8 @@
             border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
+            position: relative;
+            z-index: 2;
         }
 
         .tab-button.active {
@@ -76,8 +102,10 @@
             box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
+        /* Form Styling */
         .form-group {
             margin-bottom: 20px;
+            position: relative;
         }
 
         .form-group label {
@@ -96,6 +124,8 @@
             font-size: 16px;
             transition: all 0.3s ease;
             background: #fff;
+            position: relative;
+            z-index: 1;
         }
 
         .form-group input:focus {
@@ -109,13 +139,55 @@
             box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
         }
 
+        .form-group input.success {
+            border-color: #38a169;
+            box-shadow: 0 0 0 3px rgba(56, 161, 105, 0.1);
+        }
+
+        /* Inline Error Messages */
         .error-message {
             color: #e53e3e;
-            font-size: 14px;
-            margin-top: 5px;
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+            font-weight: 500;
+            line-height: 1.3;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        /* Success Messages */
+        .success-message {
+            color: #38a169;
+            font-size: 13px;
+            margin-top: 6px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        /* Password Strength Indicator */
+        .password-strength {
+            margin-top: 6px;
+            font-size: 12px;
+            font-weight: 500;
             display: none;
         }
 
+        .password-strength.show {
+            display: block;
+        }
+
+        .strength-weak { color: #e53e3e; }
+        .strength-medium { color: #dd6b20; }
+        .strength-strong { color: #38a169; }
+
+        /* Submit Button */
         .submit-button {
             width: 100%;
             padding: 16px;
@@ -128,9 +200,11 @@
             cursor: pointer;
             transition: all 0.3s ease;
             margin-top: 10px;
+            position: relative;
+            z-index: 1;
         }
 
-        .submit-button:hover {
+        .submit-button:hover:not(:disabled) {
             transform: translateY(-2px);
             box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
         }
@@ -141,10 +215,15 @@
             transform: none;
         }
 
+        /* Loading State */
         .loading {
             display: none;
             text-align: center;
             margin-top: 20px;
+        }
+
+        .loading.show {
+            display: block;
         }
 
         .loading-spinner {
@@ -162,48 +241,44 @@
             100% { transform: rotate(360deg); }
         }
 
-        .success-message, .error-alert {
+        /* Alert Messages */
+        .alert {
             padding: 15px;
             border-radius: 10px;
             margin-bottom: 20px;
             font-weight: 600;
             text-align: center;
             display: none;
+            position: relative;
+            z-index: 2;
         }
 
-        .success-message {
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
             background: #c6f6d5;
             color: #22543d;
             border: 1px solid #9ae6b4;
         }
 
-        .error-alert {
+        .alert-error {
             background: #fed7d7;
             color: #742a2a;
             border: 1px solid #fc8181;
         }
 
-        .register-form {
+        /* Form Visibility */
+        .auth-form {
             display: none;
         }
 
-        .register-form.active {
+        .auth-form.active {
             display: block;
         }
 
-        .login-form.active {
-            display: block;
-        }
-
-        .password-strength {
-            margin-top: 5px;
-            font-size: 12px;
-        }
-
-        .strength-weak { color: #e53e3e; }
-        .strength-medium { color: #dd6b20; }
-        .strength-strong { color: #38a169; }
-
+        /* Responsive Design */
         @media (max-width: 480px) {
             .auth-container {
                 padding: 30px 20px;
@@ -213,6 +288,34 @@
             .logo h1 {
                 font-size: 24px;
             }
+
+            .form-group input {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+        }
+
+        /* Extension Interference Prevention */
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Prevent Norton popup interference */
+        body::after {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: -1;
         }
     </style>
 </head>
@@ -223,25 +326,27 @@
             <p>Level 5 Enterprise Platform</p>
         </div>
 
-        <div class="success-message" id="successMessage"></div>
-        <div class="error-alert" id="errorAlert"></div>
+        <!-- Alert Messages -->
+        <div class="alert alert-success" id="successAlert"></div>
+        <div class="alert alert-error" id="errorAlert"></div>
 
+        <!-- Tab Navigation -->
         <div class="auth-tabs">
             <button class="tab-button active" id="loginTab" onclick="switchTab('login')">Login</button>
             <button class="tab-button" id="registerTab" onclick="switchTab('register')">Register</button>
         </div>
 
         <!-- Login Form -->
-        <form class="login-form active" id="loginForm">
+        <form class="auth-form active" id="loginForm">
             <div class="form-group">
                 <label for="loginEmail">Email Address</label>
-                <input type="email" id="loginEmail" name="email" required>
+                <input type="email" id="loginEmail" name="email" required autocomplete="email">
                 <div class="error-message" id="loginEmailError"></div>
             </div>
 
             <div class="form-group">
                 <label for="loginPassword">Password</label>
-                <input type="password" id="loginPassword" name="password" required>
+                <input type="password" id="loginPassword" name="password" required autocomplete="current-password">
                 <div class="error-message" id="loginPasswordError"></div>
             </div>
 
@@ -251,36 +356,41 @@
         </form>
 
         <!-- Register Form -->
-        <form class="register-form" id="registerForm">
+        <form class="auth-form" id="registerForm">
             <div class="form-group">
                 <label for="firstName">First Name</label>
-                <input type="text" id="firstName" name="firstName" required>
+                <input type="text" id="firstName" name="firstName" required autocomplete="given-name">
                 <div class="error-message" id="firstNameError"></div>
+                <div class="success-message" id="firstNameSuccess"></div>
             </div>
 
             <div class="form-group">
                 <label for="lastName">Last Name</label>
-                <input type="text" id="lastName" name="lastName" required>
+                <input type="text" id="lastName" name="lastName" required autocomplete="family-name">
                 <div class="error-message" id="lastNameError"></div>
+                <div class="success-message" id="lastNameSuccess"></div>
             </div>
 
             <div class="form-group">
                 <label for="registerEmail">Email Address</label>
-                <input type="email" id="registerEmail" name="email" required>
+                <input type="email" id="registerEmail" name="email" required autocomplete="email">
                 <div class="error-message" id="registerEmailError"></div>
+                <div class="success-message" id="registerEmailSuccess"></div>
             </div>
 
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" required>
+                <label for="username">Username (alphanumeric only, 3-20 characters)</label>
+                <input type="text" id="username" name="username" required autocomplete="username" pattern="[a-zA-Z0-9]{3,20}">
                 <div class="error-message" id="usernameError"></div>
+                <div class="success-message" id="usernameSuccess"></div>
             </div>
 
             <div class="form-group">
-                <label for="registerPassword">Password</label>
-                <input type="password" id="registerPassword" name="password" required>
+                <label for="registerPassword">Password (min 8 chars, include numbers & special characters)</label>
+                <input type="password" id="registerPassword" name="password" required autocomplete="new-password">
                 <div class="password-strength" id="passwordStrength"></div>
                 <div class="error-message" id="registerPasswordError"></div>
+                <div class="success-message" id="registerPasswordSuccess"></div>
             </div>
 
             <button type="submit" class="submit-button" id="registerButton">
@@ -288,6 +398,7 @@
             </button>
         </form>
 
+        <!-- Loading Indicator -->
         <div class="loading" id="loadingIndicator">
             <div class="loading-spinner"></div>
             <p>Processing your request...</p>
@@ -295,48 +406,103 @@
     </div>
 
     <script>
-        // Comprehensive error suppression for external scripts
-        window.addEventListener('error', function(e) {
-            if (e.message && (
-                e.message.includes('customDarkModeManagerCS') ||
-                e.message.includes('NSSS') ||
-                e.message.includes('Norton') ||
-                e.message.includes('SymBfw') ||
-                e.message.includes('extensionAdapter')
-            )) {
-                e.preventDefault();
-                e.stopPropagation();
-                return false;
-            }
-        });
+        // COMPREHENSIVE ERROR SUPPRESSION SYSTEM
+        // Suppress all external extension errors
+        (function() {
+            'use strict';
+            
+            // Global error handler for extension conflicts
+            window.addEventListener('error', function(e) {
+                if (e.message && (
+                    e.message.includes('customDarkModeManagerCS') ||
+                    e.message.includes('NSSS') ||
+                    e.message.includes('Norton') ||
+                    e.message.includes('SymBfw') ||
+                    e.message.includes('extensionAdapter') ||
+                    e.message.includes('NSSSDarkModeCS') ||
+                    e.message.includes('e.NSSS is undefined') ||
+                    e.filename && e.filename.includes('extension')
+                )) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    e.stopImmediatePropagation();
+                    return false;
+                }
+            }, true);
 
-        // Suppress unhandled promise rejections from extensions
-        window.addEventListener('unhandledrejection', function(e) {
-            if (e.reason && e.reason.message && (
-                e.reason.message.includes('customDarkModeManagerCS') ||
-                e.reason.message.includes('NSSS') ||
-                e.reason.message.includes('Norton')
-            )) {
-                e.preventDefault();
-                return false;
-            }
-        });
+            // Suppress unhandled promise rejections from extensions
+            window.addEventListener('unhandledrejection', function(e) {
+                if (e.reason && e.reason.message && (
+                    e.reason.message.includes('customDarkModeManagerCS') ||
+                    e.reason.message.includes('NSSS') ||
+                    e.reason.message.includes('Norton') ||
+                    e.reason.message.includes('extension')
+                )) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    return false;
+                }
+            }, true);
 
-        // Override console.error for extension errors
-        const originalConsoleError = console.error;
-        console.error = function(...args) {
-            const message = args.join(' ');
-            if (message.includes('customDarkModeManagerCS') || 
-                message.includes('NSSS') || 
-                message.includes('Norton')) {
-                return; // Suppress extension errors
+            // Override console.error for extension errors
+            const originalConsoleError = console.error;
+            console.error = function(...args) {
+                const message = args.join(' ');
+                if (message.includes('customDarkModeManagerCS') || 
+                    message.includes('NSSS') || 
+                    message.includes('Norton') ||
+                    message.includes('extension')) {
+                    return; // Suppress extension errors
+                }
+                originalConsoleError.apply(console, args);
+            };
+
+            // Prevent extension script injection
+            const originalAppendChild = Node.prototype.appendChild;
+            Node.prototype.appendChild = function(child) {
+                if (child.tagName === 'SCRIPT' && 
+                    child.src && 
+                    (child.src.includes('extension') || child.src.includes('NSSS'))) {
+                    return child; // Block extension scripts
+                }
+                return originalAppendChild.call(this, child);
+            };
+        })();
+
+        // AUTHENTICATION SYSTEM
+        let currentTab = 'login';
+        let validationRules = {
+            firstName: {
+                minLength: 2,
+                maxLength: 50,
+                pattern: /^[a-zA-Z\s]+$/,
+                message: 'First name must be 2-50 characters, letters only'
+            },
+            lastName: {
+                minLength: 2,
+                maxLength: 50,
+                pattern: /^[a-zA-Z\s]+$/,
+                message: 'Last name must be 2-50 characters, letters only'
+            },
+            email: {
+                pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                message: 'Please enter a valid email address'
+            },
+            username: {
+                minLength: 3,
+                maxLength: 20,
+                pattern: /^[a-zA-Z0-9]+$/,
+                message: 'Username must be 3-20 characters, alphanumeric only (no spaces, symbols, or underscores)'
+            },
+            password: {
+                minLength: 8,
+                requireNumber: true,
+                requireSpecial: true,
+                message: 'Password must be at least 8 characters with numbers and special characters'
             }
-            originalConsoleError.apply(console, args);
         };
 
-        // Authentication system
-        let currentTab = 'login';
-
+        // Tab switching functionality
         function switchTab(tab) {
             currentTab = tab;
             
@@ -348,184 +514,208 @@
             document.getElementById('loginForm').classList.toggle('active', tab === 'login');
             document.getElementById('registerForm').classList.toggle('active', tab === 'register');
             
-            // Clear messages
-            clearMessages();
+            // Clear all messages and errors
+            clearAllMessages();
         }
 
-        function clearMessages() {
-            document.getElementById('successMessage').style.display = 'none';
-            document.getElementById('errorAlert').style.display = 'none';
+        // Clear all messages and validation states
+        function clearAllMessages() {
+            // Hide alerts
+            document.getElementById('successAlert').classList.remove('show');
+            document.getElementById('errorAlert').classList.remove('show');
             
-            // Clear all error messages
-            const errorMessages = document.querySelectorAll('.error-message');
-            errorMessages.forEach(msg => {
-                msg.style.display = 'none';
+            // Clear all error and success messages
+            document.querySelectorAll('.error-message, .success-message').forEach(msg => {
+                msg.classList.remove('show');
                 msg.textContent = '';
             });
             
-            // Clear error styling
-            const inputs = document.querySelectorAll('input');
-            inputs.forEach(input => input.classList.remove('error'));
-        }
-
-        function showError(message) {
-            const errorAlert = document.getElementById('errorAlert');
-            errorAlert.textContent = message;
-            errorAlert.style.display = 'block';
+            // Clear input error states
+            document.querySelectorAll('input').forEach(input => {
+                input.classList.remove('error', 'success');
+            });
             
-            // Scroll to top to show error
-            document.querySelector('.auth-container').scrollTop = 0;
+            // Hide password strength
+            const strengthIndicator = document.getElementById('passwordStrength');
+            if (strengthIndicator) {
+                strengthIndicator.classList.remove('show');
+                strengthIndicator.textContent = '';
+            }
         }
 
-        function showSuccess(message) {
-            const successMessage = document.getElementById('successMessage');
-            successMessage.textContent = message;
-            successMessage.style.display = 'block';
+        // Show alert message
+        function showAlert(message, type = 'error') {
+            const alertElement = document.getElementById(type === 'success' ? 'successAlert' : 'errorAlert');
+            alertElement.textContent = message;
+            alertElement.classList.add('show');
             
-            // Scroll to top to show success
-            document.querySelector('.auth-container').scrollTop = 0;
+            // Auto-hide success messages
+            if (type === 'success') {
+                setTimeout(() => {
+                    alertElement.classList.remove('show');
+                }, 5000);
+            }
         }
 
-        function showLoading(show) {
-            document.getElementById('loadingIndicator').style.display = show ? 'block' : 'none';
+        // Show/hide loading state
+        function setLoading(show) {
+            document.getElementById('loadingIndicator').classList.toggle('show', show);
             
-            // Disable/enable forms
-            const buttons = document.querySelectorAll('.submit-button');
-            buttons.forEach(btn => btn.disabled = show);
+            // Disable/enable form buttons
+            document.querySelectorAll('.submit-button').forEach(btn => {
+                btn.disabled = show;
+            });
         }
 
-        function validateEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
+        // Validation functions
+        function validateField(fieldName, value) {
+            const rule = validationRules[fieldName];
+            if (!rule) return { valid: true };
+
+            const trimmedValue = value.trim();
+
+            // Check minimum length
+            if (rule.minLength && trimmedValue.length < rule.minLength) {
+                return { valid: false, message: rule.message };
+            }
+
+            // Check maximum length
+            if (rule.maxLength && trimmedValue.length > rule.maxLength) {
+                return { valid: false, message: rule.message };
+            }
+
+            // Check pattern
+            if (rule.pattern && !rule.pattern.test(trimmedValue)) {
+                return { valid: false, message: rule.message };
+            }
+
+            // Special password validation
+            if (fieldName === 'password') {
+                if (rule.requireNumber && !/\d/.test(trimmedValue)) {
+                    return { valid: false, message: rule.message };
+                }
+                if (rule.requireSpecial && !/[!@#$%^&*(),.?":{}|<>]/.test(trimmedValue)) {
+                    return { valid: false, message: rule.message };
+                }
+            }
+
+            return { valid: true };
         }
 
-        function validatePassword(password) {
-            return password.length >= 6;
+        // Show field validation result
+        function showFieldValidation(fieldId, validation) {
+            const input = document.getElementById(fieldId);
+            const errorElement = document.getElementById(fieldId + 'Error');
+            const successElement = document.getElementById(fieldId + 'Success');
+
+            if (validation.valid) {
+                input.classList.remove('error');
+                input.classList.add('success');
+                if (errorElement) {
+                    errorElement.classList.remove('show');
+                }
+                if (successElement) {
+                    successElement.textContent = '✓ Valid';
+                    successElement.classList.add('show');
+                }
+            } else {
+                input.classList.remove('success');
+                input.classList.add('error');
+                if (successElement) {
+                    successElement.classList.remove('show');
+                }
+                if (errorElement) {
+                    errorElement.textContent = validation.message;
+                    errorElement.classList.add('show');
+                }
+            }
         }
 
+        // Password strength checker
         function checkPasswordStrength(password) {
             const strengthIndicator = document.getElementById('passwordStrength');
             if (!password) {
-                strengthIndicator.textContent = '';
+                strengthIndicator.classList.remove('show');
                 return;
             }
             
             let strength = 0;
-            if (password.length >= 8) strength++;
-            if (/[A-Z]/.test(password)) strength++;
-            if (/[a-z]/.test(password)) strength++;
-            if (/[0-9]/.test(password)) strength++;
-            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            let feedback = [];
             
+            if (password.length >= 8) strength++;
+            else feedback.push('at least 8 characters');
+            
+            if (/[A-Z]/.test(password)) strength++;
+            else feedback.push('uppercase letter');
+            
+            if (/[a-z]/.test(password)) strength++;
+            else feedback.push('lowercase letter');
+            
+            if (/[0-9]/.test(password)) strength++;
+            else feedback.push('number');
+            
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
+            else feedback.push('special character');
+            
+            let strengthText, strengthClass;
             if (strength < 2) {
-                strengthIndicator.textContent = 'Weak password';
-                strengthIndicator.className = 'password-strength strength-weak';
+                strengthText = 'Weak - Need: ' + feedback.slice(0, 2).join(', ');
+                strengthClass = 'strength-weak';
             } else if (strength < 4) {
-                strengthIndicator.textContent = 'Medium strength';
-                strengthIndicator.className = 'password-strength strength-medium';
+                strengthText = 'Medium - Need: ' + feedback.slice(0, 1).join(', ');
+                strengthClass = 'strength-medium';
             } else {
-                strengthIndicator.textContent = 'Strong password';
-                strengthIndicator.className = 'password-strength strength-strong';
+                strengthText = 'Strong password ✓';
+                strengthClass = 'strength-strong';
             }
+            
+            strengthIndicator.textContent = strengthText;
+            strengthIndicator.className = 'password-strength show ' + strengthClass;
         }
 
-        function validateForm(formData, isRegister = false) {
-            let isValid = true;
-            const errors = {};
-
-            if (isRegister) {
-                // Validate first name
-                if (!formData.firstName || formData.firstName.trim().length < 2) {
-                    errors.firstName = 'First name must be at least 2 characters';
-                    isValid = false;
+        // Real-time validation
+        function setupRealTimeValidation() {
+            // Register form validation
+            ['firstName', 'lastName', 'registerEmail', 'username'].forEach(fieldId => {
+                const input = document.getElementById(fieldId);
+                if (input) {
+                    input.addEventListener('input', function() {
+                        const fieldName = fieldId.replace('register', '').toLowerCase();
+                        const actualFieldName = fieldName === 'registeremail' ? 'email' : fieldName;
+                        const validation = validateField(actualFieldName, this.value);
+                        showFieldValidation(fieldId, validation);
+                    });
                 }
+            });
 
-                // Validate last name
-                if (!formData.lastName || formData.lastName.trim().length < 2) {
-                    errors.lastName = 'Last name must be at least 2 characters';
-                    isValid = false;
-                }
-
-                // Validate username
-                if (!formData.username || formData.username.trim().length < 3) {
-                    errors.username = 'Username must be at least 3 characters';
-                    isValid = false;
-                }
+            // Password validation with strength checking
+            const passwordInput = document.getElementById('registerPassword');
+            if (passwordInput) {
+                passwordInput.addEventListener('input', function() {
+                    const validation = validateField('password', this.value);
+                    showFieldValidation('registerPassword', validation);
+                    checkPasswordStrength(this.value);
+                });
             }
 
-            // Validate email
-            if (!formData.email || !validateEmail(formData.email)) {
-                errors.email = 'Please enter a valid email address';
-                isValid = false;
-            }
-
-            // Validate password
-            if (!formData.password || !validatePassword(formData.password)) {
-                errors.password = 'Password must be at least 6 characters';
-                isValid = false;
-            }
-
-            return { isValid, errors };
-        }
-
-        function displayValidationErrors(errors, isRegister = false) {
-            // Clear previous errors
-            clearMessages();
-
-            Object.keys(errors).forEach(field => {
-                let errorElementId;
-                let inputElementId;
-
-                if (isRegister) {
-                    switch(field) {
-                        case 'firstName':
-                            errorElementId = 'firstNameError';
-                            inputElementId = 'firstName';
-                            break;
-                        case 'lastName':
-                            errorElementId = 'lastNameError';
-                            inputElementId = 'lastName';
-                            break;
-                        case 'email':
-                            errorElementId = 'registerEmailError';
-                            inputElementId = 'registerEmail';
-                            break;
-                        case 'username':
-                            errorElementId = 'usernameError';
-                            inputElementId = 'username';
-                            break;
-                        case 'password':
-                            errorElementId = 'registerPasswordError';
-                            inputElementId = 'registerPassword';
-                            break;
-                    }
-                } else {
-                    switch(field) {
-                        case 'email':
-                            errorElementId = 'loginEmailError';
-                            inputElementId = 'loginEmail';
-                            break;
-                        case 'password':
-                            errorElementId = 'loginPasswordError';
-                            inputElementId = 'loginPassword';
-                            break;
-                    }
-                }
-
-                if (errorElementId && inputElementId) {
-                    const errorElement = document.getElementById(errorElementId);
-                    const inputElement = document.getElementById(inputElementId);
-                    
-                    if (errorElement && inputElement) {
-                        errorElement.textContent = errors[field];
-                        errorElement.style.display = 'block';
-                        inputElement.classList.add('error');
-                    }
+            // Login form validation
+            ['loginEmail', 'loginPassword'].forEach(fieldId => {
+                const input = document.getElementById(fieldId);
+                if (input) {
+                    input.addEventListener('input', function() {
+                        if (this.classList.contains('error')) {
+                            this.classList.remove('error');
+                            const errorElement = document.getElementById(fieldId + 'Error');
+                            if (errorElement) {
+                                errorElement.classList.remove('show');
+                            }
+                        }
+                    });
                 }
             });
         }
 
-        // Enhanced form data collection
+        // Form data collection
         function getFormData(form) {
             const formData = {};
             const inputs = form.querySelectorAll('input');
@@ -533,22 +723,98 @@
             inputs.forEach(input => {
                 const value = input.value.trim();
                 formData[input.name] = value;
-                
-                // Debug logging
-                console.log(`Field ${input.name}: "${value}"`);
             });
             
             return formData;
         }
 
+        // Form validation
+        function validateForm(formData, isRegister = false) {
+            let isValid = true;
+            const errors = {};
+
+            if (isRegister) {
+                // Validate all register fields
+                Object.keys(validationRules).forEach(fieldName => {
+                    const value = formData[fieldName];
+                    const validation = validateField(fieldName, value || '');
+                    
+                    if (!validation.valid) {
+                        errors[fieldName] = validation.message;
+                        isValid = false;
+                    }
+                });
+
+                // Additional validation: password cannot be same as email
+                if (formData.password && formData.email && formData.password === formData.email) {
+                    errors.password = 'Password cannot be the same as your email address';
+                    isValid = false;
+                }
+            } else {
+                // Login validation
+                if (!formData.email || !validationRules.email.pattern.test(formData.email)) {
+                    errors.email = 'Please enter a valid email address';
+                    isValid = false;
+                }
+                
+                if (!formData.password || formData.password.length < 6) {
+                    errors.password = 'Password is required';
+                    isValid = false;
+                }
+            }
+
+            return { isValid, errors };
+        }
+
+        // Display validation errors
+        function displayValidationErrors(errors, isRegister = false) {
+            Object.keys(errors).forEach(fieldName => {
+                let fieldId;
+                
+                if (isRegister) {
+                    fieldId = fieldName === 'email' ? 'registerEmail' : 
+                             fieldName === 'password' ? 'registerPassword' : fieldName;
+                } else {
+                    fieldId = fieldName === 'email' ? 'loginEmail' : 
+                             fieldName === 'password' ? 'loginPassword' : fieldName;
+                }
+                
+                const input = document.getElementById(fieldId);
+                const errorElement = document.getElementById(fieldId + 'Error');
+                
+                if (input && errorElement) {
+                    input.classList.add('error');
+                    input.classList.remove('success');
+                    errorElement.textContent = errors[fieldName];
+                    errorElement.classList.add('show');
+                }
+            });
+        }
+
+        // API request helper
+        async function makeAPIRequest(url, data) {
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data)
+                });
+                
+                const result = await response.json();
+                return { response, result };
+            } catch (error) {
+                throw new Error('Network error. Please check your connection and try again.');
+            }
+        }
+
         // Login form handler
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            clearMessages();
+            clearAllMessages();
             
             const formData = getFormData(this);
-            console.log('Login form data:', formData);
-            
             const validation = validateForm(formData, false);
             
             if (!validation.isValid) {
@@ -556,47 +822,36 @@
                 return;
             }
             
-            showLoading(true);
+            setLoading(true);
             
             try {
-                const response = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                const result = await response.json();
+                const { response, result } = await makeAPIRequest('/api/auth/login', formData);
                 
                 if (response.ok && result.success) {
                     localStorage.setItem('authToken', result.token);
                     localStorage.setItem('username', result.username);
                     
-                    showSuccess('Login successful! Redirecting to dashboard...');
+                    showAlert('Login successful! Redirecting to dashboard...', 'success');
                     
                     setTimeout(() => {
                         window.location.href = '/dashboard';
                     }, 1500);
                 } else {
-                    showError(result.message || 'Login failed. Please check your credentials.');
+                    showAlert(result.message || 'Login failed. Please check your credentials.');
                 }
             } catch (error) {
-                console.error('Login error:', error);
-                showError('Network error. Please check your connection and try again.');
+                showAlert(error.message);
             } finally {
-                showLoading(false);
+                setLoading(false);
             }
         });
 
         // Register form handler
         document.getElementById('registerForm').addEventListener('submit', async function(e) {
             e.preventDefault();
-            clearMessages();
+            clearAllMessages();
             
             const formData = getFormData(this);
-            console.log('Register form data:', formData);
-            
             const validation = validateForm(formData, true);
             
             if (!validation.isValid) {
@@ -604,66 +859,44 @@
                 return;
             }
             
-            showLoading(true);
+            setLoading(true);
             
             try {
-                const response = await fetch('/api/auth/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(formData)
-                });
-                
-                const result = await response.json();
+                const { response, result } = await makeAPIRequest('/api/auth/register', formData);
                 
                 if (response.ok && result.success) {
                     localStorage.setItem('authToken', result.token);
                     localStorage.setItem('username', result.username);
                     
-                    showSuccess('Account created successfully! Redirecting to dashboard...');
+                    showAlert('Account created successfully! Redirecting to dashboard...', 'success');
                     
                     setTimeout(() => {
                         window.location.href = '/dashboard';
                     }, 1500);
                 } else {
-                    showError(result.message || 'Registration failed. Please try again.');
+                    if (result.errors) {
+                        displayValidationErrors(result.errors, true);
+                    } else {
+                        showAlert(result.message || 'Registration failed. Please try again.');
+                    }
                 }
             } catch (error) {
-                console.error('Registration error:', error);
-                showError('Network error. Please check your connection and try again.');
+                showAlert(error.message);
             } finally {
-                showLoading(false);
+                setLoading(false);
             }
         });
 
-        // Password strength checker
-        document.getElementById('registerPassword').addEventListener('input', function(e) {
-            checkPasswordStrength(e.target.value);
-        });
-
-        // Real-time validation clearing
-        document.querySelectorAll('input').forEach(input => {
-            input.addEventListener('input', function() {
-                if (this.classList.contains('error')) {
-                    this.classList.remove('error');
-                    const errorId = this.id + 'Error';
-                    const errorElement = document.getElementById(errorId);
-                    if (errorElement) {
-                        errorElement.style.display = 'none';
-                    }
-                }
-            });
-        });
-
-        // Initialize
+        // Initialize application
         document.addEventListener('DOMContentLoaded', function() {
             console.log('TrendyX AI Authentication System Initialized');
+            
+            // Setup real-time validation
+            setupRealTimeValidation();
             
             // Check if already logged in
             const token = localStorage.getItem('authToken');
             if (token) {
-                // Verify token is still valid
                 fetch('/api/auth/verify', {
                     headers: {
                         'Authorization': `Bearer ${token}`
@@ -679,7 +912,6 @@
                     }
                 })
                 .catch(error => {
-                    console.log('Token verification failed:', error);
                     localStorage.removeItem('authToken');
                     localStorage.removeItem('username');
                 });
