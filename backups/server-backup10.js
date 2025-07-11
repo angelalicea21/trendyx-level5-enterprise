@@ -567,7 +567,7 @@ app.use(cors({
     credentials: false
 }));
 
-// COSMETIC FIX: Railway-compatible rate limiting WITHOUT deprecated onLimitReached
+// PRODUCTION OPTIMIZED: Railway-compatible rate limiting
 const createRateLimiter = (windowMs, max, message) => {
     return rateLimit({
         windowMs,
@@ -591,9 +591,14 @@ const createRateLimiter = (windowMs, max, message) => {
                    req.path.endsWith('.css') ||
                    req.path.endsWith('.js') ||
                    req.path.endsWith('.ico');
+        },
+        onLimitReached: (req) => {
+            logger.warn('Rate limit exceeded', {
+                ip: req.ip,
+                path: req.path,
+                userAgent: req.get('User-Agent')
+            });
         }
-        // REMOVED: onLimitReached (deprecated in express-rate-limit v7)
-        // Rate limit violations will be logged by the request middleware instead
     });
 };
 
@@ -660,18 +665,6 @@ app.use((err, req, res, next) => {
 
 // --- Serve Static Files ---
 app.use(express.static(path.join(__dirname, 'public')));
-
-// COSMETIC FIX: Add favicon route to prevent 404 errors
-app.get('/favicon.ico', (req, res) => {
-    // Send a simple 1x1 transparent PNG as favicon
-    const favicon = Buffer.from(
-        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==',
-        'base64'
-    );
-    res.setHeader('Content-Type', 'image/png');
-    res.setHeader('Cache-Control', 'public, max-age=86400'); // Cache for 1 day
-    res.send(favicon);
-});
 
 // --- Enhanced AI Systems Simulation ---
 const aiSystems = {
@@ -855,7 +848,7 @@ app.get('/api/health', (req, res) => {
         status: 'operational',
         timestamp: new Date().toISOString(),
         uptime: Math.floor(uptime / 1000), // seconds
-        version: '2.1.1',
+        version: '2.1.0',
         environment: NODE_ENV,
         systems: {
             quantum: aiSystems.quantum.status,
@@ -983,7 +976,7 @@ app.post('/api/login', async (req, res) => {
     }
 });
 
-// Enhanced AI generation endpoints with comprehensive error handling
+// CORRECTED: Enhanced AI generation endpoints with comprehensive error handling
 app.post('/api/quantum/generate', verifyToken, async (req, res) => {
     try {
         const { prompt, title } = req.body;
@@ -1058,7 +1051,7 @@ app.post('/api/neural/generate', verifyToken, async (req, res) => {
     }
 });
 
-// Enhanced predictive generation endpoint with detailed error logging
+// CRITICAL FIX: Enhanced predictive generation endpoint with detailed error logging
 app.post('/api/predictive/generate', verifyToken, async (req, res) => {
     try {
         const { prompt, title } = req.body;
@@ -1408,7 +1401,6 @@ server.listen(PORT, '0.0.0.0', () => {
     console.log('🔧 Railway Proxy Configuration: Optimized');
     console.log('🐛 Enhanced Error Handling: Active');
     console.log('🔍 Detailed Logging: Enabled');
-    console.log('✅ COSMETIC FIXES: Rate limiting warnings removed, favicon added');
     console.log('🧠 AI Brain fully operational - Ready for Railway deployment!');
 });
 
