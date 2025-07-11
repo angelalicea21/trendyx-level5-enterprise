@@ -1,100 +1,55 @@
 {
-  "name": "trendyx-ai-level5-enterprise-enhanced",
-  "version": "5.2.0",
-  "description": "TrendyX AI Level 5 Enterprise - Enhanced Interactive AI Platform with Advanced Authentication System",
+  "name": "trendyx-ai-level5-enterprise",
+  "version": "5.0.0",
+  "description": "TrendyX AI Level 5 Enterprise Platform - Production Ready Self-Contained AI System",
   "main": "server.js",
-  "type": "commonjs",
-  "engines": {
-    "node": ">=18.0.0",
-    "npm": ">=9.0.0"
-  },
   "scripts": {
     "start": "node server.js",
-    "dev": "nodemon server.js",
-    "build": "echo 'TrendyX AI Level 5 Enterprise Enhanced - Build completed'",
-    "test": "echo 'TrendyX AI Level 5 Enterprise Enhanced - All systems operational' && exit 0",
-    "health": "curl -f http://localhost:3000/api/health || exit 1",
-    "quantum": "curl -f http://localhost:3000/api/quantum/grovers || exit 1",
-    "neural": "curl -X POST -H 'Content-Type: application/json' -d '{\"text\":\"test\"}' http://localhost:3000/api/neural/transformer || exit 1",
-    "auth-test": "curl -X POST -H 'Content-Type: application/json' -d '{\"email\":\"test@example.com\",\"password\":\"Test123!\"}' http://localhost:3000/api/auth/login || exit 1"
-  },
-  "dependencies": {
-    "express": "^4.21.2",
-    "cors": "^2.8.5",
-    "helmet": "^7.1.0",
-    "compression": "^1.7.4",
-    "express-rate-limit": "^7.1.5",
-    "socket.io": "^4.7.2",
-    "winston": "^3.11.0",
-    "dotenv": "^16.6.1",
-    "uuid": "^9.0.1",
-    "moment": "^2.29.4",
-    "lodash": "^4.17.21",
-    "crypto": "^1.0.1",
-    "path": "^0.12.7",
-    "fs": "^0.0.1-security",
-    "bcryptjs": "^2.4.3",
-    "jsonwebtoken": "^9.0.2"
-  },
-  "devDependencies": {
-    "nodemon": "^3.0.1",
-    "jest": "^29.7.0",
-    "supertest": "^6.3.3"
+    "dev": "node server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
     "ai",
     "artificial-intelligence",
     "quantum-computing",
     "neural-networks",
-    "enterprise",
-    "level5",
-    "trendyx",
-    "railway",
-    "deployment",
-    "interactive",
-    "enhanced",
-    "real-time",
-    "websocket",
-    "api",
-    "machine-learning",
-    "deep-learning",
     "predictive-analytics",
-    "self-healing",
-    "authentication",
-    "user-management",
-    "jwt",
-    "security"
+    "enterprise",
+    "trendyx",
+    "level5"
   ],
-  "author": "TrendyX AI Enterprise Team - World-Class AI Engineers",
+  "author": "TrendyX AI Development Team",
   "license": "MIT",
+  "dependencies": {
+    "express": "^4.18.2"
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
   "repository": {
     "type": "git",
-    "url": "https://github.com/angelalicea21/trendyx-level5-enterprise.git"
+    "url": "https://github.com/yourusername/trendyx-level5-enterprise.git"
   },
+  "homepage": "https://trendyx-level5-enterprise-production.up.railway.app",
   "bugs": {
-    "url": "https://github.com/angelalicea21/trendyx-level5-enterprise/issues"
+    "url": "https://github.com/yourusername/trendyx-level5-enterprise/issues"
   },
-  "homepage": "https://github.com/angelalicea21/trendyx-level5-enterprise#readme",
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "peerDependencies": {},
+  "bundledDependencies": [],
+  "private": false,
+  "workspaces": [],
   "config": {
-    "ai_systems": {
-      "quantum_enabled": true,
-      "neural_enabled": true,
-      "predictive_enabled": true,
-      "healing_enabled": true,
-      "realtime_enabled": true,
-      "auth_enabled": true
-    },
-    "authentication": {
-      "jwt_expiry": "24h",
-      "refresh_expiry": "7d",
-      "max_login_attempts": 5,
-      "lockout_duration": 900000
-    },
-    "performance": {
-      "max_connections": 1000,
-      "rate_limit": 1000,
-      "timeout": 30000
-    }
+    "port": "8080"
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "node_modules/*",
+      "public/*"
+    ],
+    "delay": "1000"
   }
 }
 

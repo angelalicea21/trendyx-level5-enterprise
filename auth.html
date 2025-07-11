@@ -4,38 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrendyX AI Level 5 Enterprise - Authentication</title>
-    
-    <!-- Error prevention for external scripts -->
-    <script>
-        (function() {
-            'use strict';
-            
-            // Create safe fallback for any external script dependencies
-            window.customdarkmodemanagercs = window.customdarkmodemanagercs || {};
-            
-            // Global error suppression for external scripts
-            window.addEventListener('error', function(event) {
-                if (event.message && (
-                    event.message.includes('customdarkmodemanagercs') ||
-                    event.message.includes('Script error') ||
-                    event.filename === ''
-                )) {
-                    console.log('External script error suppressed:', event.message);
-                    event.preventDefault();
-                    return false;
-                }
-            });
-            
-            // Suppress unhandled promise rejections from external scripts
-            window.addEventListener('unhandledrejection', function(event) {
-                if (event.reason && event.reason.toString().includes('customdarkmodemanagercs')) {
-                    console.log('External promise rejection suppressed');
-                    event.preventDefault();
-                }
-            });
-        })();
-    </script>
-    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -44,601 +13,501 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #333;
+            padding: 20px;
         }
 
         .auth-container {
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            padding: 3rem;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
             width: 100%;
             max-width: 450px;
-            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
 
         .logo {
-            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .logo h1 {
+            font-size: 28px;
+            font-weight: 700;
             background: linear-gradient(135deg, #667eea, #764ba2);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 0.5rem;
-            font-weight: bold;
+            background-clip: text;
+            margin-bottom: 8px;
         }
 
-        .subtitle {
-            color: #666;
-            margin-bottom: 2rem;
-            font-size: 1.1rem;
+        .logo p {
+            color: #6b7280;
+            font-size: 14px;
+            font-weight: 500;
         }
 
-        .auth-tabs {
+        .tabs {
             display: flex;
-            margin-bottom: 2rem;
-            background: #f0f0f0;
-            border-radius: 10px;
+            background: #f3f4f6;
+            border-radius: 12px;
             padding: 4px;
+            margin-bottom: 30px;
         }
 
-        .tab-button {
+        .tab-btn {
             flex: 1;
-            padding: 0.75rem;
-            border: none;
+            padding: 12px 20px;
             background: transparent;
+            border: none;
             border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 600;
+            font-weight: 500;
+            font-size: 14px;
+            color: #6b7280;
             cursor: pointer;
             transition: all 0.3s ease;
-            color: #666;
         }
 
-        .tab-button.active {
+        .tab-btn.active {
             background: white;
-            color: #333;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            color: #374151;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
 
-        .auth-form {
+        .tab-content {
             display: none;
         }
 
-        .auth-form.active {
+        .tab-content.active {
             display: block;
         }
 
         .form-group {
-            margin-bottom: 1.5rem;
-            text-align: left;
+            margin-bottom: 20px;
         }
 
-        .form-label {
+        .form-group label {
             display: block;
-            margin-bottom: 0.5rem;
-            font-weight: 600;
-            color: #333;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #374151;
+            font-size: 14px;
         }
 
-        .form-input {
+        .form-group input {
             width: 100%;
-            padding: 0.75rem;
-            border: 2px solid #e0e0e0;
+            padding: 14px 16px;
+            border: 2px solid #e5e7eb;
             border-radius: 10px;
-            font-size: 1rem;
-            transition: border-color 0.3s ease;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
         }
 
-        .form-input:focus {
+        .form-group input:focus {
             outline: none;
             border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
         }
 
-        .form-input.error {
-            border-color: #f44336;
+        .form-group input.error {
+            border-color: #ef4444;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
         }
 
-        .error-message {
-            color: #f44336;
-            font-size: 0.85rem;
-            margin-top: 0.5rem;
-            display: none;
+        .password-strength {
+            margin-top: 8px;
+            font-size: 12px;
         }
 
-        .submit-button {
+        .strength-bar {
+            height: 4px;
+            background: #e5e7eb;
+            border-radius: 2px;
+            margin: 4px 0;
+            overflow: hidden;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-weak .strength-fill {
+            width: 33%;
+            background: #ef4444;
+        }
+
+        .strength-medium .strength-fill {
+            width: 66%;
+            background: #f59e0b;
+        }
+
+        .strength-strong .strength-fill {
             width: 100%;
-            padding: 1rem;
+            background: #10b981;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px;
             background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
             border: none;
             border-radius: 10px;
-            font-size: 1rem;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 1rem;
+            margin-top: 10px;
         }
 
-        .submit-button:hover {
+        .submit-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
         }
 
-        .submit-button:disabled {
+        .submit-btn:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .success-message {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
         }
 
         .loading {
-            position: relative;
-        }
-
-        .loading::after {
-            content: '';
-            position: absolute;
-            top: 50%;
-            left: 50%;
+            display: inline-block;
             width: 20px;
             height: 20px;
-            margin: -10px 0 0 -10px;
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            border: 2px solid #ffffff;
             border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s linear infinite;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        .success-message {
-            background: #4CAF50;
-            color: white;
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            display: none;
-        }
-
-        .error-banner {
-            background: #f44336;
-            color: white;
-            padding: 1rem;
-            border-radius: 10px;
-            margin-bottom: 1rem;
-            display: none;
-        }
-
         .features {
-            margin-top: 2rem;
-            text-align: left;
+            margin-top: 30px;
+            padding-top: 30px;
+            border-top: 1px solid #e5e7eb;
         }
 
         .features h3 {
-            color: #333;
-            margin-bottom: 1rem;
-            font-size: 1.2rem;
+            font-size: 16px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 15px;
+            text-align: center;
         }
 
         .feature-list {
-            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
         }
 
-        .feature-list li {
-            padding: 0.5rem 0;
-            color: #666;
-            position: relative;
-            padding-left: 1.5rem;
-        }
-
-        .feature-list li::before {
-            content: '✓';
-            position: absolute;
-            left: 0;
-            color: #4CAF50;
-            font-weight: bold;
-        }
-
-        .footer {
-            margin-top: 2rem;
-            padding-top: 1rem;
-            border-top: 1px solid #e0e0e0;
-            color: #666;
-            font-size: 0.9rem;
-        }
-
-        /* Toast Notifications */
-        .toast {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 1rem 1.5rem;
+        .feature-item {
+            text-align: center;
+            padding: 15px 10px;
+            background: #f9fafb;
             border-radius: 10px;
-            color: white;
-            font-weight: 600;
-            z-index: 1001;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
+            border: 1px solid #e5e7eb;
         }
 
-        .toast.show {
-            transform: translateX(0);
+        .feature-item .icon {
+            font-size: 24px;
+            margin-bottom: 8px;
         }
 
-        .toast.success {
-            background: #4CAF50;
+        .feature-item .title {
+            font-size: 12px;
+            font-weight: 500;
+            color: #374151;
         }
 
-        .toast.error {
-            background: #f44336;
-        }
-
-        .toast.info {
-            background: #2196F3;
-        }
-
-        /* Responsive Design */
-        @media (max-width: 768px) {
+        @media (max-width: 480px) {
             .auth-container {
-                margin: 1rem;
-                padding: 2rem;
+                padding: 30px 20px;
+                margin: 10px;
             }
-
-            .logo {
-                font-size: 2rem;
+            
+            .logo h1 {
+                font-size: 24px;
+            }
+            
+            .feature-list {
+                grid-template-columns: 1fr;
             }
         }
 
-        /* Password strength indicator */
-        .password-strength {
-            margin-top: 0.5rem;
-            height: 4px;
-            background: #e0e0e0;
-            border-radius: 2px;
-            overflow: hidden;
-            display: none;
-        }
-
-        .password-strength-bar {
-            height: 100%;
-            width: 0%;
-            transition: all 0.3s ease;
-            border-radius: 2px;
-        }
-
-        .strength-weak { background: #f44336; }
-        .strength-medium { background: #FF9800; }
-        .strength-strong { background: #4CAF50; }
-
-        .password-requirements {
-            margin-top: 0.5rem;
-            font-size: 0.8rem;
-            color: #666;
-            display: none;
-        }
-
-        .requirement {
-            display: flex;
-            align-items: center;
-            margin: 0.25rem 0;
-        }
-
-        .requirement-icon {
-            margin-right: 0.5rem;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            background: #e0e0e0;
-            transition: background 0.3s ease;
-        }
-
-        .requirement.met .requirement-icon {
-            background: #4CAF50;
+        /* Suppress external script errors */
+        .error-suppression {
+            display: none !important;
         }
     </style>
 </head>
 <body>
     <div class="auth-container">
-        <!-- Logo and Title -->
-        <div class="logo">🚀 TrendyX AI</div>
-        <div class="subtitle">Level 5 Enterprise Platform</div>
-
-        <!-- Success/Error Messages -->
-        <div id="successMessage" class="success-message"></div>
-        <div id="errorBanner" class="error-banner"></div>
-
-        <!-- Authentication Tabs -->
-        <div class="auth-tabs">
-            <button class="tab-button active" onclick="switchTab('login')">Login</button>
-            <button class="tab-button" onclick="switchTab('register')">Register</button>
+        <div class="logo">
+            <h1>🚀 TrendyX AI Level 5</h1>
+            <p>Enterprise AI Platform</p>
         </div>
 
-        <!-- Login Form -->
-        <form id="loginForm" class="auth-form active">
-            <div class="form-group">
-                <label class="form-label" for="loginEmail">Email Address</label>
-                <input type="email" class="form-input" id="loginEmail" placeholder="Enter your email" required>
-                <div class="error-message" id="loginEmailError"></div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="loginPassword">Password</label>
-                <input type="password" class="form-input" id="loginPassword" placeholder="Enter your password" required>
-                <div class="error-message" id="loginPasswordError"></div>
-            </div>
-            
-            <button type="submit" class="submit-button" id="loginButton">
-                Sign In to Dashboard
-            </button>
-        </form>
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
+            <button class="tab-btn" onclick="switchTab('register')">Sign Up</button>
+        </div>
 
-        <!-- Register Form -->
-        <form id="registerForm" class="auth-form">
-            <div class="form-group">
-                <label class="form-label" for="registerUsername">Username</label>
-                <input type="text" class="form-input" id="registerUsername" placeholder="Choose a username" required>
-                <div class="error-message" id="registerUsernameError"></div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="registerEmail">Email Address</label>
-                <input type="email" class="form-input" id="registerEmail" placeholder="Enter your email" required>
-                <div class="error-message" id="registerEmailError"></div>
-            </div>
-            
-            <div class="form-group">
-                <label class="form-label" for="registerPassword">Password</label>
-                <input type="password" class="form-input" id="registerPassword" placeholder="Create a strong password" required>
-                <div class="password-strength" id="passwordStrength">
-                    <div class="password-strength-bar" id="passwordStrengthBar"></div>
+        <div class="error-message" id="errorMessage"></div>
+        <div class="success-message" id="successMessage"></div>
+
+        <!-- Login Tab -->
+        <div class="tab-content active" id="loginTab">
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="loginEmail">Email Address</label>
+                    <input type="email" id="loginEmail" required autocomplete="email">
                 </div>
-                <div class="password-requirements" id="passwordRequirements">
-                    <div class="requirement" id="lengthReq">
-                        <div class="requirement-icon"></div>
-                        At least 6 characters
-                    </div>
-                    <div class="requirement" id="upperReq">
-                        <div class="requirement-icon"></div>
-                        One uppercase letter
-                    </div>
-                    <div class="requirement" id="numberReq">
-                        <div class="requirement-icon"></div>
-                        One number
+                <div class="form-group">
+                    <label for="loginPassword">Password</label>
+                    <input type="password" id="loginPassword" required autocomplete="current-password">
+                </div>
+                <button type="submit" class="submit-btn" id="loginBtn">
+                    Sign In to Dashboard
+                </button>
+            </form>
+        </div>
+
+        <!-- Register Tab -->
+        <div class="tab-content" id="registerTab">
+            <form onsubmit="handleRegister(event)">
+                <div class="form-group">
+                    <label for="registerUsername">Username</label>
+                    <input type="text" id="registerUsername" required autocomplete="username" minlength="3">
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Email Address</label>
+                    <input type="email" id="registerEmail" required autocomplete="email">
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Password</label>
+                    <input type="password" id="registerPassword" required autocomplete="new-password" minlength="6" oninput="checkPasswordStrength()">
+                    <div class="password-strength" id="passwordStrength" style="display: none;">
+                        <div class="strength-bar">
+                            <div class="strength-fill"></div>
+                        </div>
+                        <span class="strength-text"></span>
                     </div>
                 </div>
-                <div class="error-message" id="registerPasswordError"></div>
-            </div>
-            
-            <button type="submit" class="submit-button" id="registerButton">
-                Create Account & Access Dashboard
-            </button>
-        </form>
+                <button type="submit" class="submit-btn" id="registerBtn">
+                    Create Account
+                </button>
+            </form>
+        </div>
 
-        <!-- Features Section -->
         <div class="features">
-            <h3>🧠 AI-Powered Features</h3>
-            <ul class="feature-list">
-                <li>Quantum Computing Engine</li>
-                <li>Neural Network Orchestrator</li>
-                <li>Predictive Analytics Engine</li>
-                <li>Advanced Content Management</li>
-                <li>Real-time Performance Monitoring</li>
-            </ul>
-        </div>
-
-        <!-- Footer -->
-        <div class="footer">
-            Secure authentication powered by JWT tokens<br>
-            Enterprise-grade security and performance
+            <h3>AI Capabilities</h3>
+            <div class="feature-list">
+                <div class="feature-item">
+                    <div class="icon">🔬</div>
+                    <div class="title">Quantum Computing</div>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">🧠</div>
+                    <div class="title">Neural Networks</div>
+                </div>
+                <div class="feature-item">
+                    <div class="icon">📊</div>
+                    <div class="title">Predictive Analytics</div>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
-        // Application state
-        let currentTab = 'login';
-        
-        // Switch between login and register tabs
+        // Suppress external script errors
+        window.addEventListener('error', function(e) {
+            if (e.filename && (e.filename.includes('customdarkmodemanagercs') || 
+                              e.filename.includes('extension') || 
+                              e.message.includes('customdarkmodemanagercs'))) {
+                e.preventDefault();
+                return true;
+            }
+        });
+
+        // Tab switching
         function switchTab(tab) {
-            currentTab = tab;
-            
             // Update tab buttons
-            document.querySelectorAll('.tab-button').forEach(btn => {
-                btn.classList.remove('active');
-            });
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
             event.target.classList.add('active');
             
-            // Update forms
-            document.querySelectorAll('.auth-form').forEach(form => {
-                form.classList.remove('active');
-            });
-            document.getElementById(tab + 'Form').classList.add('active');
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tab + 'Tab').classList.add('active');
             
-            // Clear any previous messages
+            // Clear messages
             hideMessages();
-            clearErrors();
         }
 
         // Password strength checker
-        function checkPasswordStrength(password) {
-            const requirements = {
-                length: password.length >= 6,
-                upper: /[A-Z]/.test(password),
-                number: /\d/.test(password)
-            };
+        function checkPasswordStrength() {
+            const password = document.getElementById('registerPassword').value;
+            const strengthDiv = document.getElementById('passwordStrength');
+            const strengthBar = strengthDiv.querySelector('.strength-bar');
+            const strengthText = strengthDiv.querySelector('.strength-text');
             
-            const metCount = Object.values(requirements).filter(Boolean).length;
-            let strength = 'weak';
-            let width = 0;
-            
-            if (metCount === 3) {
-                strength = 'strong';
-                width = 100;
-            } else if (metCount === 2) {
-                strength = 'medium';
-                width = 66;
-            } else if (metCount === 1) {
-                strength = 'weak';
-                width = 33;
+            if (password.length === 0) {
+                strengthDiv.style.display = 'none';
+                return;
             }
+            
+            strengthDiv.style.display = 'block';
+            
+            let strength = 0;
+            let feedback = [];
+            
+            // Length check
+            if (password.length >= 8) strength++;
+            else feedback.push('at least 8 characters');
+            
+            // Uppercase check
+            if (/[A-Z]/.test(password)) strength++;
+            else feedback.push('uppercase letter');
+            
+            // Lowercase check
+            if (/[a-z]/.test(password)) strength++;
+            else feedback.push('lowercase letter');
+            
+            // Number check
+            if (/\d/.test(password)) strength++;
+            else feedback.push('number');
+            
+            // Special character check
+            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
+            else feedback.push('special character');
             
             // Update UI
-            const strengthBar = document.getElementById('passwordStrengthBar');
-            const strengthContainer = document.getElementById('passwordStrength');
-            const requirementsContainer = document.getElementById('passwordRequirements');
-            
-            if (password.length > 0) {
-                strengthContainer.style.display = 'block';
-                requirementsContainer.style.display = 'block';
-                
-                strengthBar.className = `password-strength-bar strength-${strength}`;
-                strengthBar.style.width = width + '%';
-                
-                // Update requirements
-                document.getElementById('lengthReq').classList.toggle('met', requirements.length);
-                document.getElementById('upperReq').classList.toggle('met', requirements.upper);
-                document.getElementById('numberReq').classList.toggle('met', requirements.number);
+            strengthBar.className = 'strength-bar';
+            if (strength <= 2) {
+                strengthBar.classList.add('strength-weak');
+                strengthText.textContent = 'Weak - Add: ' + feedback.slice(0, 2).join(', ');
+                strengthText.style.color = '#ef4444';
+            } else if (strength <= 3) {
+                strengthBar.classList.add('strength-medium');
+                strengthText.textContent = 'Medium - Add: ' + feedback.slice(0, 1).join(', ');
+                strengthText.style.color = '#f59e0b';
             } else {
-                strengthContainer.style.display = 'none';
-                requirementsContainer.style.display = 'none';
+                strengthBar.classList.add('strength-strong');
+                strengthText.textContent = 'Strong password';
+                strengthText.style.color = '#10b981';
             }
-            
-            return strength;
         }
 
-        // Show toast notification
-        function showToast(message, type) {
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            toast.textContent = message;
-            document.body.appendChild(toast);
-            
-            setTimeout(() => {
-                toast.classList.add('show');
-            }, 100);
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-                setTimeout(() => {
-                    document.body.removeChild(toast);
-                }, 300);
-            }, 3000);
+        // Message handling
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            document.getElementById('successMessage').style.display = 'none';
         }
 
-        // Show success message
         function showSuccess(message) {
             const successDiv = document.getElementById('successMessage');
             successDiv.textContent = message;
             successDiv.style.display = 'block';
-            hideError();
+            document.getElementById('errorMessage').style.display = 'none';
         }
 
-        // Show error message
-        function showError(message) {
-            const errorDiv = document.getElementById('errorBanner');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-            hideSuccess();
-        }
-
-        // Hide messages
         function hideMessages() {
-            hideSuccess();
-            hideError();
-        }
-
-        function hideSuccess() {
+            document.getElementById('errorMessage').style.display = 'none';
             document.getElementById('successMessage').style.display = 'none';
         }
 
-        function hideError() {
-            document.getElementById('errorBanner').style.display = 'none';
-        }
-
-        // Clear field errors
-        function clearErrors() {
-            document.querySelectorAll('.form-input').forEach(input => {
-                input.classList.remove('error');
-            });
-            document.querySelectorAll('.error-message').forEach(error => {
-                error.style.display = 'none';
-            });
-        }
-
-        // Show field error
-        function showFieldError(fieldId, message) {
-            const field = document.getElementById(fieldId);
-            const errorDiv = document.getElementById(fieldId + 'Error');
-            
-            field.classList.add('error');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
-        }
-
-        // Validate email format
-        function isValidEmail(email) {
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return emailRegex.test(email);
-        }
-
-        // Set loading state
+        // Loading state management
         function setLoading(buttonId, isLoading) {
             const button = document.getElementById(buttonId);
             if (isLoading) {
-                button.classList.add('loading');
                 button.disabled = true;
-                button.textContent = '';
+                button.innerHTML = '<span class="loading"></span>Processing...';
             } else {
-                button.classList.remove('loading');
                 button.disabled = false;
-                if (buttonId === 'loginButton') {
-                    button.textContent = 'Sign In to Dashboard';
-                } else {
-                    button.textContent = 'Create Account & Access Dashboard';
-                }
+                button.innerHTML = buttonId === 'loginBtn' ? 'Sign In to Dashboard' : 'Create Account';
             }
         }
 
-        // Handle login
+        // Form validation
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function validatePassword(password) {
+            return password.length >= 6;
+        }
+
+        function validateUsername(username) {
+            return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
+        }
+
+        // Login handler
         async function handleLogin(event) {
             event.preventDefault();
-            clearErrors();
             hideMessages();
             
             const email = document.getElementById('loginEmail').value.trim();
             const password = document.getElementById('loginPassword').value;
             
             // Validation
-            let hasErrors = false;
-            
-            if (!email) {
-                showFieldError('loginEmail', 'Email is required');
-                hasErrors = true;
-            } else if (!isValidEmail(email)) {
-                showFieldError('loginEmail', 'Please enter a valid email address');
-                hasErrors = true;
+            if (!validateEmail(email)) {
+                showError('Please enter a valid email address');
+                return;
             }
             
-            if (!password) {
-                showFieldError('loginPassword', 'Password is required');
-                hasErrors = true;
+            if (!validatePassword(password)) {
+                showError('Password must be at least 6 characters long');
+                return;
             }
             
-            if (hasErrors) return;
-            
-            setLoading('loginButton', true);
+            setLoading('loginBtn', true);
             
             try {
                 const response = await fetch('/api/login', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ email, password })
                 });
@@ -649,29 +518,28 @@
                     // Store authentication data
                     localStorage.setItem('trendyx_token', data.token);
                     localStorage.setItem('trendyx_username', data.user.username);
+                    localStorage.setItem('trendyx_email', data.user.email);
                     
                     showSuccess('Login successful! Redirecting to dashboard...');
-                    showToast('Welcome back to TrendyX AI!', 'success');
                     
-                    // Redirect to dashboard
+                    // Redirect after short delay
                     setTimeout(() => {
                         window.location.href = '/dashboard';
                     }, 1500);
                 } else {
-                    showError(data.message || 'Login failed. Please check your credentials.');
+                    showError(data.message || 'Login failed. Please try again.');
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                showError('Login failed. Please check your internet connection and try again.');
+                showError('Network error. Please check your connection and try again.');
             } finally {
-                setLoading('loginButton', false);
+                setLoading('loginBtn', false);
             }
         }
 
-        // Handle registration
+        // Register handler
         async function handleRegister(event) {
             event.preventDefault();
-            clearErrors();
             hideMessages();
             
             const username = document.getElementById('registerUsername').value.trim();
@@ -679,41 +547,28 @@
             const password = document.getElementById('registerPassword').value;
             
             // Validation
-            let hasErrors = false;
-            
-            if (!username) {
-                showFieldError('registerUsername', 'Username is required');
-                hasErrors = true;
-            } else if (username.length < 3) {
-                showFieldError('registerUsername', 'Username must be at least 3 characters');
-                hasErrors = true;
+            if (!validateUsername(username)) {
+                showError('Username must be at least 3 characters and contain only letters, numbers, and underscores');
+                return;
             }
             
-            if (!email) {
-                showFieldError('registerEmail', 'Email is required');
-                hasErrors = true;
-            } else if (!isValidEmail(email)) {
-                showFieldError('registerEmail', 'Please enter a valid email address');
-                hasErrors = true;
+            if (!validateEmail(email)) {
+                showError('Please enter a valid email address');
+                return;
             }
             
-            if (!password) {
-                showFieldError('registerPassword', 'Password is required');
-                hasErrors = true;
-            } else if (password.length < 6) {
-                showFieldError('registerPassword', 'Password must be at least 6 characters');
-                hasErrors = true;
+            if (!validatePassword(password)) {
+                showError('Password must be at least 6 characters long');
+                return;
             }
             
-            if (hasErrors) return;
-            
-            setLoading('registerButton', true);
+            setLoading('registerBtn', true);
             
             try {
                 const response = await fetch('/api/register', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json'
+                        'Content-Type': 'application/json',
                     },
                     body: JSON.stringify({ username, email, password })
                 });
@@ -724,11 +579,11 @@
                     // Store authentication data
                     localStorage.setItem('trendyx_token', data.token);
                     localStorage.setItem('trendyx_username', data.user.username);
+                    localStorage.setItem('trendyx_email', data.user.email);
                     
                     showSuccess('Account created successfully! Redirecting to dashboard...');
-                    showToast('Welcome to TrendyX AI Level 5 Enterprise!', 'success');
                     
-                    // Redirect to dashboard
+                    // Redirect after short delay
                     setTimeout(() => {
                         window.location.href = '/dashboard';
                     }, 1500);
@@ -737,54 +592,53 @@
                 }
             } catch (error) {
                 console.error('Registration error:', error);
-                showError('Registration failed. Please check your internet connection and try again.');
+                showError('Network error. Please check your connection and try again.');
             } finally {
-                setLoading('registerButton', false);
+                setLoading('registerBtn', false);
             }
         }
 
-        // Event listeners
-        document.addEventListener('DOMContentLoaded', function() {
-            // Form submissions
-            document.getElementById('loginForm').addEventListener('submit', handleLogin);
-            document.getElementById('registerForm').addEventListener('submit', handleRegister);
-            
-            // Password strength checking
-            document.getElementById('registerPassword').addEventListener('input', function() {
-                checkPasswordStrength(this.value);
-            });
-            
-            // Clear errors on input
-            document.querySelectorAll('.form-input').forEach(input => {
-                input.addEventListener('input', function() {
-                    this.classList.remove('error');
-                    const errorDiv = document.getElementById(this.id + 'Error');
-                    if (errorDiv) {
-                        errorDiv.style.display = 'none';
-                    }
-                });
-            });
-            
-            // Check if user is already logged in
+        // Check if user is already logged in
+        window.addEventListener('load', function() {
             const token = localStorage.getItem('trendyx_token');
             if (token) {
-                showToast('You are already logged in. Redirecting...', 'info');
-                setTimeout(() => {
-                    window.location.href = '/dashboard';
-                }, 1000);
+                // Verify token is still valid
+                fetch('/api/health', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        window.location.href = '/dashboard';
+                    } else {
+                        // Token is invalid, clear it
+                        localStorage.removeItem('trendyx_token');
+                        localStorage.removeItem('trendyx_username');
+                        localStorage.removeItem('trendyx_email');
+                    }
+                }).catch(() => {
+                    // Network error, stay on auth page
+                });
             }
         });
 
-        // Keyboard shortcuts
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'Enter' && event.ctrlKey) {
-                if (currentTab === 'login') {
-                    document.getElementById('loginForm').dispatchEvent(new Event('submit'));
-                } else {
-                    document.getElementById('registerForm').dispatchEvent(new Event('submit'));
-                }
-            }
-        });
+        // Demo account functionality
+        function fillDemoCredentials() {
+            document.getElementById('loginEmail').value = 'demo@trendyx.ai';
+            document.getElementById('loginPassword').value = 'demo123';
+        }
+
+        // Add demo button if needed
+        if (window.location.search.includes('demo=true')) {
+            const demoBtn = document.createElement('button');
+            demoBtn.textContent = 'Fill Demo Credentials';
+            demoBtn.type = 'button';
+            demoBtn.className = 'submit-btn';
+            demoBtn.style.background = '#6b7280';
+            demoBtn.style.marginTop = '10px';
+            demoBtn.onclick = fillDemoCredentials;
+            document.getElementById('loginTab').appendChild(demoBtn);
+        }
     </script>
 </body>
 </html>
