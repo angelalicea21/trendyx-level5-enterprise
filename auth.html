@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>TrendyX AI Level 5 Enterprise - Authentication</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -13,7 +12,7 @@
         }
 
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
             display: flex;
@@ -26,8 +25,8 @@
             background: rgba(255, 255, 255, 0.95);
             backdrop-filter: blur(10px);
             border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
             width: 100%;
             max-width: 450px;
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -39,54 +38,42 @@
         }
 
         .logo h1 {
+            color: #4a5568;
             font-size: 28px;
             font-weight: 700;
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
             margin-bottom: 8px;
         }
 
         .logo p {
-            color: #6b7280;
-            font-size: 14px;
-            font-weight: 500;
+            color: #718096;
+            font-size: 16px;
         }
 
-        .tabs {
+        .auth-tabs {
             display: flex;
-            background: #f3f4f6;
+            margin-bottom: 30px;
+            background: #f7fafc;
             border-radius: 12px;
             padding: 4px;
-            margin-bottom: 30px;
         }
 
-        .tab-btn {
+        .tab-button {
             flex: 1;
             padding: 12px 20px;
-            background: transparent;
             border: none;
+            background: transparent;
+            color: #718096;
+            font-size: 16px;
+            font-weight: 600;
             border-radius: 8px;
-            font-weight: 500;
-            font-size: 14px;
-            color: #6b7280;
             cursor: pointer;
             transition: all 0.3s ease;
         }
 
-        .tab-btn.active {
-            background: white;
-            color: #374151;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        .tab-content {
-            display: none;
-        }
-
-        .tab-content.active {
-            display: block;
+        .tab-button.active {
+            background: #667eea;
+            color: white;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
         }
 
         .form-group {
@@ -96,19 +83,19 @@
         .form-group label {
             display: block;
             margin-bottom: 8px;
-            font-weight: 500;
-            color: #374151;
+            color: #4a5568;
+            font-weight: 600;
             font-size: 14px;
         }
 
         .form-group input {
             width: 100%;
             padding: 14px 16px;
-            border: 2px solid #e5e7eb;
+            border: 2px solid #e2e8f0;
             border-radius: 10px;
             font-size: 16px;
             transition: all 0.3s ease;
-            background: white;
+            background: #fff;
         }
 
         .form-group input:focus {
@@ -118,48 +105,21 @@
         }
 
         .form-group input.error {
-            border-color: #ef4444;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+            border-color: #e53e3e;
+            box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
         }
 
-        .password-strength {
-            margin-top: 8px;
-            font-size: 12px;
+        .error-message {
+            color: #e53e3e;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
         }
 
-        .strength-bar {
-            height: 4px;
-            background: #e5e7eb;
-            border-radius: 2px;
-            margin: 4px 0;
-            overflow: hidden;
-        }
-
-        .strength-fill {
-            height: 100%;
-            transition: all 0.3s ease;
-            border-radius: 2px;
-        }
-
-        .strength-weak .strength-fill {
-            width: 33%;
-            background: #ef4444;
-        }
-
-        .strength-medium .strength-fill {
-            width: 66%;
-            background: #f59e0b;
-        }
-
-        .strength-strong .strength-fill {
+        .submit-button {
             width: 100%;
-            background: #10b981;
-        }
-
-        .submit-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(135deg, #667eea, #764ba2);
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
             border-radius: 10px;
@@ -170,93 +130,79 @@
             margin-top: 10px;
         }
 
-        .submit-btn:hover {
+        .submit-button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
         }
 
-        .submit-btn:disabled {
+        .submit-button:disabled {
             opacity: 0.6;
             cursor: not-allowed;
             transform: none;
-            box-shadow: none;
         }
 
-        .error-message {
-            background: #fef2f2;
-            border: 1px solid #fecaca;
-            color: #dc2626;
-            padding: 12px 16px;
-            border-radius: 8px;
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading-spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .success-message, .error-alert {
+            padding: 15px;
+            border-radius: 10px;
             margin-bottom: 20px;
-            font-size: 14px;
+            font-weight: 600;
+            text-align: center;
             display: none;
         }
 
         .success-message {
-            background: #f0fdf4;
-            border: 1px solid #bbf7d0;
-            color: #166534;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            font-size: 14px;
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+        }
+
+        .error-alert {
+            background: #fed7d7;
+            color: #742a2a;
+            border: 1px solid #fc8181;
+        }
+
+        .register-form {
             display: none;
         }
 
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 2px solid #ffffff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s ease-in-out infinite;
-            margin-right: 8px;
+        .register-form.active {
+            display: block;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        .login-form.active {
+            display: block;
         }
 
-        .features {
-            margin-top: 30px;
-            padding-top: 30px;
-            border-top: 1px solid #e5e7eb;
-        }
-
-        .features h3 {
-            font-size: 16px;
-            font-weight: 600;
-            color: #374151;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        .feature-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-            gap: 15px;
-        }
-
-        .feature-item {
-            text-align: center;
-            padding: 15px 10px;
-            background: #f9fafb;
-            border-radius: 10px;
-            border: 1px solid #e5e7eb;
-        }
-
-        .feature-item .icon {
-            font-size: 24px;
-            margin-bottom: 8px;
-        }
-
-        .feature-item .title {
+        .password-strength {
+            margin-top: 5px;
             font-size: 12px;
-            font-weight: 500;
-            color: #374151;
         }
+
+        .strength-weak { color: #e53e3e; }
+        .strength-medium { color: #dd6b20; }
+        .strength-strong { color: #38a169; }
 
         @media (max-width: 480px) {
             .auth-container {
@@ -267,378 +213,478 @@
             .logo h1 {
                 font-size: 24px;
             }
-            
-            .feature-list {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Suppress external script errors */
-        .error-suppression {
-            display: none !important;
         }
     </style>
 </head>
 <body>
     <div class="auth-container">
         <div class="logo">
-            <h1>🚀 TrendyX AI Level 5</h1>
-            <p>Enterprise AI Platform</p>
+            <h1>🚀 TrendyX AI</h1>
+            <p>Level 5 Enterprise Platform</p>
         </div>
 
-        <div class="tabs">
-            <button class="tab-btn active" onclick="switchTab('login')">Sign In</button>
-            <button class="tab-btn" onclick="switchTab('register')">Sign Up</button>
-        </div>
-
-        <div class="error-message" id="errorMessage"></div>
         <div class="success-message" id="successMessage"></div>
+        <div class="error-alert" id="errorAlert"></div>
 
-        <!-- Login Tab -->
-        <div class="tab-content active" id="loginTab">
-            <form onsubmit="handleLogin(event)">
-                <div class="form-group">
-                    <label for="loginEmail">Email Address</label>
-                    <input type="email" id="loginEmail" required autocomplete="email">
-                </div>
-                <div class="form-group">
-                    <label for="loginPassword">Password</label>
-                    <input type="password" id="loginPassword" required autocomplete="current-password">
-                </div>
-                <button type="submit" class="submit-btn" id="loginBtn">
-                    Sign In to Dashboard
-                </button>
-            </form>
+        <div class="auth-tabs">
+            <button class="tab-button active" id="loginTab" onclick="switchTab('login')">Login</button>
+            <button class="tab-button" id="registerTab" onclick="switchTab('register')">Register</button>
         </div>
 
-        <!-- Register Tab -->
-        <div class="tab-content" id="registerTab">
-            <form onsubmit="handleRegister(event)">
-                <div class="form-group">
-                    <label for="registerUsername">Username</label>
-                    <input type="text" id="registerUsername" required autocomplete="username" minlength="3">
-                </div>
-                <div class="form-group">
-                    <label for="registerEmail">Email Address</label>
-                    <input type="email" id="registerEmail" required autocomplete="email">
-                </div>
-                <div class="form-group">
-                    <label for="registerPassword">Password</label>
-                    <input type="password" id="registerPassword" required autocomplete="new-password" minlength="6" oninput="checkPasswordStrength()">
-                    <div class="password-strength" id="passwordStrength" style="display: none;">
-                        <div class="strength-bar">
-                            <div class="strength-fill"></div>
-                        </div>
-                        <span class="strength-text"></span>
-                    </div>
-                </div>
-                <button type="submit" class="submit-btn" id="registerBtn">
-                    Create Account
-                </button>
-            </form>
-        </div>
-
-        <div class="features">
-            <h3>AI Capabilities</h3>
-            <div class="feature-list">
-                <div class="feature-item">
-                    <div class="icon">🔬</div>
-                    <div class="title">Quantum Computing</div>
-                </div>
-                <div class="feature-item">
-                    <div class="icon">🧠</div>
-                    <div class="title">Neural Networks</div>
-                </div>
-                <div class="feature-item">
-                    <div class="icon">📊</div>
-                    <div class="title">Predictive Analytics</div>
-                </div>
+        <!-- Login Form -->
+        <form class="login-form active" id="loginForm">
+            <div class="form-group">
+                <label for="loginEmail">Email Address</label>
+                <input type="email" id="loginEmail" name="email" required>
+                <div class="error-message" id="loginEmailError"></div>
             </div>
+
+            <div class="form-group">
+                <label for="loginPassword">Password</label>
+                <input type="password" id="loginPassword" name="password" required>
+                <div class="error-message" id="loginPasswordError"></div>
+            </div>
+
+            <button type="submit" class="submit-button" id="loginButton">
+                Sign In to Dashboard
+            </button>
+        </form>
+
+        <!-- Register Form -->
+        <form class="register-form" id="registerForm">
+            <div class="form-group">
+                <label for="firstName">First Name</label>
+                <input type="text" id="firstName" name="firstName" required>
+                <div class="error-message" id="firstNameError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="lastName">Last Name</label>
+                <input type="text" id="lastName" name="lastName" required>
+                <div class="error-message" id="lastNameError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="registerEmail">Email Address</label>
+                <input type="email" id="registerEmail" name="email" required>
+                <div class="error-message" id="registerEmailError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required>
+                <div class="error-message" id="usernameError"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="registerPassword">Password</label>
+                <input type="password" id="registerPassword" name="password" required>
+                <div class="password-strength" id="passwordStrength"></div>
+                <div class="error-message" id="registerPasswordError"></div>
+            </div>
+
+            <button type="submit" class="submit-button" id="registerButton">
+                Create Account & Access Dashboard
+            </button>
+        </form>
+
+        <div class="loading" id="loadingIndicator">
+            <div class="loading-spinner"></div>
+            <p>Processing your request...</p>
         </div>
     </div>
 
     <script>
-        // Suppress external script errors
+        // Comprehensive error suppression for external scripts
         window.addEventListener('error', function(e) {
-            if (e.filename && (e.filename.includes('customdarkmodemanagercs') || 
-                              e.filename.includes('extension') || 
-                              e.message.includes('customdarkmodemanagercs'))) {
+            if (e.message && (
+                e.message.includes('customDarkModeManagerCS') ||
+                e.message.includes('NSSS') ||
+                e.message.includes('Norton') ||
+                e.message.includes('SymBfw') ||
+                e.message.includes('extensionAdapter')
+            )) {
                 e.preventDefault();
-                return true;
+                e.stopPropagation();
+                return false;
             }
         });
 
-        // Tab switching
+        // Suppress unhandled promise rejections from extensions
+        window.addEventListener('unhandledrejection', function(e) {
+            if (e.reason && e.reason.message && (
+                e.reason.message.includes('customDarkModeManagerCS') ||
+                e.reason.message.includes('NSSS') ||
+                e.reason.message.includes('Norton')
+            )) {
+                e.preventDefault();
+                return false;
+            }
+        });
+
+        // Override console.error for extension errors
+        const originalConsoleError = console.error;
+        console.error = function(...args) {
+            const message = args.join(' ');
+            if (message.includes('customDarkModeManagerCS') || 
+                message.includes('NSSS') || 
+                message.includes('Norton')) {
+                return; // Suppress extension errors
+            }
+            originalConsoleError.apply(console, args);
+        };
+
+        // Authentication system
+        let currentTab = 'login';
+
         function switchTab(tab) {
-            // Update tab buttons
-            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            currentTab = tab;
             
-            // Update tab content
-            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
-            document.getElementById(tab + 'Tab').classList.add('active');
+            // Update tab buttons
+            document.getElementById('loginTab').classList.toggle('active', tab === 'login');
+            document.getElementById('registerTab').classList.toggle('active', tab === 'register');
+            
+            // Update forms
+            document.getElementById('loginForm').classList.toggle('active', tab === 'login');
+            document.getElementById('registerForm').classList.toggle('active', tab === 'register');
             
             // Clear messages
-            hideMessages();
+            clearMessages();
         }
 
-        // Password strength checker
-        function checkPasswordStrength() {
-            const password = document.getElementById('registerPassword').value;
-            const strengthDiv = document.getElementById('passwordStrength');
-            const strengthBar = strengthDiv.querySelector('.strength-bar');
-            const strengthText = strengthDiv.querySelector('.strength-text');
-            
-            if (password.length === 0) {
-                strengthDiv.style.display = 'none';
-                return;
-            }
-            
-            strengthDiv.style.display = 'block';
-            
-            let strength = 0;
-            let feedback = [];
-            
-            // Length check
-            if (password.length >= 8) strength++;
-            else feedback.push('at least 8 characters');
-            
-            // Uppercase check
-            if (/[A-Z]/.test(password)) strength++;
-            else feedback.push('uppercase letter');
-            
-            // Lowercase check
-            if (/[a-z]/.test(password)) strength++;
-            else feedback.push('lowercase letter');
-            
-            // Number check
-            if (/\d/.test(password)) strength++;
-            else feedback.push('number');
-            
-            // Special character check
-            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
-            else feedback.push('special character');
-            
-            // Update UI
-            strengthBar.className = 'strength-bar';
-            if (strength <= 2) {
-                strengthBar.classList.add('strength-weak');
-                strengthText.textContent = 'Weak - Add: ' + feedback.slice(0, 2).join(', ');
-                strengthText.style.color = '#ef4444';
-            } else if (strength <= 3) {
-                strengthBar.classList.add('strength-medium');
-                strengthText.textContent = 'Medium - Add: ' + feedback.slice(0, 1).join(', ');
-                strengthText.style.color = '#f59e0b';
-            } else {
-                strengthBar.classList.add('strength-strong');
-                strengthText.textContent = 'Strong password';
-                strengthText.style.color = '#10b981';
-            }
-        }
-
-        // Message handling
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.style.display = 'block';
+        function clearMessages() {
             document.getElementById('successMessage').style.display = 'none';
+            document.getElementById('errorAlert').style.display = 'none';
+            
+            // Clear all error messages
+            const errorMessages = document.querySelectorAll('.error-message');
+            errorMessages.forEach(msg => {
+                msg.style.display = 'none';
+                msg.textContent = '';
+            });
+            
+            // Clear error styling
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => input.classList.remove('error'));
+        }
+
+        function showError(message) {
+            const errorAlert = document.getElementById('errorAlert');
+            errorAlert.textContent = message;
+            errorAlert.style.display = 'block';
+            
+            // Scroll to top to show error
+            document.querySelector('.auth-container').scrollTop = 0;
         }
 
         function showSuccess(message) {
-            const successDiv = document.getElementById('successMessage');
-            successDiv.textContent = message;
-            successDiv.style.display = 'block';
-            document.getElementById('errorMessage').style.display = 'none';
+            const successMessage = document.getElementById('successMessage');
+            successMessage.textContent = message;
+            successMessage.style.display = 'block';
+            
+            // Scroll to top to show success
+            document.querySelector('.auth-container').scrollTop = 0;
         }
 
-        function hideMessages() {
-            document.getElementById('errorMessage').style.display = 'none';
-            document.getElementById('successMessage').style.display = 'none';
+        function showLoading(show) {
+            document.getElementById('loadingIndicator').style.display = show ? 'block' : 'none';
+            
+            // Disable/enable forms
+            const buttons = document.querySelectorAll('.submit-button');
+            buttons.forEach(btn => btn.disabled = show);
         }
 
-        // Loading state management
-        function setLoading(buttonId, isLoading) {
-            const button = document.getElementById(buttonId);
-            if (isLoading) {
-                button.disabled = true;
-                button.innerHTML = '<span class="loading"></span>Processing...';
-            } else {
-                button.disabled = false;
-                button.innerHTML = buttonId === 'loginBtn' ? 'Sign In to Dashboard' : 'Create Account';
-            }
-        }
-
-        // Form validation
         function validateEmail(email) {
-            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            return re.test(email);
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
         }
 
         function validatePassword(password) {
             return password.length >= 6;
         }
 
-        function validateUsername(username) {
-            return username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(username);
+        function checkPasswordStrength(password) {
+            const strengthIndicator = document.getElementById('passwordStrength');
+            if (!password) {
+                strengthIndicator.textContent = '';
+                return;
+            }
+            
+            let strength = 0;
+            if (password.length >= 8) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[a-z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            if (strength < 2) {
+                strengthIndicator.textContent = 'Weak password';
+                strengthIndicator.className = 'password-strength strength-weak';
+            } else if (strength < 4) {
+                strengthIndicator.textContent = 'Medium strength';
+                strengthIndicator.className = 'password-strength strength-medium';
+            } else {
+                strengthIndicator.textContent = 'Strong password';
+                strengthIndicator.className = 'password-strength strength-strong';
+            }
         }
 
-        // Login handler
-        async function handleLogin(event) {
-            event.preventDefault();
-            hideMessages();
+        function validateForm(formData, isRegister = false) {
+            let isValid = true;
+            const errors = {};
+
+            if (isRegister) {
+                // Validate first name
+                if (!formData.firstName || formData.firstName.trim().length < 2) {
+                    errors.firstName = 'First name must be at least 2 characters';
+                    isValid = false;
+                }
+
+                // Validate last name
+                if (!formData.lastName || formData.lastName.trim().length < 2) {
+                    errors.lastName = 'Last name must be at least 2 characters';
+                    isValid = false;
+                }
+
+                // Validate username
+                if (!formData.username || formData.username.trim().length < 3) {
+                    errors.username = 'Username must be at least 3 characters';
+                    isValid = false;
+                }
+            }
+
+            // Validate email
+            if (!formData.email || !validateEmail(formData.email)) {
+                errors.email = 'Please enter a valid email address';
+                isValid = false;
+            }
+
+            // Validate password
+            if (!formData.password || !validatePassword(formData.password)) {
+                errors.password = 'Password must be at least 6 characters';
+                isValid = false;
+            }
+
+            return { isValid, errors };
+        }
+
+        function displayValidationErrors(errors, isRegister = false) {
+            // Clear previous errors
+            clearMessages();
+
+            Object.keys(errors).forEach(field => {
+                let errorElementId;
+                let inputElementId;
+
+                if (isRegister) {
+                    switch(field) {
+                        case 'firstName':
+                            errorElementId = 'firstNameError';
+                            inputElementId = 'firstName';
+                            break;
+                        case 'lastName':
+                            errorElementId = 'lastNameError';
+                            inputElementId = 'lastName';
+                            break;
+                        case 'email':
+                            errorElementId = 'registerEmailError';
+                            inputElementId = 'registerEmail';
+                            break;
+                        case 'username':
+                            errorElementId = 'usernameError';
+                            inputElementId = 'username';
+                            break;
+                        case 'password':
+                            errorElementId = 'registerPasswordError';
+                            inputElementId = 'registerPassword';
+                            break;
+                    }
+                } else {
+                    switch(field) {
+                        case 'email':
+                            errorElementId = 'loginEmailError';
+                            inputElementId = 'loginEmail';
+                            break;
+                        case 'password':
+                            errorElementId = 'loginPasswordError';
+                            inputElementId = 'loginPassword';
+                            break;
+                    }
+                }
+
+                if (errorElementId && inputElementId) {
+                    const errorElement = document.getElementById(errorElementId);
+                    const inputElement = document.getElementById(inputElementId);
+                    
+                    if (errorElement && inputElement) {
+                        errorElement.textContent = errors[field];
+                        errorElement.style.display = 'block';
+                        inputElement.classList.add('error');
+                    }
+                }
+            });
+        }
+
+        // Enhanced form data collection
+        function getFormData(form) {
+            const formData = {};
+            const inputs = form.querySelectorAll('input');
             
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
+            inputs.forEach(input => {
+                const value = input.value.trim();
+                formData[input.name] = value;
+                
+                // Debug logging
+                console.log(`Field ${input.name}: "${value}"`);
+            });
             
-            // Validation
-            if (!validateEmail(email)) {
-                showError('Please enter a valid email address');
+            return formData;
+        }
+
+        // Login form handler
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            clearMessages();
+            
+            const formData = getFormData(this);
+            console.log('Login form data:', formData);
+            
+            const validation = validateForm(formData, false);
+            
+            if (!validation.isValid) {
+                displayValidationErrors(validation.errors, false);
                 return;
             }
             
-            if (!validatePassword(password)) {
-                showError('Password must be at least 6 characters long');
-                return;
-            }
-            
-            setLoading('loginBtn', true);
+            showLoading(true);
             
             try {
-                const response = await fetch('/api/login', {
+                const response = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ email, password })
+                    body: JSON.stringify(formData)
                 });
                 
-                const data = await response.json();
+                const result = await response.json();
                 
-                if (data.success) {
-                    // Store authentication data
-                    localStorage.setItem('trendyx_token', data.token);
-                    localStorage.setItem('trendyx_username', data.user.username);
-                    localStorage.setItem('trendyx_email', data.user.email);
+                if (response.ok && result.success) {
+                    localStorage.setItem('authToken', result.token);
+                    localStorage.setItem('username', result.username);
                     
                     showSuccess('Login successful! Redirecting to dashboard...');
                     
-                    // Redirect after short delay
                     setTimeout(() => {
                         window.location.href = '/dashboard';
                     }, 1500);
                 } else {
-                    showError(data.message || 'Login failed. Please try again.');
+                    showError(result.message || 'Login failed. Please check your credentials.');
                 }
             } catch (error) {
                 console.error('Login error:', error);
                 showError('Network error. Please check your connection and try again.');
             } finally {
-                setLoading('loginBtn', false);
+                showLoading(false);
             }
-        }
+        });
 
-        // Register handler
-        async function handleRegister(event) {
-            event.preventDefault();
-            hideMessages();
+        // Register form handler
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            clearMessages();
             
-            const username = document.getElementById('registerUsername').value.trim();
-            const email = document.getElementById('registerEmail').value.trim();
-            const password = document.getElementById('registerPassword').value;
+            const formData = getFormData(this);
+            console.log('Register form data:', formData);
             
-            // Validation
-            if (!validateUsername(username)) {
-                showError('Username must be at least 3 characters and contain only letters, numbers, and underscores');
+            const validation = validateForm(formData, true);
+            
+            if (!validation.isValid) {
+                displayValidationErrors(validation.errors, true);
                 return;
             }
             
-            if (!validateEmail(email)) {
-                showError('Please enter a valid email address');
-                return;
-            }
-            
-            if (!validatePassword(password)) {
-                showError('Password must be at least 6 characters long');
-                return;
-            }
-            
-            setLoading('registerBtn', true);
+            showLoading(true);
             
             try {
-                const response = await fetch('/api/register', {
+                const response = await fetch('/api/auth/register', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ username, email, password })
+                    body: JSON.stringify(formData)
                 });
                 
-                const data = await response.json();
+                const result = await response.json();
                 
-                if (data.success) {
-                    // Store authentication data
-                    localStorage.setItem('trendyx_token', data.token);
-                    localStorage.setItem('trendyx_username', data.user.username);
-                    localStorage.setItem('trendyx_email', data.user.email);
+                if (response.ok && result.success) {
+                    localStorage.setItem('authToken', result.token);
+                    localStorage.setItem('username', result.username);
                     
                     showSuccess('Account created successfully! Redirecting to dashboard...');
                     
-                    // Redirect after short delay
                     setTimeout(() => {
                         window.location.href = '/dashboard';
                     }, 1500);
                 } else {
-                    showError(data.message || 'Registration failed. Please try again.');
+                    showError(result.message || 'Registration failed. Please try again.');
                 }
             } catch (error) {
                 console.error('Registration error:', error);
                 showError('Network error. Please check your connection and try again.');
             } finally {
-                setLoading('registerBtn', false);
-            }
-        }
-
-        // Check if user is already logged in
-        window.addEventListener('load', function() {
-            const token = localStorage.getItem('trendyx_token');
-            if (token) {
-                // Verify token is still valid
-                fetch('/api/health', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
-                }).then(response => {
-                    if (response.ok) {
-                        window.location.href = '/dashboard';
-                    } else {
-                        // Token is invalid, clear it
-                        localStorage.removeItem('trendyx_token');
-                        localStorage.removeItem('trendyx_username');
-                        localStorage.removeItem('trendyx_email');
-                    }
-                }).catch(() => {
-                    // Network error, stay on auth page
-                });
+                showLoading(false);
             }
         });
 
-        // Demo account functionality
-        function fillDemoCredentials() {
-            document.getElementById('loginEmail').value = 'demo@trendyx.ai';
-            document.getElementById('loginPassword').value = 'demo123';
-        }
+        // Password strength checker
+        document.getElementById('registerPassword').addEventListener('input', function(e) {
+            checkPasswordStrength(e.target.value);
+        });
 
-        // Add demo button if needed
-        if (window.location.search.includes('demo=true')) {
-            const demoBtn = document.createElement('button');
-            demoBtn.textContent = 'Fill Demo Credentials';
-            demoBtn.type = 'button';
-            demoBtn.className = 'submit-btn';
-            demoBtn.style.background = '#6b7280';
-            demoBtn.style.marginTop = '10px';
-            demoBtn.onclick = fillDemoCredentials;
-            document.getElementById('loginTab').appendChild(demoBtn);
-        }
+        // Real-time validation clearing
+        document.querySelectorAll('input').forEach(input => {
+            input.addEventListener('input', function() {
+                if (this.classList.contains('error')) {
+                    this.classList.remove('error');
+                    const errorId = this.id + 'Error';
+                    const errorElement = document.getElementById(errorId);
+                    if (errorElement) {
+                        errorElement.style.display = 'none';
+                    }
+                }
+            });
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('TrendyX AI Authentication System Initialized');
+            
+            // Check if already logged in
+            const token = localStorage.getItem('authToken');
+            if (token) {
+                // Verify token is still valid
+                fetch('/api/auth/verify', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                .then(response => response.json())
+                .then(result => {
+                    if (result.success) {
+                        window.location.href = '/dashboard';
+                    } else {
+                        localStorage.removeItem('authToken');
+                        localStorage.removeItem('username');
+                    }
+                })
+                .catch(error => {
+                    console.log('Token verification failed:', error);
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('username');
+                });
+            }
+        });
     </script>
 </body>
 </html>
