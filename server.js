@@ -220,12 +220,13 @@ function validateRegistrationForm(formData) {
     return { isValid, errors };
 }
 
-// Enhanced password hashing
+// Enhanced password hashing using environment variable or fallback
 function hashPassword(password, salt = null) {
     if (!salt) {
         salt = crypto.randomBytes(32).toString('hex');
     }
-    const hash = crypto.pbkdf2Sync(password, salt, 10000, 64, 'sha512').toString('hex');
+    const secretKey = process.env.JWT_SECRET || 'trendyx-ai-secret-key-2025';
+    const hash = crypto.pbkdf2Sync(password, salt + secretKey, 10000, 64, 'sha512').toString('hex');
     return { hash, salt };
 }
 
@@ -234,8 +235,9 @@ function verifyPassword(password, hash, salt) {
     return hash === newHash;
 }
 
-// JWT-like token generation
+// JWT-like token generation using environment variable
 function generateToken(userId) {
+    const secretKey = process.env.JWT_SECRET || 'trendyx-ai-secret-key-2025';
     const header = Buffer.from(JSON.stringify({ alg: 'HS256', typ: 'JWT' })).toString('base64');
     const payload = Buffer.from(JSON.stringify({ 
         userId, 
@@ -243,7 +245,7 @@ function generateToken(userId) {
     })).toString('base64');
     
     const signature = crypto
-        .createHmac('sha256', 'trendyx-ai-secret-key-2025')
+        .createHmac('sha256', secretKey)
         .update(`${header}.${payload}`)
         .digest('base64');
     
@@ -258,10 +260,11 @@ function verifyToken(token) {
         if (parts.length !== 3) return null;
         
         const [header, payload, signature] = parts;
+        const secretKey = process.env.JWT_SECRET || 'trendyx-ai-secret-key-2025';
         
         // Verify signature
         const expectedSignature = crypto
-            .createHmac('sha256', 'trendyx-ai-secret-key-2025')
+            .createHmac('sha256', secretKey)
             .update(`${header}.${payload}`)
             .digest('base64');
         
@@ -288,7 +291,8 @@ function authenticateToken(req, res, next) {
     if (!token) {
         return res.status(401).json({ 
             success: false, 
-            message: 'Access token required' 
+            message: 'Access token required',
+            error: 'AUTHENTICATION_REQUIRED'
         });
     }
     
@@ -296,7 +300,8 @@ function authenticateToken(req, res, next) {
     if (!decoded) {
         return res.status(403).json({ 
             success: false, 
-            message: 'Invalid or expired token' 
+            message: 'Invalid or expired token',
+            error: 'INVALID_TOKEN'
         });
     }
     
@@ -315,7 +320,8 @@ function handleError(error, req, res, next) {
     
     res.status(500).json({
         success: false,
-        message: 'Internal server error'
+        message: 'Internal server error',
+        error: 'SERVER_ERROR'
     });
 }
 
@@ -329,7 +335,12 @@ app.get('/api/health', (req, res) => {
         timestamp: new Date().toISOString(),
         version: '5.0.0',
         uptime: process.uptime(),
-        memory: process.memoryUsage()
+        memory: process.memoryUsage(),
+        environment: {
+            nodeVersion: process.version,
+            platform: process.platform,
+            arch: process.arch
+        }
     });
 });
 
@@ -342,7 +353,8 @@ app.post('/api/auth/register', (req, res) => {
         if (!checkRateLimit(clientIp)) {
             return res.status(429).json({
                 success: false,
-                message: 'Too many requests. Please try again later.'
+                message: 'Too many requests. Please try again later.',
+                error: 'RATE_LIMIT_EXCEEDED'
             });
         }
         
@@ -366,7 +378,8 @@ app.post('/api/auth/register', (req, res) => {
             return res.status(400).json({
                 success: false,
                 message: 'Validation failed',
-                errors: validation.errors
+                errors: validation.errors,
+                error: 'VALIDATION_FAILED'
             });
         }
         
@@ -382,7 +395,8 @@ app.post('/api/auth/register', (req, res) => {
                 message: 'An account with this email already exists',
                 errors: {
                     email: 'This email is already registered'
-                }
+                },
+                error: 'EMAIL_EXISTS'
             });
         }
         
@@ -392,7 +406,8 @@ app.post('/api/auth/register', (req, res) => {
                 message: 'This username is already taken',
                 errors: {
                     username: 'This username is already taken'
-                }
+                },
+                error: 'USERNAME_EXISTS'
             });
         }
         
@@ -415,9 +430,6 @@ app.post('/api/auth/register', (req, res) => {
         users.set(username.trim().toLowerCase(), newUser);
         userContent.set(userId, []);
         
-        // Generate token
-        const token = generateToken(userId);
-        
         logger.info('User registered successfully', { 
             userId, 
             username: username.trim().toLowerCase(),
@@ -426,23 +438,23 @@ app.post('/api/auth/register', (req, res) => {
         
         res.status(201).json({
             success: true,
-            message: 'Account created successfully',
-            token,
-            username: username.trim().toLowerCase(),
+            message: 'Account created successfully! Please log in with your credentials.',
             user: {
                 id: userId,
                 firstName: newUser.firstName,
                 lastName: newUser.lastName,
                 email: newUser.email,
                 username: newUser.username
-            }
+            },
+            nextStep: 'LOGIN_REQUIRED'
         });
         
     } catch (error) {
         logger.error('Registration error', { error: error.message, stack: error.stack });
         res.status(500).json({
             success: false,
-            message: 'Registration failed due to server error'
+            message: 'Registration failed due to server error',
+            error: 'SERVER_ERROR'
         });
     }
 });
@@ -456,7 +468,8 @@ app.post('/api/auth/login', (req, res) => {
         if (!checkRateLimit(clientIp)) {
             return res.status(429).json({
                 success: false,
-                message: 'Too many requests. Please try again later.'
+                message: 'Too many requests. Please try again later.',
+                error: 'RATE_LIMIT_EXCEEDED'
             });
         }
         
@@ -474,7 +487,8 @@ app.post('/api/auth/login', (req, res) => {
                 message: 'Email is required',
                 errors: {
                     email: 'Email is required'
-                }
+                },
+                error: 'MISSING_EMAIL'
             });
         }
         
@@ -484,7 +498,8 @@ app.post('/api/auth/login', (req, res) => {
                 message: 'Password is required',
                 errors: {
                     password: 'Password is required'
-                }
+                },
+                error: 'MISSING_PASSWORD'
             });
         }
         
@@ -496,7 +511,8 @@ app.post('/api/auth/login', (req, res) => {
                 message: emailValidation.message,
                 errors: {
                     email: emailValidation.message
-                }
+                },
+                error: 'INVALID_EMAIL_FORMAT'
             });
         }
         
@@ -510,7 +526,8 @@ app.post('/api/auth/login', (req, res) => {
                 message: 'Invalid email or password. Please check your credentials or create an account.',
                 errors: {
                     email: 'No account found with this email address'
-                }
+                },
+                error: 'USER_NOT_FOUND'
             });
         }
         
@@ -522,7 +539,8 @@ app.post('/api/auth/login', (req, res) => {
                 message: 'Invalid email or password. Please check your credentials.',
                 errors: {
                     password: 'Incorrect password'
-                }
+                },
+                error: 'INVALID_PASSWORD'
             });
         }
         
@@ -541,21 +559,22 @@ app.post('/api/auth/login', (req, res) => {
             success: true,
             message: 'Login successful',
             token,
-            username: user.username,
             user: {
                 id: user.id,
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
                 username: user.username
-            }
+            },
+            dashboardUrl: '/dashboard'
         });
         
     } catch (error) {
         logger.error('Login error', { error: error.message, stack: error.stack });
         res.status(500).json({
             success: false,
-            message: 'Login failed due to server error'
+            message: 'Login failed due to server error',
+            error: 'SERVER_ERROR'
         });
     }
 });
@@ -568,7 +587,8 @@ app.get('/api/auth/verify', authenticateToken, (req, res) => {
         if (!user) {
             return res.status(404).json({
                 success: false,
-                message: 'User not found'
+                message: 'User not found',
+                error: 'USER_NOT_FOUND'
             });
         }
         
@@ -586,12 +606,13 @@ app.get('/api/auth/verify', authenticateToken, (req, res) => {
         logger.error('Token verification error', { error: error.message });
         res.status(500).json({
             success: false,
-            message: 'Verification failed'
+            message: 'Verification failed',
+            error: 'SERVER_ERROR'
         });
     }
 });
 
-// AI Generation Engines (same as before)
+// AI Generation Engines
 const aiEngines = {
     quantum: {
         name: 'Quantum Computing Engine',
@@ -800,7 +821,8 @@ app.post('/api/ai/generate/:engine', authenticateToken, (req, res) => {
         if (!aiEngines[engine]) {
             return res.status(404).json({
                 success: false,
-                message: 'AI engine not found'
+                message: 'AI engine not found',
+                error: 'ENGINE_NOT_FOUND'
             });
         }
         
@@ -832,7 +854,8 @@ app.post('/api/ai/generate/:engine', authenticateToken, (req, res) => {
         logger.error('AI generation error', { error: error.message, engine: req.params.engine });
         res.status(500).json({
             success: false,
-            message: 'AI generation failed'
+            message: 'AI generation failed',
+            error: 'GENERATION_ERROR'
         });
     }
 });
@@ -861,7 +884,8 @@ app.get('/api/content/user', authenticateToken, (req, res) => {
         logger.error('Content retrieval error', { error: error.message, userId: req.userId });
         res.status(500).json({
             success: false,
-            message: 'Failed to retrieve content'
+            message: 'Failed to retrieve content',
+            error: 'CONTENT_RETRIEVAL_ERROR'
         });
     }
 });
@@ -876,7 +900,8 @@ app.delete('/api/content/:contentId', authenticateToken, (req, res) => {
         if (filteredContent.length === userContentList.length) {
             return res.status(404).json({
                 success: false,
-                message: 'Content not found'
+                message: 'Content not found',
+                error: 'CONTENT_NOT_FOUND'
             });
         }
         
@@ -893,7 +918,92 @@ app.delete('/api/content/:contentId', authenticateToken, (req, res) => {
         logger.error('Content deletion error', { error: error.message, userId: req.userId });
         res.status(500).json({
             success: false,
-            message: 'Failed to delete content'
+            message: 'Failed to delete content',
+            error: 'CONTENT_DELETION_ERROR'
+        });
+    }
+});
+
+// DASHBOARD JSON API ENDPOINT (FIXED)
+app.get('/api/dashboard', authenticateToken, (req, res) => {
+    try {
+        const user = Array.from(users.values()).find(u => u.id === req.userId);
+        
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: 'User not found',
+                error: 'USER_NOT_FOUND'
+            });
+        }
+        
+        const userContentList = userContent.get(req.userId) || [];
+        
+        // Calculate statistics
+        const totalContent = userContentList.length;
+        const totalWords = userContentList.reduce((sum, item) => sum + (item.wordCount || 0), 0);
+        const totalCharacters = userContentList.reduce((sum, item) => sum + (item.content?.length || 0), 0);
+        
+        // Recent activity
+        const recentContent = userContentList
+            .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
+            .slice(0, 5);
+        
+        // Engine usage statistics
+        const engineStats = {
+            quantum: userContentList.filter(item => item.engine === 'quantum').length,
+            neural: userContentList.filter(item => item.engine === 'neural').length,
+            predictive: userContentList.filter(item => item.engine === 'predictive').length
+        };
+        
+        logger.info('Dashboard data retrieved', { userId: req.userId });
+        
+        res.json({
+            success: true,
+            dashboard: {
+                user: {
+                    id: user.id,
+                    firstName: user.firstName,
+                    lastName: user.lastName,
+                    email: user.email,
+                    username: user.username,
+                    memberSince: user.createdAt,
+                    lastLogin: user.lastLogin
+                },
+                statistics: {
+                    totalContent,
+                    totalWords,
+                    totalCharacters,
+                    averageWordsPerContent: totalContent > 0 ? Math.round(totalWords / totalContent) : 0
+                },
+                engineUsage: engineStats,
+                recentActivity: recentContent.map(item => ({
+                    id: item.id,
+                    title: item.title,
+                    engine: item.engine,
+                    wordCount: item.wordCount,
+                    createdAt: item.createdAt
+                })),
+                availableEngines: Object.keys(aiEngines).map(key => ({
+                    id: key,
+                    name: aiEngines[key].name,
+                    description: aiEngines[key].description
+                })),
+                systemStatus: {
+                    status: 'operational',
+                    uptime: process.uptime(),
+                    version: '5.0.0',
+                    lastUpdated: new Date().toISOString()
+                }
+            }
+        });
+        
+    } catch (error) {
+        logger.error('Dashboard error', { error: error.message, userId: req.userId });
+        res.status(500).json({
+            success: false,
+            message: 'Failed to load dashboard data',
+            error: 'DASHBOARD_ERROR'
         });
     }
 });
@@ -940,10 +1050,25 @@ app.get('/auth', (req, res) => {
     }
 });
 
+// DASHBOARD ROUTE - REDIRECT TO AUTH IF NOT AUTHENTICATED
 app.get('/dashboard', (req, res) => {
+    // For unauthenticated dashboard access, return JSON error as specified
+    const authHeader = req.headers['authorization'];
+    const token = authHeader && authHeader.split(' ')[1];
+    
+    if (!token || !verifyToken(token)) {
+        return res.status(401).json({
+            success: false,
+            message: 'Authentication required to access dashboard',
+            error: 'AUTHENTICATION_REQUIRED',
+            redirectTo: '/auth'
+        });
+    }
+    
+    // If authenticated, serve dashboard HTML file
     const dashboardPath = path.join(__dirname, 'dashboard-enhanced.html');
     
-    if (fs.existsExists(dashboardPath)) {
+    if (fs.existsSync(dashboardPath)) {
         res.sendFile(dashboardPath);
     } else {
         res.send(`
@@ -977,7 +1102,8 @@ app.get('/favicon.ico', (req, res) => {
 app.use('*', (req, res) => {
     res.status(404).json({
         success: false,
-        message: 'Endpoint not found'
+        message: 'Endpoint not found',
+        error: 'ENDPOINT_NOT_FOUND'
     });
 });
 
@@ -997,11 +1123,12 @@ process.on('SIGINT', () => {
 
 // Start server
 app.listen(PORT, '0.0.0.0', () => {
-    logger.info('🚀 TrendyX AI Level 5 Enterprise Enhanced Server started', { port: PORT });
+    logger.info('🚀 TrendyX AI Level 5 Enterprise Production Server started', { port: PORT });
     logger.info('🔬 Quantum Computing Engine: Ready');
     logger.info('🧠 Neural Network Orchestrator: Ready');
     logger.info('📊 Predictive Analytics Engine: Ready');
-    logger.info('✅ DEFINITIVE FIX: All 5 issues resolved - TypeError suppressed, validation enhanced, layout stabilized');
+    logger.info('✅ FINAL CORRECTED: Dashboard JSON API implemented, authentication flow fixed');
+    logger.info('🔐 Environment variables: JWT_SECRET, DATABASE_URL, OPENAI_API_KEY, CLAUDE_API_KEY');
     logger.info('🧠 AI Brain fully operational - Ready for Railway deployment!');
     
     // System information

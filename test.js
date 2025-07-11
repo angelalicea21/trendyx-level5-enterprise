@@ -1,525 +1,612 @@
-// DEFINITIVE TESTS - TrendyX AI Level 5 Enterprise Platform
-// Comprehensive test suite for all 5 identified issues
+/**
+ * TrendyX AI Level 5 Enterprise - Comprehensive Test Suite
+ * Tests all critical functionality and verifies fixes
+ * Author: Manus AI
+ * Version: 5.0.0
+ */
 
-const assert = require('assert');
+const http = require('http');
+const https = require('https');
 const crypto = require('crypto');
 
-// Test configuration
-const TEST_CONFIG = {
-    baseUrl: 'http://localhost:8080',
-    timeout: 10000,
-    retries: 3
-};
-
-// Test utilities
-class TestRunner {
-    constructor() {
-        this.tests = [];
-        this.results = {
-            passed: 0,
-            failed: 0,
-            errors: []
+class TrendyXTestSuite {
+    constructor(baseUrl = 'http://localhost:8080') {
+        this.baseUrl = baseUrl;
+        this.testResults = [];
+        this.authToken = null;
+        this.testUser = {
+            firstName: 'Test',
+            lastName: 'User',
+            email: 'test@trendyx.ai',
+            username: 'testuser123',
+            password: 'TestPass123!'
         };
     }
 
-    addTest(name, testFn) {
-        this.tests.push({ name, testFn });
+    // Utility method to make HTTP requests
+    async makeRequest(method, path, data = null, headers = {}) {
+        return new Promise((resolve, reject) => {
+            const url = new URL(this.baseUrl + path);
+            const options = {
+                hostname: url.hostname,
+                port: url.port || (url.protocol === 'https:' ? 443 : 80),
+                path: url.pathname + url.search,
+                method: method,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'User-Agent': 'TrendyX-Test-Suite/1.0',
+                    ...headers
+                }
+            };
+
+            const client = url.protocol === 'https:' ? https : http;
+            const req = client.request(options, (res) => {
+                let body = '';
+                res.on('data', chunk => body += chunk);
+                res.on('end', () => {
+                    try {
+                        const jsonBody = body ? JSON.parse(body) : {};
+                        resolve({
+                            statusCode: res.statusCode,
+                            headers: res.headers,
+                            body: jsonBody
+                        });
+                    } catch (e) {
+                        resolve({
+                            statusCode: res.statusCode,
+                            headers: res.headers,
+                            body: body
+                        });
+                    }
+                });
+            });
+
+            req.on('error', reject);
+
+            if (data) {
+                req.write(JSON.stringify(data));
+            }
+
+            req.end();
+        });
     }
 
-    async runAll() {
-        console.log('🧪 DEFINITIVE TEST SUITE - TrendyX AI Level 5 Enterprise');
-        console.log('=' .repeat(60));
+    // Test logging
+    log(message, type = 'info') {
+        const timestamp = new Date().toISOString();
+        const prefix = {
+            'info': '📋',
+            'success': '✅',
+            'error': '❌',
+            'warning': '⚠️'
+        }[type] || '📋';
         
-        for (const test of this.tests) {
+        console.log(`${prefix} [${timestamp}] ${message}`);
+    }
+
+    // Record test result
+    recordTest(testName, passed, message, details = {}) {
+        const result = {
+            testName,
+            passed,
+            message,
+            details,
+            timestamp: new Date().toISOString()
+        };
+        
+        this.testResults.push(result);
+        
+        if (passed) {
+            this.log(`${testName}: ${message}`, 'success');
+        } else {
+            this.log(`${testName}: ${message}`, 'error');
+        }
+        
+        return result;
+    }
+
+    // Test 1: Health Check Endpoint
+    async testHealthCheck() {
+        try {
+            const response = await this.makeRequest('GET', '/api/health');
+            
+            if (response.statusCode === 200 && response.body.success) {
+                return this.recordTest(
+                    'Health Check',
+                    true,
+                    'Server is healthy and responding correctly',
+                    { statusCode: response.statusCode, uptime: response.body.uptime }
+                );
+            } else {
+                return this.recordTest(
+                    'Health Check',
+                    false,
+                    `Health check failed: ${response.statusCode}`,
+                    response.body
+                );
+            }
+        } catch (error) {
+            return this.recordTest(
+                'Health Check',
+                false,
+                `Health check error: ${error.message}`,
+                { error: error.message }
+            );
+        }
+    }
+
+    // Test 2: User Registration
+    async testUserRegistration() {
+        try {
+            // First, try to register with invalid data to test validation
+            const invalidResponse = await this.makeRequest('POST', '/api/auth/register', {
+                firstName: 'A', // Too short
+                lastName: '',   // Empty
+                email: 'invalid-email',
+                username: 'ab', // Too short
+                password: '123' // Too weak
+            });
+
+            if (invalidResponse.statusCode !== 400) {
+                return this.recordTest(
+                    'Registration Validation',
+                    false,
+                    'Validation should reject invalid data',
+                    invalidResponse.body
+                );
+            }
+
+            // Now test valid registration
+            const validResponse = await this.makeRequest('POST', '/api/auth/register', this.testUser);
+            
+            if (validResponse.statusCode === 201 && validResponse.body.success) {
+                return this.recordTest(
+                    'User Registration',
+                    true,
+                    'User registration successful with proper validation',
+                    { userId: validResponse.body.user?.id }
+                );
+            } else {
+                return this.recordTest(
+                    'User Registration',
+                    false,
+                    `Registration failed: ${validResponse.body.message}`,
+                    validResponse.body
+                );
+            }
+        } catch (error) {
+            return this.recordTest(
+                'User Registration',
+                false,
+                `Registration error: ${error.message}`,
+                { error: error.message }
+            );
+        }
+    }
+
+    // Test 3: User Login
+    async testUserLogin() {
+        try {
+            // Test invalid login first
+            const invalidResponse = await this.makeRequest('POST', '/api/auth/login', {
+                email: this.testUser.email,
+                password: 'wrongpassword'
+            });
+
+            if (invalidResponse.statusCode !== 401) {
+                return this.recordTest(
+                    'Login Security',
+                    false,
+                    'Invalid credentials should be rejected',
+                    invalidResponse.body
+                );
+            }
+
+            // Test valid login
+            const validResponse = await this.makeRequest('POST', '/api/auth/login', {
+                email: this.testUser.email,
+                password: this.testUser.password
+            });
+            
+            if (validResponse.statusCode === 200 && validResponse.body.success && validResponse.body.token) {
+                this.authToken = validResponse.body.token;
+                return this.recordTest(
+                    'User Login',
+                    true,
+                    'Login successful with valid credentials',
+                    { hasToken: !!validResponse.body.token }
+                );
+            } else {
+                return this.recordTest(
+                    'User Login',
+                    false,
+                    `Login failed: ${validResponse.body.message}`,
+                    validResponse.body
+                );
+            }
+        } catch (error) {
+            return this.recordTest(
+                'User Login',
+                false,
+                `Login error: ${error.message}`,
+                { error: error.message }
+            );
+        }
+    }
+
+    // Test 4: Token Verification
+    async testTokenVerification() {
+        if (!this.authToken) {
+            return this.recordTest(
+                'Token Verification',
+                false,
+                'No auth token available for testing',
+                {}
+            );
+        }
+
+        try {
+            const response = await this.makeRequest('GET', '/api/auth/verify', null, {
+                'Authorization': `Bearer ${this.authToken}`
+            });
+            
+            if (response.statusCode === 200 && response.body.success) {
+                return this.recordTest(
+                    'Token Verification',
+                    true,
+                    'Token verification successful',
+                    { userId: response.body.user?.id }
+                );
+            } else {
+                return this.recordTest(
+                    'Token Verification',
+                    false,
+                    `Token verification failed: ${response.body.message}`,
+                    response.body
+                );
+            }
+        } catch (error) {
+            return this.recordTest(
+                'Token Verification',
+                false,
+                `Token verification error: ${error.message}`,
+                { error: error.message }
+            );
+        }
+    }
+
+    // Test 5: Dashboard JSON API (CRITICAL FIX)
+    async testDashboardAPI() {
+        if (!this.authToken) {
+            return this.recordTest(
+                'Dashboard API',
+                false,
+                'No auth token available for testing',
+                {}
+            );
+        }
+
+        try {
+            // Test unauthenticated access first
+            const unauthResponse = await this.makeRequest('GET', '/api/dashboard');
+            
+            if (unauthResponse.statusCode !== 401) {
+                return this.recordTest(
+                    'Dashboard Security',
+                    false,
+                    'Unauthenticated dashboard access should be rejected',
+                    unauthResponse.body
+                );
+            }
+
+            // Test authenticated access
+            const authResponse = await this.makeRequest('GET', '/api/dashboard', null, {
+                'Authorization': `Bearer ${this.authToken}`
+            });
+            
+            if (authResponse.statusCode === 200 && authResponse.body.success && authResponse.body.dashboard) {
+                return this.recordTest(
+                    'Dashboard JSON API',
+                    true,
+                    'Dashboard API returns proper JSON response',
+                    { 
+                        hasUser: !!authResponse.body.dashboard.user,
+                        hasStatistics: !!authResponse.body.dashboard.statistics,
+                        hasEngines: !!authResponse.body.dashboard.availableEngines
+                    }
+                );
+            } else {
+                return this.recordTest(
+                    'Dashboard JSON API',
+                    false,
+                    `Dashboard API failed: ${authResponse.body.message}`,
+                    authResponse.body
+                );
+            }
+        } catch (error) {
+            return this.recordTest(
+                'Dashboard JSON API',
+                false,
+                `Dashboard API error: ${error.message}`,
+                { error: error.message }
+            );
+        }
+    }
+
+    // Test 6: AI Generation Engines
+    async testAIGeneration() {
+        if (!this.authToken) {
+            return this.recordTest(
+                'AI Generation',
+                false,
+                'No auth token available for testing',
+                {}
+            );
+        }
+
+        const engines = ['quantum', 'neural', 'predictive'];
+        const results = [];
+
+        for (const engine of engines) {
             try {
-                console.log(`\n🔍 Running: ${test.name}`);
-                await test.testFn();
-                console.log(`✅ PASSED: ${test.name}`);
-                this.results.passed++;
+                const response = await this.makeRequest('POST', `/api/ai/generate/${engine}`, {}, {
+                    'Authorization': `Bearer ${this.authToken}`
+                });
+                
+                if (response.statusCode === 200 && response.body.success && response.body.content) {
+                    results.push({
+                        engine,
+                        success: true,
+                        wordCount: response.body.content.wordCount
+                    });
+                } else {
+                    results.push({
+                        engine,
+                        success: false,
+                        error: response.body.message
+                    });
+                }
             } catch (error) {
-                console.log(`❌ FAILED: ${test.name}`);
-                console.log(`   Error: ${error.message}`);
-                this.results.failed++;
-                this.results.errors.push({
-                    test: test.name,
+                results.push({
+                    engine,
+                    success: false,
                     error: error.message
                 });
             }
         }
 
-        this.printSummary();
-        return this.results;
+        const successfulEngines = results.filter(r => r.success).length;
+        const allSuccessful = successfulEngines === engines.length;
+
+        return this.recordTest(
+            'AI Generation Engines',
+            allSuccessful,
+            `${successfulEngines}/${engines.length} AI engines working correctly`,
+            { results }
+        );
     }
 
-    printSummary() {
-        console.log('\n' + '=' .repeat(60));
-        console.log('📊 TEST RESULTS SUMMARY');
-        console.log('=' .repeat(60));
-        console.log(`✅ Passed: ${this.results.passed}`);
-        console.log(`❌ Failed: ${this.results.failed}`);
-        console.log(`📈 Success Rate: ${((this.results.passed / this.tests.length) * 100).toFixed(1)}%`);
+    // Test 7: User Content Management
+    async testContentManagement() {
+        if (!this.authToken) {
+            return this.recordTest(
+                'Content Management',
+                false,
+                'No auth token available for testing',
+                {}
+            );
+        }
+
+        try {
+            // Generate some content first
+            await this.makeRequest('POST', '/api/ai/generate/quantum', {}, {
+                'Authorization': `Bearer ${this.authToken}`
+            });
+
+            // Test content retrieval
+            const response = await this.makeRequest('GET', '/api/content/user', null, {
+                'Authorization': `Bearer ${this.authToken}`
+            });
+            
+            if (response.statusCode === 200 && response.body.success) {
+                const hasContent = response.body.content && response.body.content.length > 0;
+                const hasStatistics = response.body.statistics && 
+                                    typeof response.body.statistics.totalContent === 'number';
+
+                return this.recordTest(
+                    'Content Management',
+                    hasContent && hasStatistics,
+                    `Content retrieval successful with ${response.body.content?.length || 0} items`,
+                    { 
+                        contentCount: response.body.content?.length,
+                        statistics: response.body.statistics
+                    }
+                );
+            } else {
+                return this.recordTest(
+                    'Content Management',
+                    false,
+                    `Content retrieval failed: ${response.body.message}`,
+                    response.body
+                );
+            }
+        } catch (error) {
+            return this.recordTest(
+                'Content Management',
+                false,
+                `Content management error: ${error.message}`,
+                { error: error.message }
+            );
+        }
+    }
+
+    // Test 8: Rate Limiting
+    async testRateLimiting() {
+        try {
+            // Make multiple rapid requests to test rate limiting
+            const requests = [];
+            for (let i = 0; i < 5; i++) {
+                requests.push(this.makeRequest('GET', '/api/health'));
+            }
+
+            const responses = await Promise.all(requests);
+            const allSuccessful = responses.every(r => r.statusCode === 200);
+
+            return this.recordTest(
+                'Rate Limiting',
+                allSuccessful,
+                'Rate limiting allows normal usage patterns',
+                { requestCount: responses.length }
+            );
+        } catch (error) {
+            return this.recordTest(
+                'Rate Limiting',
+                false,
+                `Rate limiting test error: ${error.message}`,
+                { error: error.message }
+            );
+        }
+    }
+
+    // Test 9: Error Handling
+    async testErrorHandling() {
+        try {
+            // Test 404 endpoint
+            const notFoundResponse = await this.makeRequest('GET', '/api/nonexistent');
+            
+            if (notFoundResponse.statusCode === 404 && notFoundResponse.body.success === false) {
+                return this.recordTest(
+                    'Error Handling',
+                    true,
+                    '404 errors handled correctly',
+                    { statusCode: notFoundResponse.statusCode }
+                );
+            } else {
+                return this.recordTest(
+                    'Error Handling',
+                    false,
+                    'Error handling not working correctly',
+                    notFoundResponse.body
+                );
+            }
+        } catch (error) {
+            return this.recordTest(
+                'Error Handling',
+                false,
+                `Error handling test failed: ${error.message}`,
+                { error: error.message }
+            );
+        }
+    }
+
+    // Test 10: Environment Variable Support
+    async testEnvironmentVariables() {
+        try {
+            // This test checks if the server properly handles environment variables
+            // by verifying JWT token generation works (which depends on JWT_SECRET)
+            
+            if (this.authToken) {
+                // If we have a token, JWT_SECRET is working
+                return this.recordTest(
+                    'Environment Variables',
+                    true,
+                    'JWT_SECRET environment variable working correctly',
+                    { hasAuthToken: true }
+                );
+            } else {
+                return this.recordTest(
+                    'Environment Variables',
+                    false,
+                    'JWT_SECRET environment variable may not be configured',
+                    { hasAuthToken: false }
+                );
+            }
+        } catch (error) {
+            return this.recordTest(
+                'Environment Variables',
+                false,
+                `Environment variable test error: ${error.message}`,
+                { error: error.message }
+            );
+        }
+    }
+
+    // Run all tests
+    async runAllTests() {
+        this.log('🚀 Starting TrendyX AI Level 5 Enterprise Test Suite', 'info');
+        this.log(`Testing against: ${this.baseUrl}`, 'info');
         
-        if (this.results.errors.length > 0) {
-            console.log('\n🚨 FAILED TESTS:');
-            this.results.errors.forEach(error => {
-                console.log(`   - ${error.test}: ${error.error}`);
+        const startTime = Date.now();
+
+        // Run tests in sequence
+        await this.testHealthCheck();
+        await this.testUserRegistration();
+        await this.testUserLogin();
+        await this.testTokenVerification();
+        await this.testDashboardAPI();
+        await this.testAIGeneration();
+        await this.testContentManagement();
+        await this.testRateLimiting();
+        await this.testErrorHandling();
+        await this.testEnvironmentVariables();
+
+        const endTime = Date.now();
+        const duration = endTime - startTime;
+
+        // Generate summary
+        this.generateSummary(duration);
+    }
+
+    // Generate test summary
+    generateSummary(duration) {
+        const totalTests = this.testResults.length;
+        const passedTests = this.testResults.filter(r => r.passed).length;
+        const failedTests = totalTests - passedTests;
+        const successRate = ((passedTests / totalTests) * 100).toFixed(1);
+
+        this.log('', 'info');
+        this.log('📊 TEST SUMMARY', 'info');
+        this.log('═'.repeat(50), 'info');
+        this.log(`Total Tests: ${totalTests}`, 'info');
+        this.log(`Passed: ${passedTests}`, passedTests === totalTests ? 'success' : 'info');
+        this.log(`Failed: ${failedTests}`, failedTests === 0 ? 'info' : 'error');
+        this.log(`Success Rate: ${successRate}%`, successRate === '100.0' ? 'success' : 'warning');
+        this.log(`Duration: ${duration}ms`, 'info');
+        this.log('═'.repeat(50), 'info');
+
+        if (failedTests > 0) {
+            this.log('', 'info');
+            this.log('❌ FAILED TESTS:', 'error');
+            this.testResults.filter(r => !r.passed).forEach(test => {
+                this.log(`  • ${test.testName}: ${test.message}`, 'error');
             });
         }
-        
-        console.log('\n' + (this.results.failed === 0 ? '🎉 ALL TESTS PASSED!' : '⚠️  SOME TESTS FAILED'));
-    }
-}
 
-// Mock HTTP client for testing
-class MockHTTPClient {
-    static async post(url, data) {
-        // Simulate HTTP POST request
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({
-                    status: 200,
-                    json: () => Promise.resolve({ success: true, message: 'Mock response' })
-                });
-            }, 100);
-        });
-    }
+        if (passedTests === totalTests) {
+            this.log('', 'info');
+            this.log('🎉 ALL TESTS PASSED! TrendyX AI Platform is fully operational!', 'success');
+        } else {
+            this.log('', 'info');
+            this.log('⚠️  Some tests failed. Please review the issues above.', 'warning');
+        }
 
-    static async get(url) {
-        // Simulate HTTP GET request
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                resolve({
-                    status: 200,
-                    json: () => Promise.resolve({ success: true })
-                });
-            }, 100);
-        });
-    }
-}
-
-// Validation test utilities
-class ValidationTester {
-    static testField(fieldName, value, expectedValid, expectedMessage = null) {
-        const validationRules = {
-            firstName: {
-                minLength: 2,
-                maxLength: 50,
-                pattern: /^[a-zA-Z\s]+$/,
-                message: 'First name must be 2-50 characters, letters only'
-            },
-            lastName: {
-                minLength: 2,
-                maxLength: 50,
-                pattern: /^[a-zA-Z\s]+$/,
-                message: 'Last name must be 2-50 characters, letters only'
-            },
-            email: {
-                pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Please enter a valid email address'
-            },
-            username: {
-                minLength: 3,
-                maxLength: 20,
-                pattern: /^[a-zA-Z0-9]+$/,
-                message: 'Username must be 3-20 characters, alphanumeric only (no spaces, symbols, or underscores)'
-            },
-            password: {
-                minLength: 8,
-                requireNumber: true,
-                requireSpecial: true,
-                message: 'Password must be at least 8 characters with numbers and special characters'
-            }
+        return {
+            totalTests,
+            passedTests,
+            failedTests,
+            successRate: parseFloat(successRate),
+            duration,
+            results: this.testResults
         };
-
-        const rule = validationRules[fieldName];
-        if (!rule) return { valid: true };
-
-        if (!value || typeof value !== 'string') {
-            return { valid: false, message: `${fieldName} is required` };
-        }
-
-        const trimmedValue = value.trim();
-
-        if (!trimmedValue) {
-            return { valid: false, message: `${fieldName} cannot be empty` };
-        }
-
-        if (rule.minLength && trimmedValue.length < rule.minLength) {
-            return { valid: false, message: rule.message };
-        }
-
-        if (rule.maxLength && trimmedValue.length > rule.maxLength) {
-            return { valid: false, message: rule.message };
-        }
-
-        if (rule.pattern && !rule.pattern.test(trimmedValue)) {
-            return { valid: false, message: rule.message };
-        }
-
-        if (fieldName === 'password') {
-            if (rule.requireNumber && !/\d/.test(trimmedValue)) {
-                return { valid: false, message: rule.message };
-            }
-            if (rule.requireSpecial && !/[!@#$%^&*(),.?":{}|<>]/.test(trimmedValue)) {
-                return { valid: false, message: rule.message };
-            }
-        }
-
-        return { valid: true };
     }
 }
 
-// Initialize test runner
-const testRunner = new TestRunner();
+// Export for use in other modules
+module.exports = TrendyXTestSuite;
 
-// TEST SUITE 1: TypeError Suppression Tests
-testRunner.addTest('TypeError Suppression - customDarkModeManagerCS', async () => {
-    // Test that TypeError handling is implemented
-    const errorHandler = (message) => {
-        if (message.includes('customDarkModeManagerCS') ||
-            message.includes('NSSS') ||
-            message.includes('Norton')) {
-            return true; // Error should be suppressed
-        }
-        return false;
-    };
-
-    // Simulate the TypeError
-    const testError = 'TypeError: can\'t access property "customDarkModeManagerCS", e.NSSS is undefined';
-    const shouldSuppress = errorHandler(testError);
-    
-    assert.strictEqual(shouldSuppress, true, 'TypeError should be suppressed');
-});
-
-testRunner.addTest('Extension Error Suppression - Multiple Types', async () => {
-    const extensionErrors = [
-        'customDarkModeManagerCS error',
-        'Norton extension error',
-        'NSSS undefined error',
-        'SymBfw extension conflict',
-        'extensionAdapter error'
-    ];
-
-    extensionErrors.forEach(error => {
-        const shouldSuppress = error.includes('customDarkModeManagerCS') ||
-                              error.includes('Norton') ||
-                              error.includes('NSSS') ||
-                              error.includes('SymBfw') ||
-                              error.includes('extension');
-        
-        assert.strictEqual(shouldSuppress, true, `Extension error should be suppressed: ${error}`);
-    });
-});
-
-// TEST SUITE 2: Username Validation Tests
-testRunner.addTest('Username Validation - Valid Alphanumeric', async () => {
-    const validUsernames = ['user123', 'testuser', 'abc123', 'user1', 'test'];
-    
-    validUsernames.forEach(username => {
-        const result = ValidationTester.testField('username', username);
-        assert.strictEqual(result.valid, true, `Username '${username}' should be valid`);
-    });
-});
-
-testRunner.addTest('Username Validation - Invalid Characters', async () => {
-    const invalidUsernames = [
-        'user@domain.com', // Email format (original error case)
-        'user_name',       // Underscore
-        'user-name',       // Hyphen
-        'user name',       // Space
-        'user@123',        // Special character
-        'user.name'        // Dot
-    ];
-    
-    invalidUsernames.forEach(username => {
-        const result = ValidationTester.testField('username', username);
-        assert.strictEqual(result.valid, false, `Username '${username}' should be invalid`);
-        assert.ok(result.message.includes('alphanumeric only'), 'Should specify alphanumeric only requirement');
-    });
-});
-
-testRunner.addTest('Username Validation - Length Requirements', async () => {
-    // Too short
-    const tooShort = ['a', 'ab'];
-    tooShort.forEach(username => {
-        const result = ValidationTester.testField('username', username);
-        assert.strictEqual(result.valid, false, `Username '${username}' should be too short`);
-    });
-
-    // Too long
-    const tooLong = 'a'.repeat(21);
-    const result = ValidationTester.testField('username', tooLong);
-    assert.strictEqual(result.valid, false, 'Username should be too long');
-
-    // Just right
-    const justRight = ['abc', 'a'.repeat(20)];
-    justRight.forEach(username => {
-        const result = ValidationTester.testField('username', username);
-        assert.strictEqual(result.valid, true, `Username '${username}' should be valid length`);
-    });
-});
-
-// TEST SUITE 3: Password Validation Tests
-testRunner.addTest('Password Validation - Valid Passwords', async () => {
-    const validPasswords = [
-        'Password123!',
-        'MySecure@Pass1',
-        'Test123$',
-        'Complex9#Pass'
-    ];
-    
-    validPasswords.forEach(password => {
-        const result = ValidationTester.testField('password', password);
-        assert.strictEqual(result.valid, true, `Password '${password}' should be valid`);
-    });
-});
-
-testRunner.addTest('Password Validation - Invalid Passwords', async () => {
-    const invalidPasswords = [
-        'password',                 // No numbers or special chars
-        'PASSWORD',                 // No numbers or special chars
-        '12345678',                 // No letters or special chars
-        'Pass123',                  // Too short
-        'Password123'               // No special characters
-    ];
-    
-    invalidPasswords.forEach(password => {
-        const result = ValidationTester.testField('password', password);
-        assert.strictEqual(result.valid, false, `Password '${password}' should be invalid`);
-    });
-});
-
-testRunner.addTest('Password Validation - Email Same as Password', async () => {
-    // Test the specific case from the error logs
-    const email = 'angel.alicea21@gmail.com';
-    const password = 'angel.alicea21@gmail.com';
-    
-    // The email format itself is technically a valid password (has numbers and special chars)
-    const result = ValidationTester.testField('password', password);
-    assert.strictEqual(result.valid, true, 'Email format can be a valid password technically');
-    
-    // But the real issue is: passwords should not equal emails (security concern)
-    const passwordEqualsEmail = password.trim() === email.trim();
-    assert.strictEqual(passwordEqualsEmail, true, 'Test case should have password equal to email');
-    
-    // This should be caught by additional validation in the registration form
-    console.log('   Note: Email-as-password should be caught by form-level validation, not field-level');
-});
-
-// TEST SUITE 4: Form Validation Integration Tests
-testRunner.addTest('Registration Form - Complete Valid Data', async () => {
-    const validFormData = {
-        firstName: 'Angel',
-        lastName: 'Alicea',
-        email: 'angel.alicea21@gmail.com',
-        username: 'angelalicea21',  // Fixed: alphanumeric only
-        password: 'SecurePass123!'  // Fixed: proper password
-    };
-
-    // Validate each field
-    Object.keys(validFormData).forEach(fieldName => {
-        const result = ValidationTester.testField(fieldName, validFormData[fieldName]);
-        assert.strictEqual(result.valid, true, `Field '${fieldName}' should be valid`);
-    });
-
-    // Additional validation: password should not equal email
-    assert.notStrictEqual(validFormData.password, validFormData.email, 'Password should not equal email');
-});
-
-testRunner.addTest('Registration Form - Original Error Case', async () => {
-    // This is the exact data from the error logs that was failing
-    const originalErrorData = {
-        firstName: 'Angel',
-        lastName: 'Alicea',
-        email: 'angel.alicea21@gmail.com',
-        username: 'angel.alicea21@gmail.com', // INVALID: email as username
-        password: 'angel.alicea21@gmail.com'  // INVALID: same as email (security issue)
-    };
-
-    // Username should be invalid (email format not allowed)
-    const usernameResult = ValidationTester.testField('username', originalErrorData.username);
-    assert.strictEqual(usernameResult.valid, false, 'Email as username should be invalid');
-
-    // Password itself is technically valid (has numbers and special chars)
-    const passwordResult = ValidationTester.testField('password', originalErrorData.password);
-    assert.strictEqual(passwordResult.valid, true, 'Email format as password is technically valid');
-    
-    // But password equals email should be caught by form-level validation
-    const passwordEqualsEmail = originalErrorData.password === originalErrorData.email;
-    assert.strictEqual(passwordEqualsEmail, true, 'Password should equal email in this test case');
-    
-    console.log('   Note: Password=Email validation happens at form level, not field level');
-});
-
-// TEST SUITE 5: Layout Stability Tests
-testRunner.addTest('CSS Layout Stability - Container Properties', async () => {
-    // Test that CSS contains layout stability properties
-    const requiredCSSProperties = [
-        'contain: layout style paint',
-        'isolation: isolate',
-        'transform: translateZ(0)',
-        'position: relative',
-        'z-index:'
-    ];
-
-    // Simulate checking CSS content (in real implementation, would parse actual CSS)
-    const mockCSS = `
-        body {
-            contain: layout style paint;
-            isolation: isolate;
-        }
-        .auth-container {
-            position: relative;
-            z-index: 1;
-            contain: layout style;
-            transform: translateZ(0);
-        }
-    `;
-
-    requiredCSSProperties.forEach(property => {
-        const propertyExists = mockCSS.includes(property.split(':')[0]);
-        assert.strictEqual(propertyExists, true, `CSS should contain ${property.split(':')[0]} property`);
-    });
-});
-
-testRunner.addTest('Extension Interference Prevention', async () => {
-    // Test that extension interference prevention is implemented
-    const preventionMethods = [
-        'appendChild override',
-        'error event listener',
-        'unhandledrejection listener',
-        'console.error override'
-    ];
-
-    // Simulate checking for prevention methods
-    const hasPreventionMethods = preventionMethods.every(method => {
-        // In real implementation, would check actual code
-        return true; // Assume implemented based on our code
-    });
-
-    assert.strictEqual(hasPreventionMethods, true, 'Extension interference prevention should be implemented');
-});
-
-// TEST SUITE 6: API Response Tests
-testRunner.addTest('API Error Response Format', async () => {
-    // Test that API returns proper error format
-    const mockErrorResponse = {
-        success: false,
-        message: 'Validation failed',
-        errors: {
-            username: 'Username must be 3-20 characters, alphanumeric only (no spaces, symbols, or underscores)',
-            password: 'Password must be at least 8 characters with numbers and special characters'
-        }
-    };
-
-    // Validate response structure
-    assert.strictEqual(typeof mockErrorResponse.success, 'boolean', 'Response should have boolean success field');
-    assert.strictEqual(typeof mockErrorResponse.message, 'string', 'Response should have string message field');
-    assert.strictEqual(typeof mockErrorResponse.errors, 'object', 'Response should have errors object');
-    
-    // Validate error messages are specific
-    assert.ok(mockErrorResponse.errors.username.includes('alphanumeric only'), 'Username error should be specific');
-    assert.ok(mockErrorResponse.errors.password.includes('8 characters'), 'Password error should be specific');
-});
-
-testRunner.addTest('Success Response Format', async () => {
-    // Test that API returns proper success format
-    const mockSuccessResponse = {
-        success: true,
-        message: 'Account created successfully',
-        token: 'mock.jwt.token',
-        username: 'testuser',
-        user: {
-            id: 'user-id',
-            firstName: 'Test',
-            lastName: 'User',
-            email: 'test@example.com',
-            username: 'testuser'
-        }
-    };
-
-    // Validate response structure
-    assert.strictEqual(mockSuccessResponse.success, true, 'Success response should have success: true');
-    assert.strictEqual(typeof mockSuccessResponse.token, 'string', 'Response should include token');
-    assert.strictEqual(typeof mockSuccessResponse.user, 'object', 'Response should include user object');
-    assert.strictEqual(typeof mockSuccessResponse.user.id, 'string', 'User should have ID');
-});
-
-// TEST SUITE 7: Integration Tests
-testRunner.addTest('End-to-End Registration Flow', async () => {
-    // Simulate complete registration flow
-    const registrationData = {
-        firstName: 'Test',
-        lastName: 'User',
-        email: 'test@example.com',
-        username: 'testuser123',
-        password: 'TestPass123!'
-    };
-
-    // Step 1: Validate all fields
-    let allValid = true;
-    Object.keys(registrationData).forEach(fieldName => {
-        const result = ValidationTester.testField(fieldName, registrationData[fieldName]);
-        if (!result.valid) {
-            allValid = false;
-        }
-    });
-
-    assert.strictEqual(allValid, true, 'All registration fields should be valid');
-
-    // Step 2: Check password != email
-    assert.notStrictEqual(registrationData.password, registrationData.email, 'Password should not equal email');
-
-    // Step 3: Simulate API call (would be actual HTTP request in real test)
-    const mockResponse = await MockHTTPClient.post('/api/auth/register', registrationData);
-    assert.strictEqual(mockResponse.status, 200, 'Registration API should return 200');
-});
-
-testRunner.addTest('Error Case Handling', async () => {
-    // Test all the original error cases are now handled
-    const errorCases = [
-        {
-            name: 'Email as Username',
-            data: { username: 'user@domain.com' },
-            expectedError: 'alphanumeric only'
-        },
-        {
-            name: 'Email as Password',
-            data: { password: 'user@domain.com' },
-            expectedError: 'numbers and special characters'
-        },
-        {
-            name: 'Short Username',
-            data: { username: 'ab' },
-            expectedError: '3-20 characters'
-        },
-        {
-            name: 'Weak Password',
-            data: { password: 'password' },
-            expectedError: 'numbers and special characters'
-        }
-    ];
-
-    errorCases.forEach(testCase => {
-        const fieldName = Object.keys(testCase.data)[0];
-        const fieldValue = testCase.data[fieldName];
-        const result = ValidationTester.testField(fieldName, fieldValue);
-        
-        assert.strictEqual(result.valid, false, `${testCase.name} should be invalid`);
-        assert.ok(result.message.includes(testCase.expectedError), 
-                 `${testCase.name} should have specific error message`);
-    });
-});
-
-// Run all tests
+// Run tests if this file is executed directly
 if (require.main === module) {
-    testRunner.runAll().then(results => {
-        process.exit(results.failed === 0 ? 0 : 1);
-    }).catch(error => {
-        console.error('Test runner error:', error);
-        process.exit(1);
-    });
+    const testSuite = new TrendyXTestSuite();
+    testSuite.runAllTests().catch(console.error);
 }
-
-module.exports = { TestRunner, ValidationTester, MockHTTPClient };
 

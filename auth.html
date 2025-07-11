@@ -48,228 +48,58 @@
             z-index: 1;
             /* Prevent extension interference */
             contain: layout style;
-            transform: translateZ(0); /* Force hardware acceleration */
+            transform: translateZ(0);
         }
 
-        /* Logo Section */
-        .logo {
+        /* Header Styles */
+        .auth-header {
             text-align: center;
             margin-bottom: 30px;
         }
 
-        .logo h1 {
-            color: #4a5568;
-            font-size: 28px;
+        .auth-header h1 {
+            color: #333;
+            font-size: 2.2em;
+            margin-bottom: 10px;
             font-weight: 700;
-            margin-bottom: 8px;
-            line-height: 1.2;
         }
 
-        .logo p {
-            color: #718096;
-            font-size: 16px;
-            line-height: 1.4;
+        .auth-header p {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
         }
 
-        /* Tab System */
+        /* Tab Navigation */
         .auth-tabs {
             display: flex;
             margin-bottom: 30px;
-            background: #f7fafc;
-            border-radius: 12px;
-            padding: 4px;
-            position: relative;
+            border-radius: 10px;
+            background: #f8f9fa;
+            padding: 5px;
         }
 
-        .tab-button {
+        .auth-tab {
             flex: 1;
             padding: 12px 20px;
-            border: none;
+            text-align: center;
             background: transparent;
-            color: #718096;
-            font-size: 16px;
-            font-weight: 600;
+            border: none;
             border-radius: 8px;
             cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
             transition: all 0.3s ease;
-            position: relative;
-            z-index: 2;
+            color: #666;
         }
 
-        .tab-button.active {
+        .auth-tab.active {
             background: #667eea;
             color: white;
-            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
         }
 
-        /* Form Styling */
-        .form-group {
-            margin-bottom: 20px;
-            position: relative;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #4a5568;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .form-group input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s ease;
-            background: #fff;
-            position: relative;
-            z-index: 1;
-        }
-
-        .form-group input:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-        }
-
-        .form-group input.error {
-            border-color: #e53e3e;
-            box-shadow: 0 0 0 3px rgba(229, 62, 62, 0.1);
-        }
-
-        .form-group input.success {
-            border-color: #38a169;
-            box-shadow: 0 0 0 3px rgba(56, 161, 105, 0.1);
-        }
-
-        /* Inline Error Messages */
-        .error-message {
-            color: #e53e3e;
-            font-size: 13px;
-            margin-top: 6px;
-            display: none;
-            font-weight: 500;
-            line-height: 1.3;
-        }
-
-        .error-message.show {
-            display: block;
-        }
-
-        /* Success Messages */
-        .success-message {
-            color: #38a169;
-            font-size: 13px;
-            margin-top: 6px;
-            display: none;
-            font-weight: 500;
-        }
-
-        .success-message.show {
-            display: block;
-        }
-
-        /* Password Strength Indicator */
-        .password-strength {
-            margin-top: 6px;
-            font-size: 12px;
-            font-weight: 500;
-            display: none;
-        }
-
-        .password-strength.show {
-            display: block;
-        }
-
-        .strength-weak { color: #e53e3e; }
-        .strength-medium { color: #dd6b20; }
-        .strength-strong { color: #38a169; }
-
-        /* Submit Button */
-        .submit-button {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            margin-top: 10px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .submit-button:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
-        }
-
-        .submit-button:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        /* Loading State */
-        .loading {
-            display: none;
-            text-align: center;
-            margin-top: 20px;
-        }
-
-        .loading.show {
-            display: block;
-        }
-
-        .loading-spinner {
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            width: 30px;
-            height: 30px;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 10px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Alert Messages */
-        .alert {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            font-weight: 600;
-            text-align: center;
-            display: none;
-            position: relative;
-            z-index: 2;
-        }
-
-        .alert.show {
-            display: block;
-        }
-
-        .alert-success {
-            background: #c6f6d5;
-            color: #22543d;
-            border: 1px solid #9ae6b4;
-        }
-
-        .alert-error {
-            background: #fed7d7;
-            color: #742a2a;
-            border: 1px solid #fc8181;
-        }
-
-        /* Form Visibility */
+        /* Form Styles */
         .auth-form {
             display: none;
         }
@@ -278,644 +108,735 @@
             display: block;
         }
 
+        .form-group {
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+        }
+
+        .form-row .form-group {
+            flex: 1;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            background: white;
+            color: #333;
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Error Styles */
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.85em;
+            margin-top: 5px;
+            display: none;
+            font-weight: 500;
+        }
+
+        .error-message.show {
+            display: block;
+        }
+
+        input.error {
+            border-color: #e74c3c;
+            background-color: #fdf2f2;
+        }
+
+        /* Success Styles */
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #c3e6cb;
+            display: none;
+            font-weight: 500;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        /* Button Styles */
+        .auth-button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .auth-button:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .auth-button .loading {
+            display: none;
+        }
+
+        .auth-button.loading .loading {
+            display: inline-block;
+        }
+
+        .auth-button.loading .button-text {
+            display: none;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Password Strength Indicator */
+        .password-strength {
+            margin-top: 8px;
+            display: none;
+        }
+
+        .password-strength.show {
+            display: block;
+        }
+
+        .strength-bar {
+            height: 4px;
+            background: #e1e5e9;
+            border-radius: 2px;
+            overflow: hidden;
+            margin-bottom: 5px;
+        }
+
+        .strength-fill {
+            height: 100%;
+            transition: all 0.3s ease;
+            border-radius: 2px;
+        }
+
+        .strength-text {
+            font-size: 0.8em;
+            font-weight: 500;
+        }
+
         /* Responsive Design */
         @media (max-width: 480px) {
             .auth-container {
                 padding: 30px 20px;
                 margin: 10px;
             }
-            
-            .logo h1 {
-                font-size: 24px;
+
+            .form-row {
+                flex-direction: column;
+                gap: 0;
             }
 
-            .form-group input {
-                font-size: 16px; /* Prevent zoom on iOS */
+            .auth-header h1 {
+                font-size: 1.8em;
             }
         }
 
-        /* Extension Interference Prevention */
-        .auth-container::before {
-            content: '';
-            position: absolute;
-            top: -10px;
-            left: -10px;
-            right: -10px;
-            bottom: -10px;
-            z-index: -1;
-            pointer-events: none;
+        /* Prevent extension interference */
+        .auth-container * {
+            position: relative;
+            z-index: 2;
         }
 
-        /* Prevent Norton popup interference */
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
+        /* Hide Norton and other extension elements */
+        [id*="norton"], [class*="norton"], [id*="NSSS"], [class*="NSSS"],
+        [id*="password-manager"], [class*="password-manager"] {
+            display: none !important;
+            visibility: hidden !important;
+            opacity: 0 !important;
         }
     </style>
 </head>
 <body>
     <div class="auth-container">
-        <div class="logo">
+        <div class="auth-header">
             <h1>🚀 TrendyX AI</h1>
             <p>Level 5 Enterprise Platform</p>
         </div>
 
-        <!-- Alert Messages -->
-        <div class="alert alert-success" id="successAlert"></div>
-        <div class="alert alert-error" id="errorAlert"></div>
+        <!-- Success Message -->
+        <div id="successMessage" class="success-message">
+            <strong>Success!</strong> <span id="successText"></span>
+        </div>
 
         <!-- Tab Navigation -->
         <div class="auth-tabs">
-            <button class="tab-button active" id="loginTab" onclick="switchTab('login')">Login</button>
-            <button class="tab-button" id="registerTab" onclick="switchTab('register')">Register</button>
+            <button class="auth-tab active" onclick="switchTab('login')">Login</button>
+            <button class="auth-tab" onclick="switchTab('register')">Register</button>
         </div>
 
         <!-- Login Form -->
-        <form class="auth-form active" id="loginForm">
+        <form id="loginForm" class="auth-form active">
             <div class="form-group">
                 <label for="loginEmail">Email Address</label>
                 <input type="email" id="loginEmail" name="email" required autocomplete="email">
-                <div class="error-message" id="loginEmailError"></div>
+                <div id="loginEmailError" class="error-message"></div>
             </div>
 
             <div class="form-group">
                 <label for="loginPassword">Password</label>
                 <input type="password" id="loginPassword" name="password" required autocomplete="current-password">
-                <div class="error-message" id="loginPasswordError"></div>
+                <div id="loginPasswordError" class="error-message"></div>
             </div>
 
-            <button type="submit" class="submit-button" id="loginButton">
-                Sign In to Dashboard
+            <button type="submit" class="auth-button" id="loginButton">
+                <span class="loading">
+                    <span class="spinner"></span>
+                    Signing In...
+                </span>
+                <span class="button-text">Sign In</span>
             </button>
         </form>
 
         <!-- Register Form -->
-        <form class="auth-form" id="registerForm">
-            <div class="form-group">
-                <label for="firstName">First Name</label>
-                <input type="text" id="firstName" name="firstName" required autocomplete="given-name">
-                <div class="error-message" id="firstNameError"></div>
-                <div class="success-message" id="firstNameSuccess"></div>
+        <form id="registerForm" class="auth-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" id="firstName" name="firstName" required autocomplete="given-name">
+                    <div id="firstNameError" class="error-message"></div>
+                </div>
+                <div class="form-group">
+                    <label for="lastName">Last Name</label>
+                    <input type="text" id="lastName" name="lastName" required autocomplete="family-name">
+                    <div id="lastNameError" class="error-message"></div>
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="lastName">Last Name</label>
-                <input type="text" id="lastName" name="lastName" required autocomplete="family-name">
-                <div class="error-message" id="lastNameError"></div>
-                <div class="success-message" id="lastNameSuccess"></div>
+                <label for="email">Email Address</label>
+                <input type="email" id="email" name="email" required autocomplete="email">
+                <div id="emailError" class="error-message"></div>
             </div>
 
             <div class="form-group">
-                <label for="registerEmail">Email Address</label>
-                <input type="email" id="registerEmail" name="email" required autocomplete="email">
-                <div class="error-message" id="registerEmailError"></div>
-                <div class="success-message" id="registerEmailSuccess"></div>
+                <label for="username">Username</label>
+                <input type="text" id="username" name="username" required autocomplete="username">
+                <div id="usernameError" class="error-message"></div>
+                <div style="font-size: 0.8em; color: #666; margin-top: 5px;">
+                    3-20 characters, alphanumeric only (no spaces, symbols, or underscores)
+                </div>
             </div>
 
             <div class="form-group">
-                <label for="username">Username (alphanumeric only, 3-20 characters)</label>
-                <input type="text" id="username" name="username" required autocomplete="username" pattern="[a-zA-Z0-9]{3,20}">
-                <div class="error-message" id="usernameError"></div>
-                <div class="success-message" id="usernameSuccess"></div>
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" required autocomplete="new-password">
+                <div id="passwordError" class="error-message"></div>
+                <div id="passwordStrength" class="password-strength">
+                    <div class="strength-bar">
+                        <div id="strengthFill" class="strength-fill"></div>
+                    </div>
+                    <div id="strengthText" class="strength-text"></div>
+                </div>
+                <div style="font-size: 0.8em; color: #666; margin-top: 5px;">
+                    At least 8 characters with numbers and special characters
+                </div>
             </div>
 
-            <div class="form-group">
-                <label for="registerPassword">Password (min 8 chars, include numbers & special characters)</label>
-                <input type="password" id="registerPassword" name="password" required autocomplete="new-password">
-                <div class="password-strength" id="passwordStrength"></div>
-                <div class="error-message" id="registerPasswordError"></div>
-                <div class="success-message" id="registerPasswordSuccess"></div>
-            </div>
-
-            <button type="submit" class="submit-button" id="registerButton">
-                Create Account & Access Dashboard
+            <button type="submit" class="auth-button" id="registerButton">
+                <span class="loading">
+                    <span class="spinner"></span>
+                    Creating Account...
+                </span>
+                <span class="button-text">Create Account</span>
             </button>
         </form>
-
-        <!-- Loading Indicator -->
-        <div class="loading" id="loadingIndicator">
-            <div class="loading-spinner"></div>
-            <p>Processing your request...</p>
-        </div>
     </div>
 
     <script>
-        // COMPREHENSIVE ERROR SUPPRESSION SYSTEM
-        // Suppress all external extension errors
+        // Comprehensive error suppression for external scripts
         (function() {
             'use strict';
             
-            // Global error handler for extension conflicts
-            window.addEventListener('error', function(e) {
-                if (e.message && (
-                    e.message.includes('customDarkModeManagerCS') ||
-                    e.message.includes('NSSS') ||
-                    e.message.includes('Norton') ||
-                    e.message.includes('SymBfw') ||
-                    e.message.includes('extensionAdapter') ||
-                    e.message.includes('NSSSDarkModeCS') ||
-                    e.message.includes('e.NSSS is undefined') ||
-                    e.filename && e.filename.includes('extension')
-                )) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    e.stopImmediatePropagation();
-                    return false;
-                }
-            }, true);
-
-            // Suppress unhandled promise rejections from extensions
-            window.addEventListener('unhandledrejection', function(e) {
-                if (e.reason && e.reason.message && (
-                    e.reason.message.includes('customDarkModeManagerCS') ||
-                    e.reason.message.includes('NSSS') ||
-                    e.reason.message.includes('Norton') ||
-                    e.reason.message.includes('extension')
-                )) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    return false;
-                }
-            }, true);
-
-            // Override console.error for extension errors
-            const originalConsoleError = console.error;
+            // Suppress all console errors from external scripts
+            const originalError = console.error;
             console.error = function(...args) {
-                const message = args.join(' ');
-                if (message.includes('customDarkModeManagerCS') || 
-                    message.includes('NSSS') || 
-                    message.includes('Norton') ||
-                    message.includes('extension')) {
+                const errorMessage = args.join(' ');
+                if (errorMessage.includes('customDarkModeManagerCS') ||
+                    errorMessage.includes('NSSS') ||
+                    errorMessage.includes('Norton') ||
+                    errorMessage.includes('password-manager') ||
+                    errorMessage.includes('extension')) {
                     return; // Suppress extension errors
                 }
-                originalConsoleError.apply(console, args);
+                originalError.apply(console, args);
             };
 
-            // Prevent extension script injection
-            const originalAppendChild = Node.prototype.appendChild;
-            Node.prototype.appendChild = function(child) {
-                if (child.tagName === 'SCRIPT' && 
-                    child.src && 
-                    (child.src.includes('extension') || child.src.includes('NSSS'))) {
-                    return child; // Block extension scripts
+            // Global error handler
+            window.addEventListener('error', function(e) {
+                if (e.filename && (
+                    e.filename.includes('extension') ||
+                    e.filename.includes('norton') ||
+                    e.filename.includes('NSSS') ||
+                    e.message.includes('customDarkModeManagerCS')
+                )) {
+                    e.preventDefault();
+                    return false;
                 }
-                return originalAppendChild.call(this, child);
-            };
+            });
+
+            // Unhandled promise rejection handler
+            window.addEventListener('unhandledrejection', function(e) {
+                if (e.reason && e.reason.toString().includes('customDarkModeManagerCS')) {
+                    e.preventDefault();
+                    return false;
+                }
+            });
         })();
 
-        // AUTHENTICATION SYSTEM
-        let currentTab = 'login';
-        let validationRules = {
-            firstName: {
-                minLength: 2,
-                maxLength: 50,
-                pattern: /^[a-zA-Z\s]+$/,
-                message: 'First name must be 2-50 characters, letters only'
-            },
-            lastName: {
-                minLength: 2,
-                maxLength: 50,
-                pattern: /^[a-zA-Z\s]+$/,
-                message: 'Last name must be 2-50 characters, letters only'
-            },
-            email: {
-                pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                message: 'Please enter a valid email address'
-            },
-            username: {
-                minLength: 3,
-                maxLength: 20,
-                pattern: /^[a-zA-Z0-9]+$/,
-                message: 'Username must be 3-20 characters, alphanumeric only (no spaces, symbols, or underscores)'
-            },
-            password: {
-                minLength: 8,
-                requireNumber: true,
-                requireSpecial: true,
-                message: 'Password must be at least 8 characters with numbers and special characters'
-            }
-        };
-
-        // Tab switching functionality
-        function switchTab(tab) {
-            currentTab = tab;
-            
-            // Update tab buttons
-            document.getElementById('loginTab').classList.toggle('active', tab === 'login');
-            document.getElementById('registerTab').classList.toggle('active', tab === 'register');
-            
-            // Update forms
-            document.getElementById('loginForm').classList.toggle('active', tab === 'login');
-            document.getElementById('registerForm').classList.toggle('active', tab === 'register');
-            
-            // Clear all messages and errors
-            clearAllMessages();
-        }
-
-        // Clear all messages and validation states
-        function clearAllMessages() {
-            // Hide alerts
-            document.getElementById('successAlert').classList.remove('show');
-            document.getElementById('errorAlert').classList.remove('show');
-            
-            // Clear all error and success messages
-            document.querySelectorAll('.error-message, .success-message').forEach(msg => {
-                msg.classList.remove('show');
-                msg.textContent = '';
-            });
-            
-            // Clear input error states
-            document.querySelectorAll('input').forEach(input => {
-                input.classList.remove('error', 'success');
-            });
-            
-            // Hide password strength
-            const strengthIndicator = document.getElementById('passwordStrength');
-            if (strengthIndicator) {
-                strengthIndicator.classList.remove('show');
-                strengthIndicator.textContent = '';
-            }
-        }
-
-        // Show alert message
-        function showAlert(message, type = 'error') {
-            const alertElement = document.getElementById(type === 'success' ? 'successAlert' : 'errorAlert');
-            alertElement.textContent = message;
-            alertElement.classList.add('show');
-            
-            // Auto-hide success messages
-            if (type === 'success') {
-                setTimeout(() => {
-                    alertElement.classList.remove('show');
-                }, 5000);
-            }
-        }
-
-        // Show/hide loading state
-        function setLoading(show) {
-            document.getElementById('loadingIndicator').classList.toggle('show', show);
-            
-            // Disable/enable form buttons
-            document.querySelectorAll('.submit-button').forEach(btn => {
-                btn.disabled = show;
-            });
-        }
-
-        // Validation functions
-        function validateField(fieldName, value) {
-            const rule = validationRules[fieldName];
-            if (!rule) return { valid: true };
-
-            const trimmedValue = value.trim();
-
-            // Check minimum length
-            if (rule.minLength && trimmedValue.length < rule.minLength) {
-                return { valid: false, message: rule.message };
+        // Authentication System
+        class AuthSystem {
+            constructor() {
+                this.currentTab = 'login';
+                this.init();
             }
 
-            // Check maximum length
-            if (rule.maxLength && trimmedValue.length > rule.maxLength) {
-                return { valid: false, message: rule.message };
+            init() {
+                this.bindEvents();
+                this.setupValidation();
+                console.log('🚀 TrendyX AI Authentication System initialized');
             }
 
-            // Check pattern
-            if (rule.pattern && !rule.pattern.test(trimmedValue)) {
-                return { valid: false, message: rule.message };
+            bindEvents() {
+                // Form submissions
+                document.getElementById('loginForm').addEventListener('submit', (e) => this.handleLogin(e));
+                document.getElementById('registerForm').addEventListener('submit', (e) => this.handleRegister(e));
+
+                // Real-time validation
+                document.getElementById('password').addEventListener('input', (e) => this.checkPasswordStrength(e.target.value));
+                
+                // Field validation on blur
+                ['firstName', 'lastName', 'email', 'username', 'password'].forEach(field => {
+                    const element = document.getElementById(field);
+                    if (element) {
+                        element.addEventListener('blur', () => this.validateField(field, element.value));
+                        element.addEventListener('input', () => this.clearFieldError(field));
+                    }
+                });
+
+                // Login form validation
+                ['loginEmail', 'loginPassword'].forEach(field => {
+                    const element = document.getElementById(field);
+                    if (element) {
+                        element.addEventListener('input', () => this.clearFieldError(field));
+                    }
+                });
             }
 
-            // Special password validation
-            if (fieldName === 'password') {
-                if (rule.requireNumber && !/\d/.test(trimmedValue)) {
-                    return { valid: false, message: rule.message };
+            setupValidation() {
+                this.validationRules = {
+                    firstName: {
+                        minLength: 2,
+                        maxLength: 50,
+                        pattern: /^[a-zA-Z\s]+$/,
+                        message: 'First name must be 2-50 characters, letters only'
+                    },
+                    lastName: {
+                        minLength: 2,
+                        maxLength: 50,
+                        pattern: /^[a-zA-Z\s]+$/,
+                        message: 'Last name must be 2-50 characters, letters only'
+                    },
+                    email: {
+                        pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                        message: 'Please enter a valid email address'
+                    },
+                    username: {
+                        minLength: 3,
+                        maxLength: 20,
+                        pattern: /^[a-zA-Z0-9]+$/,
+                        message: 'Username must be 3-20 characters, alphanumeric only (no spaces, symbols, or underscores)'
+                    },
+                    password: {
+                        minLength: 8,
+                        requireNumber: true,
+                        requireSpecial: true,
+                        message: 'Password must be at least 8 characters with numbers and special characters'
+                    }
+                };
+            }
+
+            switchTab(tab) {
+                this.currentTab = tab;
+                
+                // Update tab buttons
+                document.querySelectorAll('.auth-tab').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+                
+                // Update forms
+                document.querySelectorAll('.auth-form').forEach(form => form.classList.remove('active'));
+                document.getElementById(tab + 'Form').classList.add('active');
+                
+                // Clear messages
+                this.hideSuccess();
+                this.clearAllErrors();
+            }
+
+            validateField(fieldName, value) {
+                const rule = this.validationRules[fieldName];
+                if (!rule) return { valid: true };
+
+                if (!value || typeof value !== 'string') {
+                    return this.showFieldError(fieldName, `${fieldName} is required`);
                 }
-                if (rule.requireSpecial && !/[!@#$%^&*(),.?":{}|<>]/.test(trimmedValue)) {
-                    return { valid: false, message: rule.message };
+
+                const trimmedValue = value.trim();
+
+                if (!trimmedValue) {
+                    return this.showFieldError(fieldName, `${fieldName} cannot be empty`);
                 }
+
+                if (rule.minLength && trimmedValue.length < rule.minLength) {
+                    return this.showFieldError(fieldName, rule.message);
+                }
+
+                if (rule.maxLength && trimmedValue.length > rule.maxLength) {
+                    return this.showFieldError(fieldName, rule.message);
+                }
+
+                if (rule.pattern && !rule.pattern.test(trimmedValue)) {
+                    return this.showFieldError(fieldName, rule.message);
+                }
+
+                if (fieldName === 'password') {
+                    if (rule.requireNumber && !/\d/.test(trimmedValue)) {
+                        return this.showFieldError(fieldName, rule.message);
+                    }
+                    if (rule.requireSpecial && !/[!@#$%^&*(),.?":{}|<>]/.test(trimmedValue)) {
+                        return this.showFieldError(fieldName, rule.message);
+                    }
+                }
+
+                this.clearFieldError(fieldName);
+                return { valid: true };
             }
 
-            return { valid: true };
-        }
+            validateForm(formData) {
+                let isValid = true;
+                const errors = {};
 
-        // Show field validation result
-        function showFieldValidation(fieldId, validation) {
-            const input = document.getElementById(fieldId);
-            const errorElement = document.getElementById(fieldId + 'Error');
-            const successElement = document.getElementById(fieldId + 'Success');
+                Object.keys(this.validationRules).forEach(fieldName => {
+                    if (formData[fieldName] !== undefined) {
+                        const validation = this.validateField(fieldName, formData[fieldName]);
+                        if (!validation.valid) {
+                            errors[fieldName] = validation.message;
+                            isValid = false;
+                        }
+                    }
+                });
 
-            if (validation.valid) {
-                input.classList.remove('error');
-                input.classList.add('success');
+                // Additional validations
+                if (formData.password && formData.email && formData.password.trim() === formData.email.trim()) {
+                    this.showFieldError('password', 'Password cannot be the same as your email address');
+                    isValid = false;
+                }
+
+                if (formData.username && formData.email && formData.username.trim() === formData.email.trim()) {
+                    this.showFieldError('username', 'Username cannot be the same as your email address');
+                    isValid = false;
+                }
+
+                return isValid;
+            }
+
+            showFieldError(fieldName, message) {
+                const errorElement = document.getElementById(fieldName + 'Error');
+                const inputElement = document.getElementById(fieldName);
+                
+                if (errorElement) {
+                    errorElement.textContent = message;
+                    errorElement.classList.add('show');
+                }
+                
+                if (inputElement) {
+                    inputElement.classList.add('error');
+                }
+                
+                return { valid: false, message };
+            }
+
+            clearFieldError(fieldName) {
+                const errorElement = document.getElementById(fieldName + 'Error');
+                const inputElement = document.getElementById(fieldName);
+                
                 if (errorElement) {
                     errorElement.classList.remove('show');
                 }
-                if (successElement) {
-                    successElement.textContent = '✓ Valid';
+                
+                if (inputElement) {
+                    inputElement.classList.remove('error');
+                }
+            }
+
+            clearAllErrors() {
+                document.querySelectorAll('.error-message').forEach(el => el.classList.remove('show'));
+                document.querySelectorAll('input').forEach(el => el.classList.remove('error'));
+            }
+
+            showSuccess(message) {
+                const successElement = document.getElementById('successMessage');
+                const successText = document.getElementById('successText');
+                
+                if (successElement && successText) {
+                    successText.textContent = message;
                     successElement.classList.add('show');
                 }
-            } else {
-                input.classList.remove('success');
-                input.classList.add('error');
+            }
+
+            hideSuccess() {
+                const successElement = document.getElementById('successMessage');
                 if (successElement) {
                     successElement.classList.remove('show');
                 }
-                if (errorElement) {
-                    errorElement.textContent = validation.message;
-                    errorElement.classList.add('show');
-                }
-            }
-        }
-
-        // Password strength checker
-        function checkPasswordStrength(password) {
-            const strengthIndicator = document.getElementById('passwordStrength');
-            if (!password) {
-                strengthIndicator.classList.remove('show');
-                return;
-            }
-            
-            let strength = 0;
-            let feedback = [];
-            
-            if (password.length >= 8) strength++;
-            else feedback.push('at least 8 characters');
-            
-            if (/[A-Z]/.test(password)) strength++;
-            else feedback.push('uppercase letter');
-            
-            if (/[a-z]/.test(password)) strength++;
-            else feedback.push('lowercase letter');
-            
-            if (/[0-9]/.test(password)) strength++;
-            else feedback.push('number');
-            
-            if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) strength++;
-            else feedback.push('special character');
-            
-            let strengthText, strengthClass;
-            if (strength < 2) {
-                strengthText = 'Weak - Need: ' + feedback.slice(0, 2).join(', ');
-                strengthClass = 'strength-weak';
-            } else if (strength < 4) {
-                strengthText = 'Medium - Need: ' + feedback.slice(0, 1).join(', ');
-                strengthClass = 'strength-medium';
-            } else {
-                strengthText = 'Strong password ✓';
-                strengthClass = 'strength-strong';
-            }
-            
-            strengthIndicator.textContent = strengthText;
-            strengthIndicator.className = 'password-strength show ' + strengthClass;
-        }
-
-        // Real-time validation
-        function setupRealTimeValidation() {
-            // Register form validation
-            ['firstName', 'lastName', 'registerEmail', 'username'].forEach(fieldId => {
-                const input = document.getElementById(fieldId);
-                if (input) {
-                    input.addEventListener('input', function() {
-                        const fieldName = fieldId.replace('register', '').toLowerCase();
-                        const actualFieldName = fieldName === 'registeremail' ? 'email' : fieldName;
-                        const validation = validateField(actualFieldName, this.value);
-                        showFieldValidation(fieldId, validation);
-                    });
-                }
-            });
-
-            // Password validation with strength checking
-            const passwordInput = document.getElementById('registerPassword');
-            if (passwordInput) {
-                passwordInput.addEventListener('input', function() {
-                    const validation = validateField('password', this.value);
-                    showFieldValidation('registerPassword', validation);
-                    checkPasswordStrength(this.value);
-                });
             }
 
-            // Login form validation
-            ['loginEmail', 'loginPassword'].forEach(fieldId => {
-                const input = document.getElementById(fieldId);
-                if (input) {
-                    input.addEventListener('input', function() {
-                        if (this.classList.contains('error')) {
-                            this.classList.remove('error');
-                            const errorElement = document.getElementById(fieldId + 'Error');
-                            if (errorElement) {
-                                errorElement.classList.remove('show');
-                            }
-                        }
-                    });
+            checkPasswordStrength(password) {
+                const strengthElement = document.getElementById('passwordStrength');
+                const fillElement = document.getElementById('strengthFill');
+                const textElement = document.getElementById('strengthText');
+
+                if (!password) {
+                    strengthElement.classList.remove('show');
+                    return;
                 }
-            });
-        }
 
-        // Form data collection
-        function getFormData(form) {
-            const formData = {};
-            const inputs = form.querySelectorAll('input');
-            
-            inputs.forEach(input => {
-                const value = input.value.trim();
-                formData[input.name] = value;
-            });
-            
-            return formData;
-        }
+                strengthElement.classList.add('show');
 
-        // Form validation
-        function validateForm(formData, isRegister = false) {
-            let isValid = true;
-            const errors = {};
+                let score = 0;
+                let feedback = [];
 
-            if (isRegister) {
-                // Validate all register fields
-                Object.keys(validationRules).forEach(fieldName => {
-                    const value = formData[fieldName];
-                    const validation = validateField(fieldName, value || '');
-                    
-                    if (!validation.valid) {
-                        errors[fieldName] = validation.message;
-                        isValid = false;
-                    }
-                });
+                // Length check
+                if (password.length >= 8) score += 25;
+                else feedback.push('at least 8 characters');
 
-                // Additional validation: password cannot be same as email
-                if (formData.password && formData.email && formData.password === formData.email) {
-                    errors.password = 'Password cannot be the same as your email address';
-                    isValid = false;
-                }
-            } else {
-                // Login validation
-                if (!formData.email || !validationRules.email.pattern.test(formData.email)) {
-                    errors.email = 'Please enter a valid email address';
-                    isValid = false;
-                }
+                // Number check
+                if (/\d/.test(password)) score += 25;
+                else feedback.push('numbers');
+
+                // Special character check
+                if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score += 25;
+                else feedback.push('special characters');
+
+                // Uppercase check
+                if (/[A-Z]/.test(password)) score += 25;
+                else feedback.push('uppercase letters');
+
+                // Update visual indicator
+                fillElement.style.width = score + '%';
                 
-                if (!formData.password || formData.password.length < 6) {
-                    errors.password = 'Password is required';
-                    isValid = false;
-                }
-            }
-
-            return { isValid, errors };
-        }
-
-        // Display validation errors
-        function displayValidationErrors(errors, isRegister = false) {
-            Object.keys(errors).forEach(fieldName => {
-                let fieldId;
-                
-                if (isRegister) {
-                    fieldId = fieldName === 'email' ? 'registerEmail' : 
-                             fieldName === 'password' ? 'registerPassword' : fieldName;
+                if (score < 50) {
+                    fillElement.style.background = '#e74c3c';
+                    textElement.textContent = 'Weak - Add ' + feedback.join(', ');
+                    textElement.style.color = '#e74c3c';
+                } else if (score < 75) {
+                    fillElement.style.background = '#f39c12';
+                    textElement.textContent = 'Good - Add ' + feedback.join(', ');
+                    textElement.style.color = '#f39c12';
                 } else {
-                    fieldId = fieldName === 'email' ? 'loginEmail' : 
-                             fieldName === 'password' ? 'loginPassword' : fieldName;
+                    fillElement.style.background = '#27ae60';
+                    textElement.textContent = 'Strong password';
+                    textElement.style.color = '#27ae60';
                 }
-                
-                const input = document.getElementById(fieldId);
-                const errorElement = document.getElementById(fieldId + 'Error');
-                
-                if (input && errorElement) {
-                    input.classList.add('error');
-                    input.classList.remove('success');
-                    errorElement.textContent = errors[fieldName];
-                    errorElement.classList.add('show');
-                }
-            });
-        }
+            }
 
-        // API request helper
-        async function makeAPIRequest(url, data) {
-            try {
-                const response = await fetch(url, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data)
-                });
-                
-                const result = await response.json();
-                return { response, result };
-            } catch (error) {
-                throw new Error('Network error. Please check your connection and try again.');
-            }
-        }
-
-        // Login form handler
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            clearAllMessages();
-            
-            const formData = getFormData(this);
-            const validation = validateForm(formData, false);
-            
-            if (!validation.isValid) {
-                displayValidationErrors(validation.errors, false);
-                return;
-            }
-            
-            setLoading(true);
-            
-            try {
-                const { response, result } = await makeAPIRequest('/api/auth/login', formData);
-                
-                if (response.ok && result.success) {
-                    localStorage.setItem('authToken', result.token);
-                    localStorage.setItem('username', result.username);
-                    
-                    showAlert('Login successful! Redirecting to dashboard...', 'success');
-                    
-                    setTimeout(() => {
-                        window.location.href = '/dashboard';
-                    }, 1500);
-                } else {
-                    showAlert(result.message || 'Login failed. Please check your credentials.');
-                }
-            } catch (error) {
-                showAlert(error.message);
-            } finally {
-                setLoading(false);
-            }
-        });
-
-        // Register form handler
-        document.getElementById('registerForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            clearAllMessages();
-            
-            const formData = getFormData(this);
-            const validation = validateForm(formData, true);
-            
-            if (!validation.isValid) {
-                displayValidationErrors(validation.errors, true);
-                return;
-            }
-            
-            setLoading(true);
-            
-            try {
-                const { response, result } = await makeAPIRequest('/api/auth/register', formData);
-                
-                if (response.ok && result.success) {
-                    localStorage.setItem('authToken', result.token);
-                    localStorage.setItem('username', result.username);
-                    
-                    showAlert('Account created successfully! Redirecting to dashboard...', 'success');
-                    
-                    setTimeout(() => {
-                        window.location.href = '/dashboard';
-                    }, 1500);
-                } else {
-                    if (result.errors) {
-                        displayValidationErrors(result.errors, true);
+            setButtonLoading(buttonId, loading) {
+                const button = document.getElementById(buttonId);
+                if (button) {
+                    if (loading) {
+                        button.classList.add('loading');
+                        button.disabled = true;
                     } else {
-                        showAlert(result.message || 'Registration failed. Please try again.');
+                        button.classList.remove('loading');
+                        button.disabled = false;
                     }
                 }
-            } catch (error) {
-                showAlert(error.message);
-            } finally {
-                setLoading(false);
             }
-        });
 
-        // Initialize application
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('TrendyX AI Authentication System Initialized');
-            
-            // Setup real-time validation
-            setupRealTimeValidation();
-            
-            // Check if already logged in
-            const token = localStorage.getItem('authToken');
-            if (token) {
-                fetch('/api/auth/verify', {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
+            async handleRegister(e) {
+                e.preventDefault();
+                
+                this.clearAllErrors();
+                this.hideSuccess();
+                this.setButtonLoading('registerButton', true);
+
+                try {
+                    const formData = new FormData(e.target);
+                    const data = Object.fromEntries(formData.entries());
+
+                    console.log('🔄 Registration attempt:', { ...data, password: '[REDACTED]' });
+
+                    // Client-side validation
+                    if (!this.validateForm(data)) {
+                        this.setButtonLoading('registerButton', false);
+                        return;
                     }
-                })
-                .then(response => response.json())
-                .then(result => {
+
+                    const response = await fetch('/api/auth/register', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+                    console.log('📝 Registration response:', result);
+
                     if (result.success) {
-                        window.location.href = '/dashboard';
+                        this.showSuccess(result.message);
+                        
+                        // Clear form
+                        e.target.reset();
+                        document.getElementById('passwordStrength').classList.remove('show');
+                        
+                        // Auto-switch to login tab after 2 seconds
+                        setTimeout(() => {
+                            this.switchTab('login');
+                            // Pre-fill email in login form
+                            document.getElementById('loginEmail').value = data.email;
+                        }, 2000);
+                        
+                        console.log('✅ Registration successful - switching to login');
                     } else {
-                        localStorage.removeItem('authToken');
-                        localStorage.removeItem('username');
+                        // Handle validation errors
+                        if (result.errors) {
+                            Object.keys(result.errors).forEach(field => {
+                                this.showFieldError(field, result.errors[field]);
+                            });
+                        } else {
+                            this.showFieldError('email', result.message || 'Registration failed');
+                        }
+                        console.log('❌ Registration failed:', result.message);
                     }
-                })
-                .catch(error => {
-                    localStorage.removeItem('authToken');
-                    localStorage.removeItem('username');
-                });
+                } catch (error) {
+                    console.error('💥 Registration error:', error);
+                    this.showFieldError('email', 'Network error. Please try again.');
+                } finally {
+                    this.setButtonLoading('registerButton', false);
+                }
             }
+
+            async handleLogin(e) {
+                e.preventDefault();
+                
+                this.clearAllErrors();
+                this.hideSuccess();
+                this.setButtonLoading('loginButton', true);
+
+                try {
+                    const formData = new FormData(e.target);
+                    const data = Object.fromEntries(formData.entries());
+
+                    console.log('🔄 Login attempt:', data.email);
+
+                    const response = await fetch('/api/auth/login', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+                    console.log('🔐 Login response:', result);
+
+                    if (result.success) {
+                        // Store token
+                        localStorage.setItem('authToken', result.token);
+                        localStorage.setItem('user', JSON.stringify(result.user));
+                        
+                        this.showSuccess('Login successful! Redirecting to dashboard...');
+                        
+                        // Redirect to dashboard
+                        setTimeout(() => {
+                            window.location.href = '/dashboard';
+                        }, 1500);
+                        
+                        console.log('✅ Login successful - redirecting to dashboard');
+                    } else {
+                        // Handle login errors
+                        if (result.errors) {
+                            Object.keys(result.errors).forEach(field => {
+                                this.showFieldError('login' + field.charAt(0).toUpperCase() + field.slice(1), result.errors[field]);
+                            });
+                        } else {
+                            this.showFieldError('loginEmail', result.message || 'Login failed');
+                        }
+                        console.log('❌ Login failed:', result.message);
+                    }
+                } catch (error) {
+                    console.error('💥 Login error:', error);
+                    this.showFieldError('loginEmail', 'Network error. Please try again.');
+                } finally {
+                    this.setButtonLoading('loginButton', false);
+                }
+            }
+        }
+
+        // Global functions for tab switching
+        function switchTab(tab) {
+            window.authSystem.switchTab(tab);
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            window.authSystem = new AuthSystem();
+            console.log('🎯 TrendyX AI Authentication System ready');
         });
     </script>
 </body>
